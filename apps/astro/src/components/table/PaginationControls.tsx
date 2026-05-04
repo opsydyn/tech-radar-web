@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import type { Table } from "@tanstack/react-table";
 import * as styles from "~components/table/PaginationControls.css";
-import type { Blip } from "~types/radar-types";
+import type { Blip } from "~components/table/types";
 import { motion, AnimatePresence } from "framer-motion";
 
 const usePaginationOptions = (totalRows: number, pageIncrement: number) => {
@@ -18,7 +18,7 @@ const usePaginationOptions = (totalRows: number, pageIncrement: number) => {
   return paginationOptions;
 };
 
-const getTotalRows = (table: Table<Array<Blip>>) => {
+const getTotalRows = (table: Table<Blip>) => {
   if (table.getPrePaginationRowModel()?.rows?.length) {
     return table.getPrePaginationRowModel().rows.length;
   }
@@ -43,7 +43,7 @@ const buttonVariants = {
     color: "var(--color-white)",
     transition: {
       rotate: {
-        repeat: Infinity,
+        repeat: Number.POSITIVE_INFINITY,
         duration: 0.5
       }
     }
@@ -84,7 +84,6 @@ const selectVariants = {
 };
 
 export default function PaginationControls({ table }: { table: Table<Blip> }) {
-  // @ts-ignore: not assignable to parameter of type 'Table<Blip[]>'.
   const TOTAL_ROWS = getTotalRows(table);
   const PAGE_INCREMENT = 20;
   const paginationOptions = usePaginationOptions(TOTAL_ROWS, PAGE_INCREMENT);

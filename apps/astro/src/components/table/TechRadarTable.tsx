@@ -11,13 +11,12 @@ import ExportToExcelButton from "~components/table/DownloadExcel";
 import IconExpandLess from "~components/table/expand_less.svg?component";
 import IconExpandMore from "~components/table/expand_more.svg?component";
 import PaginationControls from "~components/table/PaginationControls";
-import DownloadPDFButton from "~components/table/PdfDownload";
 import * as styles from "~components/table/TechRadarTable.css";
 import TechRadarTableColumns from "~components/table/TechRadarTableColumns";
 import useTechRadarDispatchHandlers from "~components/table/useTechRadarDispatchHandlers";
 import { getMatches, typeaheadFilter } from "~components/table/utils";
 // import ToggleSwitchWithFieldset from "~components/toggleSwitchWithFieldset/ToggleSwitchWithFieldset";
-import type { Blip } from "~types/radar-types";
+import type { Blip } from "~components/table/types";
 
 const MOBILE_TABLE_HEADINGS = ["PRICE", "IMAGES", "DAYS", "VIEWS"];
 const getMobileLabels = getMatches(MOBILE_TABLE_HEADINGS);
@@ -86,7 +85,7 @@ export function TechRadarTable({ blips }: TechRadarTableProps) {
   useEffect(() => {
     handleData(blips);
     table.setGlobalFilter(textFilter);
-  }, [textFilter, blips]);
+  }, [blips, handleData, table, textFilter]);
 
   return (
     <div className={styles.tableWrapper}>
@@ -111,7 +110,6 @@ export function TechRadarTable({ blips }: TechRadarTableProps) {
             label={{ on: "table view", off: "card view" }}
           /> */}
           <fieldset className={styles.formControlWrapper}>
-            <DownloadPDFButton />
             <ExportToExcelButton data={data} />
             <label htmlFor="hidePriceCheckbox">search filter</label>
             <input

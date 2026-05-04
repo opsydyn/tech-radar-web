@@ -26,14 +26,8 @@
     "sherif": "bunx sherif@latest"
   },
   "devDependencies": {
-    "@commitlint/cli": "^18.4.3",
-    "@commitlint/config-conventional": "^18.4.3",
-    "@manypkg/cli": "^0.21.0",
     "@moonrepo/cli": "^2.2.3",
     "commitizen": "^4.3.0",
-    "commitlint-config-git-commit-emoji": "^1.0.0",
-    "cz-conventional-changelog": "3.3.0",
-    "cz-emoji": "1.3.2-canary.2",
     "cz-emoji-conventional": "^1.0.2",
     "knip": "^6.11.0",
     "vitest": "^0.34.6"
@@ -65,7 +59,5 @@
     "mergePattern": "/^Merge pull request #(\\d+) from (.*)$/",
     "mergeCorrespondence": "['id', 'source']"
   },
-  "dependencies": {
-    "dotenv-cli": "^7.3.0"
-  }
+  "dependencies": {}
 }

@@ -10,13 +10,15 @@ const formatBritishDate = (dt: DateTime.DateTime): string =>
 
 /**
  * Formats a date string into a consistent format using Effect's DateTime
- * @param dateString - The date string to format
+ * @param dateValue - The date string or Date to format
  * @returns Formatted date string or default message if date is undefined
  */
-export function formatDate(dateString: string | undefined): string {
+export function formatDate(dateValue: string | Date | undefined): string {
 	return pipe(
-		Option.fromNullable(dateString),
-		Option.flatMap(DateTime.make),
+		Option.fromNullable(dateValue),
+		Option.flatMap((value) =>
+			DateTime.make(typeof value === "string" ? value : value.toISOString()),
+		),
 		Option.match({
 			onNone: () => "No date recorded",
 			onSome: formatBritishDate,

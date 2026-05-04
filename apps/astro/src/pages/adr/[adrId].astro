@@ -2,7 +2,6 @@
 export const prerender = true;
 import { getCollection } from "astro:content";
 import type { GetStaticPaths } from "astro";
-import TypeWriterContainer from "~components/TypeWriterContainer.astro";
 import BlipLayout from "~layouts/BlipLayout.astro";
 import { formatDate } from "../../utils/dateFormatter";
 import { getTagColor } from "../../utils/tagColors";
@@ -42,7 +41,7 @@ const tagColorValue = getTagColor(primaryTag);
     --quadrant-color-dark: ${tagColorValue};
   `}>
     <!-- Hero Section -->
-    <PageHeader title={adrData?.title} />
+    <PageHeader title={adrData?.title ?? "ADR"} />
 
     <!-- Navigation Bar -->
     <StickyNavigation

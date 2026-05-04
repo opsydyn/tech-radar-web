@@ -1,4 +1,4 @@
-import { defineCollection, reference, z } from "astro:content";
+import { defineCollection, z } from "astro:content";
 
 const QuadrantEnum = z.enum([
 	"Tools",
@@ -29,7 +29,7 @@ const RelationshipTypeEnum = z.enum([
 ]);
 
 const MoveEnum = z.enum(["stay", "grow", "go"]);
-const Edition = z.date();
+const Edition = z.coerce.date();
 const MoveTuple = z.tuple([MoveEnum, Edition]);
 const Tags = z.array(TagsEnum);
 
@@ -84,19 +84,24 @@ const BlipSchema = z.object({
 	name: z.string(),
 	quadrant: QuadrantEnum,
 	ring: RingEnum,
-	description: z.string(),
+	description: z.preprocess(
+		(value) => (typeof value === "string" ? value : ""),
+		z.string(),
+	),
 	hasAdr: z.boolean(),
-	tags: TagsEnum,
+	tags: z.array(z.string()),
 	authors: z.array(z.string()),
 	move: z.array(MoveTuple),
 	relatedBlips: z.array(RelatedBlipSchema).optional(),
+	created: z.coerce.date().optional(),
 	// 🗺️ Optional Wardley mapping data
 	wardley: WardleyComponentSchema.optional(),
 });
 
 const AdrSchema = z.object({
-	id: reference("BlipSchema"),
-	created: z.date(),
+	id: z.string(),
+	title: z.string(),
+	created: z.coerce.date(),
 	status: z.string(),
 	author: z.string(),
 	reviewers: z.array(z.string()),
@@ -109,22 +114,28 @@ const EditionSchema = z.object({
 	number: z.number().int().positive(), // Edition number for ordering/display
 	title: z.string(), // "Q4 2023 Tech Radar"
 	content: z.string(), // Markdown content
-	date: z.date(), // Publication date - used to match blip movements
+	date: z.coerce.date(), // Publication date - used to match blip movements
 });
 
-const combinedCollection = defineCollection({
+const adrCollection = defineCollection({
 	type: "content",
-	schema: z.object({
-		blips: z.array(BlipSchema),
-		adrs: z.array(AdrSchema),
-	}),
+	schema: AdrSchema,
+});
+
+const blipCollection = defineCollection({
+	type: "content",
+	schema: BlipSchema,
+});
+
+const editionCollection = defineCollection({
+	type: "content",
+	schema: EditionSchema,
 });
 
 export const collections = {
-	radar: combinedCollection,
-	adr: AdrSchema,
-	blip: BlipSchema,
-	edition: EditionSchema,
+	adr: adrCollection,
+	blip: blipCollection,
+	edition: editionCollection,
 };
 
 // 🎪 Export types for use in components

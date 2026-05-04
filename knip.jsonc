@@ -1,5 +1,16 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  "ignoreBinaries": [
+    "astro",
+    "prettier",
+    "tsc"
+  ],
+  "ignoreDependencies": [
+    "@biomejs/biome"
+  ],
+  "ignoreUnresolved": [
+    "astro/client"
+  ],
   "ignoreExportsUsedInFile": {
     "interface": true,
     "type": true

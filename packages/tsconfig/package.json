@@ -6,5 +6,9 @@
     "base.json",
     "astro.json",
     "react.json"
-  ]
+  ],
+  "peerDependencies": {
+    "astro": "*",
+    "react": "*"
+  }
 }
