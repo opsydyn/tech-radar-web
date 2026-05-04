@@ -5,10 +5,10 @@ import type { CollectionEntry } from "astro:content";
 import { Match } from "effect";
 import BlipListIsland from "~components/BlipListIsland";
 import BlipLayout from "~layouts/BlipLayout.astro";
+import * as styles from "~styles/pages/quadrant.css";
 import type { Blip } from "~types/radar-types";
+import { withBasePath } from "~utils/sitePaths";
 import { getEffectiveTheme } from "../../stores/theme-store";
-
-import * as styles from "./Quadrant.css";
 
 type BlipCollectionEntry = CollectionEntry<"blip"> & { data: Blip };
 
@@ -34,7 +34,7 @@ const quadrants = {
 } as const;
 
 const quadrant = Astro.params.quadrant as keyof typeof quadrants;
-const blips: Array<BlipCollectionEntry> = await getCollection("blip");
+const blips: BlipCollectionEntry[] = await getCollection("blip");
 
 const blipData = blips.filter(
 	({ data }: { data: Blip }) =>
@@ -116,7 +116,7 @@ const getNavItemClasses = (
 				<nav class={styles.quadrantNav}>
 					{Object.entries(quadrants).map(([key, label]) => (
 						<a
-							href={`/quadrants/${key}`}
+							href={withBasePath(`/quadrants/${key}`)}
 							class={getNavItemClasses(key as keyof typeof quadrants, quadrant)}
 						>
 							{label}

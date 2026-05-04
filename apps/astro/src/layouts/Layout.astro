@@ -4,16 +4,19 @@ import "../styles/animation-control.css.ts";
 // import { ClientRouter } from "astro:transitions";
 import RadarIcon from "~assets/svg/radar.svg";
 import ThemeSwitcher from "~components/themeSwitcher/ThemeSwitcher.astro";
+import { withBasePath } from "~utils/sitePaths";
 import { AnimationToggle } from "../components/AnimationToggle";
 import { animationEnabled } from "../stores/animation-store";
 
 const isAnimationsEnabled = animationEnabled.get();
+const faviconPath = withBasePath("/favicon.svg");
+const homePath = withBasePath("/");
 ---
 
 <html lang="en" class={isAnimationsEnabled ? "" : "animations-disabled"}>
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={faviconPath} />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>Tech Radar</title>
@@ -23,7 +26,7 @@ const isAnimationsEnabled = animationEnabled.get();
   </head>
   <body>
    <div class:list={[styles.container]}>
-      <a class:list={[styles.radarIcon]} href="/"><RadarIcon  width={24} height={24} /></a>
+      <a class:list={[styles.radarIcon]} href={homePath}><RadarIcon  width={24} height={24} /></a>
       <ThemeSwitcher />
       <div class:list={[styles.mainContent]}>
         <AnimationToggle client:only="react" />

@@ -1,30 +1,19 @@
-import { globalStyle, keyframes, style } from "@vanilla-extract/css";
-import { createVar } from "@vanilla-extract/css";
+import { createVar, globalStyle, style } from "@vanilla-extract/css";
 import {
 	typographyLevel1,
 	typographyLevel2,
 	typographyLevel3,
 	typographyLevel4,
 	typographyLevel5,
-} from "../../styles/modular-scale.css";
-import { darkThemeVars, lightThemeVars } from "../../styles/theme.css";
+} from "../modular-scale.css";
+import { darkThemeVars, lightThemeVars } from "../theme.css";
 import {
-	spacingLevel1,
 	spacingLevel2,
 	spacingLevel3,
 	spacingLevel4,
 	spacingLevel5,
-} from "../../styles/vertical-rhythm.css";
-import {
-	adr,
-	details,
-	hero,
-	layout,
-	navigation,
-	relatedBlips,
-	theme,
-	typography,
-} from "./layers.css";
+} from "../vertical-rhythm.css";
+import * as layers from "./blip-layers.css";
 
 // Create CSS variables for dynamic quadrant colors
 export const quadrantColor = createVar();
@@ -34,26 +23,21 @@ export const quadrantColorDark = createVar();
 export const twStyle = style(["text-[hsl(280,100%,70%)]"]);
 
 // Base font sizes from modular scale
-const fontSize1 = "1rem"; // Base size
 const fontSize2 = "1.25rem"; // MajorThird^1
 const fontSize3 = "1.563rem"; // MajorThird^2
 const fontSize4 = "1.953rem"; // MajorThird^3
-const fontSize5 = "2.441rem"; // MajorThird^4
-const fontSize6 = "3.052rem"; // MajorThird^5
 
 // Vertical rhythm values
 const rhythm1 = "1rem"; // Base rhythm
 const rhythm2 = "1.5rem"; // 1.5x base
 const rhythm3 = "2rem"; // 2x base
 const rhythm4 = "3rem"; // 3x base
-const rhythm5 = "4rem"; // 4x base
-
 // --- TYPOGRAPHY SYSTEM ---
 export const heading1 = style([
 	typographyLevel1,
 	{
 		"@layer": {
-			[typography]: {
+			[layers.typography]: {
 				fontFamily: "'Space Grotesk', sans-serif",
 				fontWeight: "700",
 				maxWidth: "90vw",
@@ -66,7 +50,7 @@ export const heading2 = style([
 	typographyLevel2,
 	{
 		"@layer": {
-			[typography]: {
+			[layers.typography]: {
 				fontFamily: "'Space Grotesk', sans-serif",
 				fontWeight: "500",
 				color: "var(--quadrant-color-solid)",
@@ -79,7 +63,7 @@ export const heading3 = style([
 	typographyLevel3,
 	{
 		"@layer": {
-			[typography]: {
+			[layers.typography]: {
 				fontFamily: "'Space Grotesk', sans-serif",
 				fontWeight: "500",
 				color: "var(--quadrant-color-solid)",
@@ -92,7 +76,7 @@ export const bodyText = style([
 	typographyLevel4,
 	{
 		"@layer": {
-			[typography]: {
+			[layers.typography]: {
 				fontFamily: "'IBM Plex Mono', monospace",
 				color: "#ccc",
 				maxWidth: "70ch",
@@ -105,7 +89,7 @@ export const metaText = style([
 	typographyLevel5,
 	{
 		"@layer": {
-			[typography]: {
+			[layers.typography]: {
 				fontFamily: "'IBM Plex Mono', monospace",
 				fontWeight: "500",
 				textTransform: "uppercase",
@@ -119,7 +103,7 @@ export const metaText = style([
 // --- LAYOUT SYSTEM ---
 export const container = style({
 	"@layer": {
-		[layout]: {
+		[layers.layout]: {
 			width: "100%",
 			maxWidth: "1400px",
 			margin: "0 auto",
@@ -130,7 +114,7 @@ export const container = style({
 
 export const fullBleed = style({
 	"@layer": {
-		[layout]: {
+		[layers.layout]: {
 			width: "100vw",
 			position: "relative",
 			left: "50%",
@@ -155,7 +139,7 @@ export const heroSection = style([
 	spacingLevel2,
 	{
 		"@layer": {
-			[hero]: {
+			[layers.hero]: {
 				background: "var(--quadrant-color-solid)",
 				padding: "6rem 2rem 4rem",
 				width: "100%",
@@ -168,7 +152,7 @@ export const heroTitle = style([
 	heading1,
 	{
 		"@layer": {
-			[hero]: {
+			[layers.hero]: {
 				color: "#fff",
 				textShadow: "0 2px 10px rgba(0,0,0,0.2)",
 			},
@@ -180,7 +164,7 @@ export const heroDate = style([
 	metaText,
 	{
 		"@layer": {
-			[hero]: {
+			[layers.hero]: {
 				color: "#fff",
 				opacity: 0.9,
 				marginTop: "1rem",
@@ -192,7 +176,7 @@ export const heroDate = style([
 // --- NAVIGATION BAR ---
 export const navContainer = style({
 	"@layer": {
-		[navigation]: {
+		[layers.navigation]: {
 			width: "100%",
 			position: "relative",
 		},
@@ -201,7 +185,7 @@ export const navContainer = style({
 
 export const stickyNav = style({
 	"@layer": {
-		[navigation]: {
+		[layers.navigation]: {
 			position: "fixed",
 			top: 0,
 			left: 0,
@@ -216,7 +200,7 @@ export const navBar = style([
 	spacingLevel5,
 	{
 		"@layer": {
-			[navigation]: {
+			[layers.navigation]: {
 				background: "#111",
 				borderBottom: "1px solid #333",
 				display: "flex",
@@ -231,7 +215,7 @@ export const navBar = style([
 
 export const navBack = style({
 	"@layer": {
-		[navigation]: {
+		[layers.navigation]: {
 			color: "var(--quadrant-color-solid)",
 			textDecoration: "none",
 			fontWeight: "bold",
@@ -247,7 +231,7 @@ export const navBack = style({
 
 export const navTabs = style({
 	"@layer": {
-		[navigation]: {
+		[layers.navigation]: {
 			display: "flex",
 			gap: "1.5rem",
 		},
@@ -256,7 +240,7 @@ export const navTabs = style({
 
 export const navTab = style({
 	"@layer": {
-		[navigation]: {
+		[layers.navigation]: {
 			color: "#888",
 			textDecoration: "none",
 			fontFamily: "'IBM Plex Mono', monospace",
@@ -427,10 +411,14 @@ export const detailsLongText = style([
 export const relatedBlipsSection = style([
 	spacingLevel2,
 	{
-		background: "#111",
-		padding: "4rem 2rem",
-		width: "100%",
-		color: "var(--quadrant-color-solid)",
+		"@layer": {
+			[layers.relatedBlips]: {
+				background: "#111",
+				padding: "4rem 2rem",
+				width: "100%",
+				color: "var(--quadrant-color-solid)",
+			},
+		},
 	},
 ]);
 
@@ -454,7 +442,6 @@ export const relatedBlipsGrid = style([
 	{
 		display: "grid",
 		gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-		// gap: '1.5rem',
 		marginTop: "2rem",
 	},
 ]);
@@ -471,7 +458,7 @@ export const relatedBlipCard = style([
 			"&:hover": {
 				transform: "translateY(-4px)",
 				borderColor: "var(--quadrant-color-solid)",
-				textDecoration: "none", // Ensure no underline on hover
+				textDecoration: "none",
 			},
 		},
 		textDecoration: "none",
@@ -552,29 +539,37 @@ const adrSectionBase = style({
 export const adrSection = style([
 	adrSectionBase,
 	{
-		borderLeft: "4px solid #4CAF50", // green border if ADR exists
-		backgroundColor: "rgba(76, 175, 80, 0.07)", // light green bg if ADR exists
-		transition: "background-color 0.3s ease",
+		"@layer": {
+			[layers.adr]: {
+				borderLeft: "4px solid #4CAF50",
+				backgroundColor: "rgba(76, 175, 80, 0.07)",
+				transition: "background-color 0.3s ease",
+			},
+		},
 	},
 ]);
 
 // Dark theme styles for ADR section
 globalStyle(`html[data-theme="dark"] .${adrSection}`, {
-	backgroundColor: "rgba(76, 175, 80, 0.15)", // slightly brighter for dark mode
+	backgroundColor: "rgba(76, 175, 80, 0.15)",
 });
 
 export const adrSectionNoAdr = style([
 	adrSectionBase,
 	{
-		borderLeft: "4px solid #e91e63", // pink border if NO ADR
-		backgroundColor: "rgba(233, 30, 99, 0.05)", // light pink bg if NO ADR
-		transition: "background-color 0.3s ease",
+		"@layer": {
+			[layers.adr]: {
+				borderLeft: "4px solid #e91e63",
+				backgroundColor: "rgba(233, 30, 99, 0.05)",
+				transition: "background-color 0.3s ease",
+			},
+		},
 	},
 ]);
 
 // Dark theme styles for ADR section with no ADR
 globalStyle(`html[data-theme="dark"] .${adrSectionNoAdr}`, {
-	backgroundColor: "rgba(233, 30, 99, 0.15)", // slightly brighter for dark mode
+	backgroundColor: "rgba(233, 30, 99, 0.15)",
 });
 
 export const adrTitle = style({

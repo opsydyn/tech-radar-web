@@ -1,24 +1,39 @@
 ---
-import * as styles from "../../pages/blip/Blip.css";
+import * as styles from "~styles/pages/blip.css";
+import { withBaseHref } from "~utils/sitePaths";
 
 interface Props {
 	backLink: string;
 	backText: string;
-	tabs: Array<{ href: string; text: string; condition?: boolean }>;
+	tabs: { href: string; text: string; condition?: boolean }[];
 	quadrantLinks?: boolean;
 }
 
 const { backLink, backText, tabs, quadrantLinks = false } = Astro.props;
+const resolvedBackLink = withBaseHref(backLink);
+const resolvedTabs = tabs.map((tab) => ({
+	...tab,
+	href: withBaseHref(tab.href),
+}));
+const quadrantTabLinks = [
+	{ href: withBaseHref("/quadrants/techniques"), label: "Techniques" },
+	{ href: withBaseHref("/quadrants/platforms"), label: "Platforms" },
+	{ href: withBaseHref("/quadrants/tools"), label: "Tools" },
+	{
+		href: withBaseHref("/quadrants/languages-frameworks"),
+		label: "Languages & Frameworks",
+	},
+];
 ---
 
 <div class={styles.navContainer} id="navContainer">
   <nav class={styles.fullBleed} id="mainNav">
     <div class={styles.navBar}>
-      <a href={backLink} class={styles.navBack}>
+      <a href={resolvedBackLink} class={styles.navBack}>
         ← {backText}
       </a>
       <div class={styles.navTabs} id="navTabs">
-        {tabs.map(tab => (tab.condition !== false) && (
+        {resolvedTabs.map(tab => (tab.condition !== false) && (
           <a href={tab.href} class={styles.navTab}>{tab.text}</a>
         ))}
       </div>
@@ -26,10 +41,9 @@ const { backLink, backText, tabs, quadrantLinks = false } = Astro.props;
     
     {quadrantLinks && (
       <>
-        <a href="/quadrants/techniques" class={styles.navTab}>Techniques</a>
-        <a href="/quadrants/platforms" class={styles.navTab}>Platforms</a>
-        <a href="/quadrants/tools" class={styles.navTab}>Tools</a>
-        <a href="/quadrants/languages-frameworks" class={styles.navTab}>Languages & Frameworks</a>
+        {quadrantTabLinks.map((tab) => (
+          <a href={tab.href} class={styles.navTab}>{tab.label}</a>
+        ))}
       </>
     )}
   </nav>

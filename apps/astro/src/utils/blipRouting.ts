@@ -1,4 +1,5 @@
 import type { CollectionEntry } from "astro:content";
+import { withBasePath } from "./sitePaths";
 
 interface BlipIdentity {
 	id: string;
@@ -21,8 +22,8 @@ export const getBlipSlug = ({ id, name }: BlipIdentity): string => {
 	return slug.length > 0 ? slug : `blip-${id}`;
 };
 
-export const getBlipPath = (blip: BlipIdentity): `/blip/${string}` =>
-	`/blip/${getBlipSlug(blip)}`;
+export const getBlipPath = (blip: BlipIdentity): string =>
+	withBasePath(`/blip/${getBlipSlug(blip)}`);
 
 const matchesBlipRouteParam = (
 	routeParam: string,
@@ -30,7 +31,7 @@ const matchesBlipRouteParam = (
 ): boolean => routeParam === blip.id || routeParam === getBlipSlug(blip);
 
 export const findBlipByRouteParam = <T extends CollectionEntry<"blip">>(
-	blips: Array<T>,
+	blips: T[],
 	routeParam: string,
 ): T | undefined =>
 	blips.find((blip) =>

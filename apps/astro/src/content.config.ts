@@ -70,6 +70,8 @@ const AdrSchema = z.object({
 	tags: Tags,
 });
 
+export type AdrData = z.infer<typeof AdrSchema>;
+
 // 📅 Edition represents a tech radar snapshot at a point in time
 const EditionSchema = z.object({
 	id: z.string(), // "1", "2", "3"...
@@ -78,6 +80,8 @@ const EditionSchema = z.object({
 	content: z.string(), // Markdown content
 	date: z.coerce.date(), // Publication date - used to match blip movements
 });
+
+export type EditionData = z.infer<typeof EditionSchema>;
 
 const adrCollection = defineCollection({
 	loader: glob({

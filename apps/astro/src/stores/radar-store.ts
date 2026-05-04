@@ -7,11 +7,11 @@ type RadarConfig = {
 	height: number;
 	centerX: number;
 	centerY: number;
-	rings: Array<string>;
+	rings: string[];
 	ringRadiusIncrement: number;
 	radius: number;
 	gutter: number;
-	ringNames: Array<string>;
+	ringNames: string[];
 	numberOfRings: number;
 	ringWidth: number;
 	maxRadius: number;
@@ -44,7 +44,7 @@ const maxRadius = Math.min(centerX, centerY);
 
 // Create the radar config atom with initial values
 export const radarConfig = atom<RadarConfig>({
-	bg: typeof window !== "undefined" ? getBackgroundColor() : bgColors.dark,
+	bg: typeof window === "undefined" ? bgColors.dark : getBackgroundColor(),
 	width,
 	height,
 	centerX,

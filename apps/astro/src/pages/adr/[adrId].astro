@@ -1,11 +1,12 @@
 ---
 export const prerender = true;
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import type { GetStaticPaths } from "astro";
 import BlipLayout from "~layouts/BlipLayout.astro";
+import type { AdrData } from "../../content.config";
 import { formatDate } from "../../utils/dateFormatter";
 import { getTagColor } from "../../utils/tagColors";
-import * as styles from "../blip/Blip.css";
+import * as styles from "~styles/pages/blip.css";
 
 import DocumentFreshnessIndicator from "../../components/DocumentFreshnessIndicator.astro";
 import MetaInfo from "../../components/page/MetaInfo.astro";
@@ -13,19 +14,25 @@ import MetaInfo from "../../components/page/MetaInfo.astro";
 import PageHeader from "../../components/page/PageHeader.astro";
 import StickyNavigation from "../../components/page/StickyNavigation.astro";
 
+type RenderableAdrEntry = Parameters<typeof render>[0] & { data: AdrData };
+
 export const getStaticPaths: GetStaticPaths = async () => {
-	const adrs = await getCollection("adr");
+	const adrs = (await getCollection("adr")) as RenderableAdrEntry[];
 	return adrs.map(({ data }) => ({
 		params: { adrId: data.id },
 	}));
 };
 
-const adrs = await getCollection("adr");
+const adrs = (await getCollection("adr")) as RenderableAdrEntry[];
 
 const { adrId } = Astro.params;
-const adr = adrs.find(({ data }) => data.id === adrId);
+const adr =
+	typeof adrId === "string"
+		? adrs.find(({ data }) => data.id === adrId)
+		: undefined;
 const adrData = adr?.data;
-const adrContent = await adr?.render();
+const adrContent = adr ? await render(adr) : undefined;
+const Content = adrContent?.Content;
 
 // Format the date
 const formattedDate = formatDate(adrData?.created);
@@ -82,7 +89,7 @@ const tagColorValue = getTagColor(primaryTag);
       <h2 class={styles.sectionTitle}>ADR Content</h2>
       <div class={styles.detailsContent}>
         <div class="adr-content">
-          {adrContent?.Content && <adrContent.Content />}
+          {Content && <Content />}
         </div>
       </div>
     </section>

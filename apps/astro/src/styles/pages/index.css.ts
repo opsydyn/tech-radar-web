@@ -1,5 +1,5 @@
 import { style } from "@vanilla-extract/css";
-import { vars } from "../styles/cyberpunk.css";
+import { vars } from "../cyberpunk.css";
 
 export const flexContainer = style({
 	display: "flex",
@@ -33,7 +33,7 @@ export const adrButton = style({
 	bottom: "20px",
 	padding: "10px 25px",
 	backgroundColor: "rgba(10,10,10,0.8)",
-	color: "#58d3ff", // Using the quadrantTool color for consistency
+	color: "#58d3ff",
 	fontWeight: "bold",
 	fontSize: "1.2rem",
 	textDecoration: "none",

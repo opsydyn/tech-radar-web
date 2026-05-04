@@ -7,42 +7,39 @@ import type { Blip } from "~types/radar-types";
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import { createEdition } from "~utils/editionHelpers";
-import * as styles from "./index.css";
+import * as styles from "~styles/pages/index.css";
 import CornerNav from "@/components/CornerNav.astro";
-
 
 GlobalStyles;
 
 type BlipCollectionEntry = CollectionEntry<"blip"> & { data: Blip };
 
-const blipCollection: Array<BlipCollectionEntry> = await getCollection("blip");
+const blipCollection: BlipCollectionEntry[] = await getCollection("blip");
 
 const blips = blipCollection.map(({ data }: { data: Blip }) => {
-  return {
-    id: data.id,
-    name: data.name,
-    quadrant: data.quadrant,
-    ring: data.ring,
-    description: data.description,
-    tags: data.tags,
-    hasAdr: data.hasAdr,
-    move: data.move,
-    created: data.created,
-    authors: data.authors,
-
-  };
+	return {
+		id: data.id,
+		name: data.name,
+		quadrant: data.quadrant,
+		ring: data.ring,
+		description: data.description,
+		tags: data.tags,
+		hasAdr: data.hasAdr,
+		move: data.move,
+		created: data.created,
+		authors: data.authors,
+	};
 });
 
 // 🆕 Fetch editions and transform to domain model
 const editionCollection = await getCollection("edition");
 const editions = editionCollection
-  .map(({ data }) => {
-    const result = createEdition(data.number, data.title, data.date);
-    return result.isOk ? result.value : null;
-  })
-  .filter((e): e is NonNullable<typeof e> => e !== null)
-  .sort((a, b) => b.number - a.number); // Most recent first
-
+	.map(({ data }) => {
+		const result = createEdition(data.number, data.title, data.date);
+		return result.isOk ? result.value : null;
+	})
+	.filter((e): e is NonNullable<typeof e> => e !== null)
+	.sort((a, b) => b.number - a.number); // Most recent first
 ---
 
 <Layout>

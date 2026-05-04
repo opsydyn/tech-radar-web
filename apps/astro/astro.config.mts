@@ -8,6 +8,9 @@ import { defineConfig, fontProviders } from "astro/config";
 import rehypePresetMinify from "rehype-preset-minify";
 import remarkToc from "remark-toc";
 
+const site = "https://opsydyn.github.io";
+const base = "/tech-radar-web";
+
 const fonts = [
 	{
 		provider: fontProviders.google(),
@@ -23,6 +26,8 @@ const fonts = [
 
 // https://astro.build/config
 const config = defineConfig({
+	site,
+	base,
 	output: "static",
 	// Keep the exported config type portable after Astro 6 font-provider inference.
 	fonts: fonts as never,

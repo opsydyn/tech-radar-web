@@ -1,6 +1,6 @@
 import { globalStyle, style } from "@vanilla-extract/css";
-import { colors } from "../../styles/colors";
-import { darkThemeVars, lightThemeVars } from "../../styles/theme.css";
+import { colors } from "../colors";
+import { darkThemeVars, lightThemeVars } from "../theme.css";
 
 // Container for the quadrant page
 export const quadrantContainer = style({

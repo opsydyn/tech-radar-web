@@ -3,7 +3,11 @@ import { Font } from "astro:assets";
 // import { ClientRouter } from "astro:transitions";
 import RadarIcon from "~assets/svg/radar.svg";
 import ThemeSwitcher from "~components/themeSwitcher/ThemeSwitcher.astro";
+import { withBasePath } from "~utils/sitePaths";
 import * as styles from "./Layout.css";
+
+const faviconPath = withBasePath("/favicon.svg");
+const homePath = withBasePath("/");
 ---
 <Font cssVariable='--font-ibm-plex-mono' preload />
 <Font cssVariable='--font-space-grotesk' preload />
@@ -11,7 +15,7 @@ import * as styles from "./Layout.css";
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={faviconPath} />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>Tech Radar</title>
@@ -21,7 +25,7 @@ import * as styles from "./Layout.css";
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
   </head>
   <body>
-    <a class:list={[styles.radarIcon]} href="/"><RadarIcon  width={24} height={24} /></a>
+    <a class:list={[styles.radarIcon]} href={homePath}><RadarIcon  width={24} height={24} /></a>
     <ThemeSwitcher />
     <main class={styles.mainContentBlip}>
       <slot name="center" />

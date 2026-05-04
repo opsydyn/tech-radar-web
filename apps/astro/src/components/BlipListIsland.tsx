@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import type { Blip } from "~types/radar-types";
 import { BlipDetail } from "~components/BlipDetail";
 import * as styles from "~components/BlipListIsland.css";
 import { useBlipSearch } from "~hooks/useBlipSearch";
+import { withBasePath } from "~utils/sitePaths";
 
 type BlipListIslandProps = {
-	blips: Array<Blip>;
+	blips: Blip[];
 	quadrant: string;
 	quadrantColor: string;
 };
@@ -27,6 +29,7 @@ const BlipListIsland: React.FC<BlipListIslandProps> = ({
 
 	// State for selected blip
 	const [selected, setSelected] = useState<Blip | null>(null);
+	const homePath = withBasePath("/");
 
 	// Update selected blip when filtered blips change
 	useEffect(() => {
@@ -91,7 +94,7 @@ const BlipListIsland: React.FC<BlipListIslandProps> = ({
 			</div>
 
 			{/* Home link - positioned absolutely for layout */}
-			<a href="/" className={styles.homeLink}>
+			<a href={homePath} className={styles.homeLink}>
 				<span aria-hidden="true" className={styles.arrowIcon}>
 					⬅
 				</span>{" "}

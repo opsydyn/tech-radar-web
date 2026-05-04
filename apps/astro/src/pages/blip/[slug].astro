@@ -28,14 +28,14 @@ import {
 	getQuadrantColorSolid,
 } from "../../utils/quadrantColors";
 import { getEnrichedRelatedBlips } from "../../utils/relatedBlipsUtils";
-import * as styles from "./Blip.css";
+import * as styles from "~styles/pages/blip.css";
 
 type BlipCollectionEntry = CollectionEntry<"blip"> & { data: Blip };
 type Params = InferGetStaticParamsType<typeof getStaticPaths>;
 type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
 export const getStaticPaths = (async () => {
-	const blips: Array<BlipCollectionEntry> = await getCollection("blip");
+	const blips: BlipCollectionEntry[] = await getCollection("blip");
 
 	return blips.flatMap(({ data }: { data: Blip }) => {
 		const slug = getBlipSlug(data);
@@ -45,7 +45,7 @@ export const getStaticPaths = (async () => {
 	});
 }) satisfies GetStaticPaths;
 
-const blips: Array<BlipCollectionEntry> = await getCollection("blip");
+const blips: BlipCollectionEntry[] = await getCollection("blip");
 const { slug } = Astro.params as Params;
 
 const blip =

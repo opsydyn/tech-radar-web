@@ -2,7 +2,7 @@
 export const prerender = true;
 
 import type { RelatedBlipWithData, RelationshipType } from "../types/radar-types";
-import * as styles from "../pages/blip/Blip.css";
+import * as styles from "~styles/pages/blip.css";
 import RelationshipTypesTooltip from "./RelationshipTypesTooltip.tsx";
 import { getBlipPath } from "../utils/blipRouting";
 
@@ -38,14 +38,14 @@ const relationshipColors: Record<RelationshipType, string> = {
 } as const;
 
 interface Props {
-    relatedBlips: Array<RelatedBlipWithData>;
+    relatedBlips: RelatedBlipWithData[];
     currentBlipName: string;
 }
 
 const { relatedBlips, currentBlipName } = Astro.props;
 
 // Simple grouping function (no need for useMemo)
-const groupBlipsByRelationship = (blips: Array<RelatedBlipWithData>) =>
+const groupBlipsByRelationship = (blips: RelatedBlipWithData[]) =>
     blips.reduce((acc, blip) => {
         const type = blip.relationshipType;
         if (!acc[type]) {
@@ -53,10 +53,10 @@ const groupBlipsByRelationship = (blips: Array<RelatedBlipWithData>) =>
         }
         acc[type].push(blip);
         return acc;
-    }, {} as Record<RelationshipType, Array<RelatedBlipWithData>>);
+    }, {} as Record<RelationshipType, RelatedBlipWithData[]>);
 
 const groupedBlips = groupBlipsByRelationship(relatedBlips);
-const relationshipTypes = Object.keys(groupedBlips) as Array<RelationshipType>;
+const relationshipTypes = Object.keys(groupedBlips) as RelationshipType[];
     ---
 
 {relatedBlips.length === 0 ? (

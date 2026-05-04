@@ -3,6 +3,7 @@ import { LegendItem, LegendLabel, LegendOrdinal } from "@visx/legend";
 import { scaleOrdinal } from "@visx/scale";
 import { LegendMoveState } from "./LegendMoveState";
 import { useStore } from "@nanostores/react";
+import { withBasePath } from "~utils/sitePaths";
 import { theme, getEffectiveTheme } from "~stores/theme-store";
 
 // Quadrant data with links and colors
@@ -10,28 +11,28 @@ const quadrantData = [
 	{
 		id: "Platforms",
 		label: "Platforms",
-		href: "/quadrants/platforms",
+		href: withBasePath("/quadrants/platforms"),
 		color: "rgb(125, 110, 238, 1)",
 		tooltip: "View all platform technologies",
 	},
 	{
 		id: "Languages",
 		label: "Languages & Frameworks",
-		href: "/quadrants/languages-frameworks",
+		href: withBasePath("/quadrants/languages-frameworks"),
 		color: "rgb(81, 245, 141, 1)",
 		tooltip: "View all languages and frameworks",
 	},
 	{
 		id: "Tools",
 		label: "Tools",
-		href: "/quadrants/tools",
+		href: withBasePath("/quadrants/tools"),
 		color: "rgb(80, 197, 241, 1)",
 		tooltip: "View all tools and utilities",
 	},
 	{
 		id: "Techniques",
 		label: "Techniques",
-		href: "/quadrants/techniques",
+		href: withBasePath("/quadrants/techniques"),
 		color: "rgb(255, 163, 71, 1)",
 		tooltip: "View all techniques and methodologies",
 	},

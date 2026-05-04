@@ -6,6 +6,7 @@ import EditionIcon from "~assets/svg/edition.svg";
 import PyramidIcon from "~assets/svg/pyramid.svg";
 import ToolIcon from "~assets/svg/tool.svg";
 import { quadrantColorsSolid } from "~utils/quadrantColors";
+import { withBasePath } from "~utils/sitePaths";
 import * as styles from "./CornerNav.css";
 
 type CornerNavLink = {
@@ -16,36 +17,36 @@ type CornerNavLink = {
 	backgroundColor?: string;
 };
 
-const navLinks: Array<CornerNavLink> = [
+const navLinks: CornerNavLink[] = [
 	{
-		href: "/edition/1",
+		href: withBasePath("/edition/1"),
 		label: "Edition",
 		iconSrc: EditionIcon,
 		ariaLabel: "Go to edition",
 	},
 	{
-		href: "/quadrants/platforms",
+		href: withBasePath("/quadrants/platforms"),
 		label: "Platforms",
 		iconSrc: PyramidIcon,
 		ariaLabel: "Go to platforms quadrant",
 		backgroundColor: quadrantColorsSolid.Platforms,
 	},
 	{
-		href: "/quadrants/languages-frameworks",
+		href: withBasePath("/quadrants/languages-frameworks"),
 		label: "Languages",
 		iconSrc: BinaryIcon,
 		ariaLabel: "Go to languages and frameworks quadrant",
 		backgroundColor: quadrantColorsSolid["languages-frameworks"],
 	},
 	{
-		href: "/quadrants/tools",
+		href: withBasePath("/quadrants/tools"),
 		label: "Tools",
 		iconSrc: ToolIcon,
 		ariaLabel: "Go to tools quadrant",
 		backgroundColor: quadrantColorsSolid.Tools,
 	},
 	{
-		href: "/quadrants/techniques",
+		href: withBasePath("/quadrants/techniques"),
 		label: "Techniques",
 		iconSrc: ArtboardIcon,
 		ariaLabel: "Go to techniques quadrant",

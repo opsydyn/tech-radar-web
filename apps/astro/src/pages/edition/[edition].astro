@@ -1,38 +1,47 @@
 ---
 export const prerender = true;
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import type { GetStaticPaths } from "astro";
 import BlipLayout from "~layouts/BlipLayout.astro";
+import type { EditionData } from "../../content.config";
 import { formatDate } from "../../utils/dateFormatter";
-import * as styles from "../blip/Blip.css";
+import * as styles from "~styles/pages/blip.css";
 
 // Import shared components
 import PageHeader from "../../components/page/PageHeader.astro";
 import StickyNavigation from "../../components/page/StickyNavigation.astro";
 
+type RenderableEditionEntry = Parameters<typeof render>[0] & {
+	data: EditionData;
+};
+
 export const getStaticPaths: GetStaticPaths = async () => {
-	const editions = await getCollection("edition");
+	const editions = (await getCollection("edition")) as RenderableEditionEntry[];
 	return editions.map(({ data }) => ({
 		params: { edition: data.id },
 	}));
 };
 
-const editions = await getCollection("edition");
+const editions = (await getCollection("edition")) as RenderableEditionEntry[];
 
 const { edition } = Astro.params;
-const editionEntry = editions.find(({ data }) => data.id === edition);
+const editionEntry =
+	typeof edition === "string"
+		? editions.find(({ data }) => data.id === edition)
+		: undefined;
 const editionData = editionEntry?.data;
-const { Content } = editionEntry
-	? await editionEntry.render()
-	: { Content: null };
+const editionContent = editionEntry ? await render(editionEntry) : undefined;
+const Content = editionContent?.Content;
 
 const formattedDate = formatDate(editionData?.date);
+const editionTitle = editionData?.title ?? "Tech Radar Edition";
+const editionSubtitle = formattedDate ?? "";
 
 // Use a consistent color for all editions
 const editionColorValue = "#4CAF50"; // Green color for editions
 ---
 
-<BlipLayout seo={{ title: editionData?.title ?? "Tech Radar Edition" }}>
+<BlipLayout seo={{ title: editionTitle }}>
   <div slot="center" class={styles.container} style={`
     --quadrant-color: ${editionColorValue};
     --quadrant-color-solid: ${editionColorValue};
@@ -40,8 +49,8 @@ const editionColorValue = "#4CAF50"; // Green color for editions
   `}>
     <!-- Hero Section -->
     <PageHeader
-      title={editionData?.title}
-      subtitle={formattedDate}
+		  title={editionTitle}
+      subtitle={editionSubtitle}
     />
 
     <!-- Navigation Bar -->
@@ -58,7 +67,7 @@ const editionColorValue = "#4CAF50"; // Green color for editions
     <!-- Main Content -->
     <div class={styles.detailsContent} id="overview">
       <article class="edition-content">
-        <Content />
+        {Content ? <Content /> : null}
       </article>
     </div>
 
