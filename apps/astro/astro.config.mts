@@ -24,6 +24,8 @@ const fonts = [
 	},
 ];
 
+const vitePlugins = [vanillaExtractPlugin(), svgx()] as never;
+
 // https://astro.build/config
 const config = defineConfig({
 	site,
@@ -57,7 +59,7 @@ const config = defineConfig({
 	],
 
 	vite: {
-		plugins: [vanillaExtractPlugin(), svgx()],
+		plugins: vitePlugins,
 	},
 });
 

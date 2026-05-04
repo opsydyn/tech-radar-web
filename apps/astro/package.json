@@ -11,10 +11,10 @@
     "astro": "astro",
     "test": "vitest --run",
     "test:watch": "vitest",
-    "lint": "eslint . --ext .ts,.tsx,.mts,.cts"
+    "lint": "eslint \"src/**/*.css.ts\""
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.12.0"
   },
   "dependencies": {
     "@astrojs/check": "0.9.9",
@@ -60,9 +60,12 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@antebudimir/eslint-plugin-vanilla-extract": "^1.10.0",
+    "@antebudimir/eslint-plugin-vanilla-extract": "^1.16.0",
     "@types/chroma-js": "^3.1.1",
     "@types/node": "^22.15.3",
-    "eslint": "^8.57.0"
+    "@typescript-eslint/parser": "^8.59.1",
+    "@typescript-eslint/utils": "^8.59.1",
+    "eslint": "^9",
+    "vite": "^8.0.10"
   }
 }
