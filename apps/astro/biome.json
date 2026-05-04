@@ -1,53 +1,58 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.14/schema.json",
-  "vcs": {
-    "enabled": false,
-    "clientKind": "git",
-    "useIgnoreFile": false
-  },
-  "files": {
-    "ignoreUnknown": false,
-    "ignore": []
-  },
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "tab"
-  },
-  "organizeImports": {
-    "enabled": true
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true,
-      "correctness": {
-        "useHookAtTopLevel": "error",
-        "noUnusedVariables": "error",
-        "noUndeclaredVariables": "error",
-        "useExhaustiveDependencies": "error"
-      },
-      "suspicious": {
-        "noExplicitAny": "error",
-        "noArrayIndexKey": "error",
-        "noAssignInExpressions": "error"
-      },
-      "a11y": {
-        "noSvgWithoutTitle": "error"
-      },
-      "complexity": {
-        "useLiteralKeys": "error",
-        "noForEach": "warn"
-      },
-      "style": {
-        "noNegationElse": "error",
-        "useShorthandArrayType": "error",
-        "useTemplate": "error"
-      }
-    }
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "double"
-    }
-  }
+	"$schema": "https://biomejs.dev/schemas/2.4.14/schema.json",
+	"root": false,
+	"vcs": {
+		"enabled": false,
+		"clientKind": "git",
+		"useIgnoreFile": false
+	},
+	"files": {
+		"ignoreUnknown": false
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab"
+	},
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"correctness": {
+				"useHookAtTopLevel": "error",
+				"noUnusedVariables": "error",
+				"noUndeclaredVariables": "error",
+				"useExhaustiveDependencies": "error"
+			},
+			"suspicious": {
+				"noExplicitAny": "error",
+				"noArrayIndexKey": "error",
+				"noAssignInExpressions": "error"
+			},
+			"a11y": {
+				"noSvgWithoutTitle": "error"
+			},
+			"complexity": {
+				"useLiteralKeys": "error",
+				"noForEach": "warn"
+			},
+			"style": {
+				"noNegationElse": "error",
+				"useConsistentArrayType": "error",
+				"useTemplate": "error"
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double"
+		}
+	}
 }

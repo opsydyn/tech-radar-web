@@ -47,13 +47,3 @@ export type Blip = {
 export type BlipWithPosition = Blip & {
 	position: { x: number; y: number };
 };
-
-export type Adr = {
-	id: string;
-	title: string;
-	date: string;
-	created: Date;
-	status: string;
-	author: string;
-	reviewers: Array<string>;
-};

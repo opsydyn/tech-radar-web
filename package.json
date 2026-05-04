@@ -26,6 +26,8 @@
     "sherif": "bunx sherif@latest"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.4.14",
+    "@effect/language-service": "0.85.1",
     "@moonrepo/cli": "^2.2.3",
     "commitizen": "^4.3.0",
     "cz-emoji-conventional": "^1.0.2",

@@ -6,6 +6,7 @@
     "biome.json"
   ],
   "dependencies": {
-    "@biomejs/biome": "2.4.14"
+    "@biomejs/biome": "2.4.14",
+    "@catenarycloud/linteffect": "0.0.4-1"
   }
 }

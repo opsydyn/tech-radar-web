@@ -58,7 +58,13 @@ export const input = style({
 	borderRadius: "5px",
 	// width: 'auto'
 });
-export const select = input;
+
+export const select = style({
+	padding: "5px",
+	border: "1px solid #ccc",
+	borderRadius: "5px",
+	backgroundColor: "white",
+});
 
 export const flexItemsCenterGap = style({
 	display: "flex",

@@ -71,23 +71,11 @@ export const createGapScale = (ratio: ScaleRatio) => (level: number) => {
 /**
  * Creates an object containing typography values (fontSize, lineHeight) for a given scale level.
  */
-export const createTypographyValues =
-	(ratio: ScaleRatio) =>
-	(level: number): { fontSize: string; lineHeight: string } => {
-		const fontSizeRem = +(1 * ratio ** level).toFixed(3);
-		// A 1.5 multiplier is a common and effective choice for readable line height.
-		const lineHeightRem = +(fontSizeRem * 1.5).toFixed(3);
-		return {
-			fontSize: `${fontSizeRem}rem`,
-			lineHeight: `${lineHeightRem}rem`,
-		};
-	};
-
 /**
  * Creates a map of named spacing values (e.g., s1, s2) based on a modular scale.
  * This is designed for consumption by systems like vanilla-extract's sprinkles.
  */
-export const createSpacingValueMap =
+const createSpacingValueMap =
 	(ratio: ScaleRatio, base = 0.25) =>
 	(count: number): Record<`s${number}` | "none", string> => {
 		const generatedValues = pipe(
@@ -110,7 +98,7 @@ export const createSpacingValueMap =
 /**
  * Creates a grid-template-columns string based on a modular scale.
  */
-export const createGridColumns = (
+const createGridColumns = (
 	ratio: ScaleRatio,
 	count: number,
 	base = 1,

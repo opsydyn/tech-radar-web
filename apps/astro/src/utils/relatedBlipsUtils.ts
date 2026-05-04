@@ -115,25 +115,3 @@ export const getEnrichedRelatedBlips = async (
 		return [];
 	}
 };
-
-/**
- * Pure function to filter relationships by type
- */
-export const filterRelationshipsByType = (
-	relationships: Array<RelatedBlipWithData>,
-	type: string,
-): Array<RelatedBlipWithData> =>
-	relationships.filter(
-		(relationship) => relationship.relationshipType === type,
-	);
-
-/**
- * Pure function to get unique relationship types from relationships
- */
-export const getUniqueRelationshipTypes = (
-	relationships: Array<RelatedBlipWithData>,
-): Array<string> => [
-	...new Set(
-		relationships.map((relationship) => relationship.relationshipType),
-	),
-];

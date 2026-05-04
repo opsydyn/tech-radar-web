@@ -17,7 +17,7 @@ const validMoves = ["grow", "go", "stay"] as const;
 type MoveType = (typeof validMoves)[number];
 type MoveTuple = [MoveType, string];
 
-export function getLatestMove(move?: Array<MoveTuple>): MoveType | undefined {
+function getLatestMove(move?: Array<MoveTuple>): MoveType | undefined {
 	const latestMove = move?.[move.length - 1];
 	if (latestMove === undefined) return;
 	return latestMove[0];

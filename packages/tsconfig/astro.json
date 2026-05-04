@@ -7,6 +7,11 @@
     "jsxImportSource": "react",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "plugins": [
+      {
+        "name": "@effect/language-service"
+      }
+    ],
     "target": "ESNext",
     "lib": [
       "DOM",

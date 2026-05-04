@@ -25,7 +25,7 @@ const getTotalRows = (table: Table<Blip>) => {
 	return 0;
 };
 
-export const getRowCountText =
+const getRowCountText =
 	(size: number) =>
 	(totalRows: number): string =>
 		size === totalRows ? `All (${totalRows})` : `${size}`;

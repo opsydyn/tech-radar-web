@@ -5,4 +5,3 @@ include .make/common.mk
 include .make/development.mk
 include .make/testing.mk
 include .make/projects.mk
-include .make/api.mk

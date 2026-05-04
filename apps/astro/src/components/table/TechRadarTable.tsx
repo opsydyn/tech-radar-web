@@ -25,7 +25,7 @@ type TechRadarTableProps = {
 	blips: Array<Blip>;
 };
 
-export function TechRadarTable({ blips }: TechRadarTableProps) {
+function TechRadarTable({ blips }: TechRadarTableProps) {
 	const {
 		state,
 		handleColumnFiltering,

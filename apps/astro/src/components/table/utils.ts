@@ -2,43 +2,43 @@ import type { FilterFn } from "@tanstack/react-table";
 
 import type { BlipKeys, Row } from "./types";
 
-export const or =
-  <T>(...predicates: Array<(value: T) => boolean>): ((value: T) => boolean) =>
-  (value: T): boolean =>
-    predicates.some((predicate) => predicate(value));
+const or =
+	<T>(...predicates: Array<(value: T) => boolean>): ((value: T) => boolean) =>
+	(value: T): boolean =>
+		predicates.some((predicate) => predicate(value));
 
-export const startsWithIgnoreCase = (target: string) => (value: string) =>
-  value.toLowerCase().startsWith(target.toLowerCase());
+const startsWithIgnoreCase = (target: string) => (value: string) =>
+	value.toLowerCase().startsWith(target.toLowerCase());
 
-export const includesIgnoreCase = (target: string) => (value: string) =>
-  value.toLowerCase().includes(target.toLowerCase());
+const includesIgnoreCase = (target: string) => (value: string) =>
+	value.toLowerCase().includes(target.toLowerCase());
 
 function isBlipKey(key: any): key is BlipKeys {
-  return [
-    "id",
-    "name",
-    "quadrant",
-    "ring",
-    "description",
-    "hasAdr",
-    "tags",
-  ].includes(key);
+	return [
+		"id",
+		"name",
+		"quadrant",
+		"ring",
+		"description",
+		"hasAdr",
+		"tags",
+	].includes(key);
 }
 
 export const typeaheadFilter: FilterFn<Row> = (row, columnId, filterValue) => {
-  if (!filterValue) return true;
-  if (!isBlipKey(columnId)) return false;
-  // @ts-ignore: suppressing index type error
-  const rowValue = row.original[columnId];
+	if (!filterValue) return true;
+	if (!isBlipKey(columnId)) return false;
+	// @ts-ignore: suppressing index type error
+	const rowValue = row.original[columnId];
 
-  if (typeof rowValue !== "string") return false;
+	if (typeof rowValue !== "string") return false;
 
-  const matchesFilter = or(
-    startsWithIgnoreCase(filterValue),
-    includesIgnoreCase(filterValue),
-  );
+	const matchesFilter = or(
+		startsWithIgnoreCase(filterValue),
+		includesIgnoreCase(filterValue),
+	);
 
-  return matchesFilter(rowValue);
+	return matchesFilter(rowValue);
 };
 
 // export const getMatches = (
@@ -49,10 +49,10 @@ export const typeaheadFilter: FilterFn<Row> = (row, columnId, filterValue) => {
 // };
 
 export const getMatches =
-  (toMatch: Array<string>) =>
-  (input: Array<string>): Array<string> =>
-    input.filter((item) =>
-      toMatch.some(
-        (matchItem) => matchItem.toLowerCase() === item.toLowerCase(),
-      ),
-    );
+	(toMatch: Array<string>) =>
+	(input: Array<string>): Array<string> =>
+		input.filter((item) =>
+			toMatch.some(
+				(matchItem) => matchItem.toLowerCase() === item.toLowerCase(),
+			),
+		);

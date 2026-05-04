@@ -6,7 +6,7 @@ import { pipe } from "effect";
 type ColorVariantLevel = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
 type ColorVariants = Record<ColorVariantLevel, string>;
 
-export const createColorVariants = (baseColor: string): ColorVariants => {
+const createColorVariants = (baseColor: string): ColorVariants => {
 	if (!chroma.valid(baseColor)) {
 		throw new Error(`Invalid base color provided: ${baseColor}`);
 	}

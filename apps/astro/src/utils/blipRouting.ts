@@ -5,7 +5,7 @@ interface BlipIdentity {
 	name: string;
 }
 
-export const slugifyBlipName = (name: string): string =>
+const slugifyBlipName = (name: string): string =>
 	name
 		.normalize("NFKD")
 		.replace(/\p{M}+/gu, "")
@@ -24,7 +24,7 @@ export const getBlipSlug = ({ id, name }: BlipIdentity): string => {
 export const getBlipPath = (blip: BlipIdentity): `/blip/${string}` =>
 	`/blip/${getBlipSlug(blip)}`;
 
-export const matchesBlipRouteParam = (
+const matchesBlipRouteParam = (
 	routeParam: string,
 	blip: BlipIdentity,
 ): boolean => routeParam === blip.id || routeParam === getBlipSlug(blip);

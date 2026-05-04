@@ -1,31 +1,29 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
   "ignoreBinaries": [
-    "astro",
     "prettier",
     "tsc"
   ],
   "ignoreDependencies": [
     "@biomejs/biome"
   ],
-  "ignoreUnresolved": [
-    "astro/client"
-  ],
+  "ignoreIssues": {
+    "apps/astro/src/**/*.css.ts": [
+      "exports"
+    ]
+  },
   "ignoreExportsUsedInFile": {
     "interface": true,
     "type": true
   },
   "workspaces": {
-    ".": {
-      "project": [
-        "*.config.{js,cjs,mjs,ts,mts}"
-      ]
-    },
     "apps/astro": {
+      "ignoreFiles": [
+        "src/components/RelationshipTypesTooltip.tsx"
+      ],
       "project": [
         "src/**/*.{astro,ts,tsx,js,jsx,mjs,cjs,mdx}",
-        "*.config.{js,cjs,mjs,ts,mts}",
-        "src/env.d.ts"
+        "*.config.{js,cjs,mjs,ts,mts}"
       ],
       "paths": {
         "@/*": [

@@ -145,15 +145,3 @@ export const calculateDocumentFreshness = (
 		})
 		.exhaustive();
 };
-
-/**
- * Get freshness summary using pattern matching
- */
-export const getFreshnessSummary = (level: DocumentFreshnessLevel): string =>
-	match(level)
-		.with("fresh", () => "Fresh")
-		.with("aging", () => "Aging")
-		.with("stale", () => "Stale")
-		.with("critical", () => "Critical")
-		.with("invalid", () => "Invalid")
-		.exhaustive();
