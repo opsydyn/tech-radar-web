@@ -18,7 +18,7 @@
   },
   "workspaces": {
     "apps/astro": {
-      "ignoreFiles": [
+      "entry": [
         "src/components/RelationshipTypesTooltip.tsx"
       ],
       "project": [
