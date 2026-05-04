@@ -28,8 +28,6 @@ function getLatestMove(move?: MoveTuple[]): MoveType | undefined {
 
 type RadarBlipProps = {
 	blip: BlipWithPosition;
-	index: number;
-	isDimmed?: boolean;
 	onHover?: (event: MouseEvent<Element>, blip: BlipWithPosition) => void;
 	onUnhover?: () => void;
 	isHovered?: boolean;
@@ -37,8 +35,6 @@ type RadarBlipProps = {
 
 export const RadarBlip = memo(function RadarBlip({
 	blip,
-	index,
-	isDimmed = false,
 	onHover,
 	onUnhover,
 	isHovered = false,
@@ -48,7 +44,7 @@ export const RadarBlip = memo(function RadarBlip({
 	const textColor = "#000000";
 
 	const blipMoveSvgMap = {
-		go: (moveX: number, moveY: number, color: string, dimmed: boolean) => (
+		go: (moveX: number, moveY: number, color: string) => (
 			<text
 				x={moveX + 8}
 				y={moveY - 12}
@@ -57,12 +53,11 @@ export const RadarBlip = memo(function RadarBlip({
 				fill={color}
 				aria-label="Moved in"
 				transform={`rotate(45, ${moveX}, ${moveY - 12})`}
-				style={{ opacity: dimmed ? 0.3 : 1 }}
 			>
 				▲
 			</text>
 		),
-		grow: (moveX: number, moveY: number, color: string, dimmed: boolean) => (
+		grow: (moveX: number, moveY: number, color: string) => (
 			<text
 				x={moveX - 16}
 				y={moveY + 24}
@@ -71,7 +66,6 @@ export const RadarBlip = memo(function RadarBlip({
 				fill={color}
 				aria-label="Moved out"
 				transform={`rotate(45, ${moveX}, ${moveY + 22})`}
-				style={{ opacity: dimmed ? 0.3 : 1 }}
 			>
 				▼
 			</text>
@@ -83,9 +77,9 @@ export const RadarBlip = memo(function RadarBlip({
 
 	return (
 		<a
-			key={`blip-${blip.id}=${index}`}
 			aria-label={`Details about ${blip.id}`}
 			className={styles.z}
+			data-hovered={isHovered ? "true" : undefined}
 			href={blipPath}
 			onMouseEnter={(event) => {
 				onHover?.(event, blip);
@@ -118,17 +112,10 @@ export const RadarBlip = memo(function RadarBlip({
 				cy={y}
 				r={blipVisibleRadius}
 				fill={blipColor}
-				opacity={isDimmed ? 0.3 : 1}
-				href={blipPath}
 				filter={isHovered ? "url(#radar-blip-outer-glow)" : undefined}
 			/>
 
-			{blipMoveSvgMap[getLatestMove(blip.move) ?? "stay"](
-				x,
-				y,
-				blipColor,
-				isDimmed,
-			)}
+			{blipMoveSvgMap[getLatestMove(blip.move) ?? "stay"](x, y, blipColor)}
 
 			<Text
 				x={x}

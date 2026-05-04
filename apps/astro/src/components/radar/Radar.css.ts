@@ -548,6 +548,20 @@ export const blipTooltipLabel = style({
 	color: "#94a3b8",
 });
 
+export const radarBlipLayer = style({});
+
+globalStyle(`${radarBlipLayer} a`, {
+	transition: "opacity 120ms ease-out",
+});
+
+globalStyle(`${radarBlipLayer}[data-hovering="true"] a`, {
+	opacity: 0.3,
+});
+
+globalStyle(`${radarBlipLayer}[data-hovering="true"] a[data-hovered="true"]`, {
+	opacity: 1,
+});
+
 // Theme indicator for displaying current theme state
 export const themeIndicator = style({
 	marginTop: "12px",

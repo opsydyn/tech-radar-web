@@ -32,6 +32,15 @@ import { getBlipsForEdition } from "~utils/editionHelpers";
 
 import * as styles from "./Radar.css";
 
+const initialTransform = {
+	scaleX: 1.27,
+	scaleY: 1.27,
+	translateX: -211.62,
+	translateY: 162.59,
+	skewX: 0,
+	skewY: 0,
+};
+
 type RadarTooltipState = {
 	blip: BlipWithPosition;
 	left: number;
@@ -111,15 +120,6 @@ const Radar = ({ blips, editions }: { blips: Blip[]; editions: Edition[] }) => {
 
 	// Minimap also uses edition-filtered blips (not all blips)
 	const miniMapBlips = UseBlipPositions(editionBlips);
-
-	const initialTransform = {
-		scaleX: 1.27,
-		scaleY: 1.27,
-		translateX: -211.62,
-		translateY: 162.59,
-		skewX: 0,
-		skewY: 0,
-	};
 
 	const [hoveredBlipId, setHoveredBlipId] = useState<string | null>(null);
 	const handleBlipHover = useCallback(
@@ -253,7 +253,12 @@ const Radar = ({ blips, editions }: { blips: Blip[]; editions: Edition[] }) => {
 							<g transform={transformString}>
 								<RadarChart />
 								<Labels />
-								<Group top={centerY} left={centerX}>
+								<Group
+									top={centerY}
+									left={centerX}
+									className={styles.radarBlipLayer}
+									data-hovering={hoveredBlipId ? "true" : undefined}
+								>
 									<RadarRings />
 									{/* Global dimming overlay */}
 									{hoveredBlipId && (
@@ -289,14 +294,10 @@ const Radar = ({ blips, editions }: { blips: Blip[]; editions: Edition[] }) => {
 											zoom.scale({ scaleX: 1.05, scaleY: 1.05, point });
 										}}
 									/>
-									{radarBlips.map((blip, i) => (
+									{radarBlips.map((blip) => (
 										<RadarBlip
 											key={blip.id}
 											blip={blip}
-											index={i}
-											isDimmed={
-												hoveredBlipId !== null && hoveredBlipId !== blip.id
-											}
 											isHovered={hoveredBlipId === blip.id}
 											onHover={handleBlipHover}
 											onUnhover={handleBlipUnhover}
