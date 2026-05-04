@@ -4,6 +4,7 @@ import {
 	type DocumentFreshnessLevel,
 	calculateDocumentFreshness,
 } from "../utils/documentFreshness";
+import type { DateValue } from "../utils/dateFormatter";
 import * as styles from "./DocumentFreshnessIndicator.css";
 
 import AgingIcon from "~assets/svg/freshness-aging.svg";
@@ -12,16 +13,16 @@ import FreshIcon from "~assets/svg/freshness-fresh.svg";
 import InvalidIcon from "~assets/svg/freshness-invalid.svg";
 import StaleIcon from "~assets/svg/freshness-stale.svg";
 
-interface Props {
-	dateString: string;
+type Props = {
+	dateValue: DateValue;
 	showRecommendation?: boolean;
 	size?: "small" | "medium" | "large";
-}
+};
 
-const { dateString, showRecommendation = true, size = "medium" } = Astro.props;
+const { dateValue, showRecommendation = true, size = "medium" } = Astro.props;
 
 // Calculate freshness on the server
-const freshness = calculateDocumentFreshness(dateString);
+const freshness = calculateDocumentFreshness(dateValue);
 
 // Map freshness level to imported SVG component
 const ICON_COMPONENTS: Record<DocumentFreshnessLevel, typeof FreshIcon> = {

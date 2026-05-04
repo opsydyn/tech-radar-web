@@ -1,4 +1,4 @@
-import { DateTime, Option, Schema, pipe } from "effect";
+import { DateTime, Option, pipe, Schema } from "effect";
 
 export const DateValueSchema = Schema.UndefinedOr(
 	Schema.Union([Schema.String, Schema.DateValid]),
@@ -19,6 +19,9 @@ const toDateSource = (dateValue: DateValue) =>
 
 const toDateTime = (dateValue: DateValue) =>
 	pipe(toDateSource(dateValue), Option.flatMap(DateTime.make));
+
+const isValidDateObject = (date: Date): boolean =>
+	!Number.isNaN(date.getTime());
 
 const formatBritishDate = (dt: DateTime.DateTime): string =>
 	DateTime.formatLocal(dt, {
@@ -49,6 +52,24 @@ export function normalizeDateValue(
 		Option.match({
 			onNone: () => fallback,
 			onSome: (value) => value,
+		}),
+	);
+}
+
+/**
+ * Converts supported date values into a validated JavaScript Date for libraries
+ * that operate on Date objects rather than Effect DateTime values.
+ */
+export function toValidDate(dateValue: DateValue): Date | null {
+	return pipe(
+		toDateSource(dateValue),
+		Option.match({
+			onNone: () => null,
+			onSome: (dateSource) => {
+				const parsedDate = new Date(dateSource);
+
+				return isValidDateObject(parsedDate) ? parsedDate : null;
+			},
 		}),
 	);
 }

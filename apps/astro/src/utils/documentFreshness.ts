@@ -1,11 +1,6 @@
-import {
-	differenceInDays,
-	differenceInMonths,
-	isValid,
-	parseISO,
-	startOfDay,
-} from "date-fns";
+import { differenceInDays, differenceInMonths, startOfDay } from "date-fns";
 import { Match } from "effect";
+import { type DateValue, toValidDate } from "./dateFormatter";
 
 export type DocumentFreshnessLevel =
 	| "fresh"
@@ -68,6 +63,15 @@ const FRESHNESS_CONFIG: Record<
 	},
 } as const;
 
+const invalidDocumentFreshness = (): DocumentFreshness => ({
+	level: "invalid",
+	daysOld: 0,
+	monthsOld: 0,
+	message: generateMessage("invalid", 0, 0),
+	recommendation: FRESHNESS_CONFIG.invalid.recommendation,
+	actionable: FRESHNESS_CONFIG.invalid.actionable,
+});
+
 /**
  * Determine freshness level based on days old using exhaustive pattern matching
  */
@@ -119,23 +123,17 @@ const generateMessage = (
  * Calculate document freshness with exhaustive pattern matching
  */
 export const calculateDocumentFreshness = (
-	dateString: string,
+	dateValue: DateValue,
 ): DocumentFreshness => {
-	const parsedDate = parseISO(dateString);
+	const parsedDate = toValidDate(dateValue);
 
-	return Match.value(isValid(parsedDate)).pipe(
-		Match.when(false, () => ({
-			level: "invalid" as const,
-			daysOld: 0,
-			monthsOld: 0,
-			message: generateMessage("invalid", 0, 0),
-			recommendation: FRESHNESS_CONFIG.invalid.recommendation,
-			actionable: FRESHNESS_CONFIG.invalid.actionable,
-		})),
-		Match.when(true, () => {
+	return Match.value(parsedDate).pipe(
+		Match.when(null, invalidDocumentFreshness),
+		Match.orElse((validDate) => {
 			const now = startOfDay(new Date());
-			const daysOld = differenceInDays(now, parsedDate);
-			const monthsOld = differenceInMonths(now, parsedDate);
+			const documentDate = startOfDay(validDate);
+			const daysOld = differenceInDays(now, documentDate);
+			const monthsOld = differenceInMonths(now, documentDate);
 			const level = determineFreshnessLevel(daysOld);
 
 			return {
@@ -147,6 +145,5 @@ export const calculateDocumentFreshness = (
 				actionable: FRESHNESS_CONFIG[level].actionable,
 			};
 		}),
-		Match.exhaustive,
 	);
 };
