@@ -3,9 +3,10 @@ type Ring = "Adopt" | "Trial" | "Assess" | "Hold";
 type Tags = "Frontend" | "Backend";
 
 const validMoves = ["grow", "go", "stay"] as const;
-type MoveType = (typeof validMoves)[number];
+export type MoveType = (typeof validMoves)[number];
+export type MoveDateValue = string | Date;
 
-type MoveTuple = [MoveType, string];
+export type MoveTuple = [MoveType, MoveDateValue];
 
 export type RelationshipType =
 	| "alternative"
@@ -37,11 +38,11 @@ export type Blip = {
 	ring: Ring;
 	description: string;
 	hasAdr: boolean;
-	tags: Array<Tags>;
-	move: Array<MoveTuple>;
+	tags: Tags[];
+	move: MoveTuple[];
 	created: Date;
-	authors: Array<string>;
-	relatedBlips?: Array<RelatedBlip>;
+	authors: string[];
+	relatedBlips?: RelatedBlip[];
 };
 
 export type BlipWithPosition = Blip & {

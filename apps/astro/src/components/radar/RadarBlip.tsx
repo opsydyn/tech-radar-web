@@ -1,7 +1,7 @@
 import { Circle } from "@visx/shape";
 import { Text } from "@visx/text";
 import { useTooltip, useTooltipInPortal } from "@visx/tooltip";
-import type { BlipWithPosition } from "~types/radar-types";
+import type { BlipWithPosition, MoveTuple, MoveType } from "~types/radar-types";
 import { getBlipPath } from "~utils/blipRouting";
 
 import * as styles from "./Radar.css";
@@ -13,11 +13,7 @@ const quadrantColors = {
 	"languages-frameworks": "rgb(81, 245, 141, 0.9)",
 } as const;
 
-const validMoves = ["grow", "go", "stay"] as const;
-type MoveType = (typeof validMoves)[number];
-type MoveTuple = [MoveType, string];
-
-function getLatestMove(move?: Array<MoveTuple>): MoveType | undefined {
+function getLatestMove(move?: MoveTuple[]): MoveType | undefined {
 	const latestMove = move?.[move.length - 1];
 	if (latestMove === undefined) return;
 	return latestMove[0];
