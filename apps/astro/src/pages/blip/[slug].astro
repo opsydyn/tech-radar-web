@@ -1,12 +1,8 @@
 ---
 export const prerender = true;
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
-import type {
-	GetStaticPaths,
-	InferGetStaticParamsType,
-	InferGetStaticPropsType,
-} from "astro";
+import type { GetStaticPaths, InferGetStaticParamsType } from "astro";
 import BlipLayout from "~layouts/BlipLayout.astro";
 import type { Blip } from "~types/radar-types";
 
@@ -32,7 +28,6 @@ import * as styles from "~styles/pages/blip.css";
 
 type BlipCollectionEntry = CollectionEntry<"blip"> & { data: Blip };
 type Params = InferGetStaticParamsType<typeof getStaticPaths>;
-type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
 export const getStaticPaths = (async () => {
 	const blips: BlipCollectionEntry[] = await getCollection("blip");
@@ -51,8 +46,12 @@ const { slug } = Astro.params as Params;
 const blip =
 	typeof slug === "string" ? findBlipByRouteParam(blips, slug) : undefined;
 const blipData = blip?.data as Blip | undefined;
-const getAdrPath = `../adr/${blipData?.name?.toLocaleLowerCase()}`;
-const formattedDate = formatDate(blipData?.created?.toString() || "");
+const blipContent = blip ? await render(blip) : undefined;
+const Content = blipContent?.Content;
+const embeddedAdr = blipData?.adr;
+const showAdrSection = blipData?.hasAdr === true;
+const hasEmbeddedAdr = showAdrSection && embeddedAdr !== undefined;
+const formattedDate = formatDate(blipData?.created);
 
 // Get enhanced related blips with relationship data
 const enrichedRelatedBlips = blipData?.id
@@ -92,7 +91,7 @@ const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
       backText={blipData?.quadrant ?? "Back"}
       tabs={[
         { href: "#overview", text: "Overview" },
-        { href: "#adr", text: "ADR", condition: blipData?.hasAdr },
+        { href: "#adr", text: "ADR", condition: showAdrSection },
         { href: "#history", text: "History", condition: blipData?.move && blipData.move.length > 0 },
         { href: "#related", text: "Related" }
       ]}
@@ -107,9 +106,8 @@ const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
         cursorColor={quadrantColorSolidValue}
       />
 
-      <!-- Document Freshness Indicator for Architecture Practice -->
       <DocumentFreshnessIndicator
-        dateString={blipData?.created?.toString() || ""}
+        dateValue={blipData?.created}
         showRecommendation={true}
         size="medium"
       />
@@ -123,20 +121,51 @@ const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
             : "Awaiting description"
           }
         </p>
-
-        <p class={styles.detailsLongText}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc vel tincidunt lacinia,
-          nunc nisl aliquam nunc, eget aliquam nunc nisl eu nunc. Pellentesque habitant morbi tristique
-          senectus et netus et malesuada fames ac turpis egestas.
-        </p>
-
-        <p class={styles.detailsLongText}>
-          Etiam euismod, nunc vel tincidunt lacinia, nunc nisl aliquam nunc, eget aliquam nunc nisl eu nunc.
-          Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-        </p>
-
       </div>
     </section>
+
+    {showAdrSection && (
+      <section id="adr" class={styles.detailsSection} slot="left">
+        <div class={hasEmbeddedAdr ? styles.adrSection : styles.adrSectionNoAdr}>
+          <h2 class={styles.sectionTitle}>Architecture Decision Record</h2>
+          {hasEmbeddedAdr && embeddedAdr ? (
+            <div class={styles.detailsContent}>
+              <div class={styles.adrMetaGrid}>
+                <p class={styles.adrMetaItem}>
+                  <span class={styles.adrMetaLabel}>Status:</span>{" "}
+                  <span class={styles.adrStatusBadge}>{embeddedAdr.status}</span>
+                </p>
+                <p class={styles.adrMetaItem}>
+                  <span class={styles.adrMetaLabel}>Author:</span> {embeddedAdr.author}
+                </p>
+                <p class={styles.adrMetaItem}>
+                  <span class={styles.adrMetaLabel}>Reviewers:</span>{" "}
+                  {embeddedAdr.reviewers.join(", ")}
+                </p>
+                <p class={styles.adrMetaItem}>
+                  <span class={styles.adrMetaLabel}>Tags:</span>{" "}
+                  {embeddedAdr.tags.join(", ")}
+                </p>
+              </div>
+
+              {Content ? (
+                <div class={styles.markdownContent}>
+                  <Content />
+                </div>
+              ) : (
+                <p class={styles.adrPending}>
+                  Add <code>## Context</code>, <code>## Decision</code>, and <code>## Consequences</code> sections to this blip file.
+                </p>
+              )}
+            </div>
+          ) : (
+            <p class={styles.adrPending}>
+              Add an <code>adr</code> metadata block plus <code>## Context</code>, <code>## Decision</code>, and <code>## Consequences</code> sections to this blip.
+            </p>
+          )}
+        </div>
+      </section>
+    )}
 
     {/* History Section */}
     {blipData?.move && blipData.move.length > 0 && (
@@ -149,10 +178,6 @@ const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
           <div class={styles.historyChart}>
             <BlipHistory width={700} height={300} moveHistory={blipData.move} client:load />
           </div>
-        </div>
-        <div id="adr" class={blipData?.hasAdr ? styles.adrSection : styles.adrSectionNoAdr}>
-          <h3 class={styles.sectionTitle}>Architecture Decision Record</h3>
-          {blipData?.hasAdr ? <a href={getAdrPath} class={styles.adrLink}>View Architecture Decision Record</a>  : <p class={styles.adrPending}>await ADR</p>}
         </div>
       </section>
     )}
@@ -191,7 +216,6 @@ const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
     </section>
   </div>
 </BlipLayout>
-
 
 <style>
   /* .sticky {

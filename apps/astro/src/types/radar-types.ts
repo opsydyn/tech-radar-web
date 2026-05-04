@@ -1,6 +1,6 @@
 type Quadrant = "Tools" | "Techniques" | "Platforms" | "languages-frameworks";
 type Ring = "Adopt" | "Trial" | "Assess" | "Hold";
-type Tags = "Frontend" | "Backend";
+type AdrStatus = "Proposed" | "Accepted" | "Superseded" | "Deprecated";
 
 const validMoves = ["grow", "go", "stay"] as const;
 export type MoveType = (typeof validMoves)[number];
@@ -31,6 +31,13 @@ export type RelatedBlipWithData = RelatedBlip & {
 	blipRing: Ring;
 };
 
+export type BlipAdr = {
+	status: AdrStatus;
+	author: string;
+	reviewers: string[];
+	tags: string[];
+};
+
 export type Blip = {
 	id: string;
 	name: string;
@@ -38,9 +45,10 @@ export type Blip = {
 	ring: Ring;
 	description: string;
 	hasAdr: boolean;
-	tags: Tags[];
+	adr?: BlipAdr;
+	tags: string[];
 	move: MoveTuple[];
-	created: Date;
+	created?: Date;
 	authors: string[];
 	relatedBlips?: RelatedBlip[];
 };

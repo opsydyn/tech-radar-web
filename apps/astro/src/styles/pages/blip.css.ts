@@ -586,6 +586,107 @@ globalStyle(`html[data-theme="dark"] .${adrTitle}`, {
 	color: darkThemeVars.color.text,
 });
 
+export const adrMetaGrid = style({
+	display: "grid",
+	gap: rhythm1,
+	marginBottom: rhythm2,
+});
+
+export const adrMetaItem = style({
+	fontFamily: "'IBM Plex Mono', monospace",
+	fontSize: "0.95rem",
+	lineHeight: "1.7",
+	color: lightThemeVars.color.text,
+	margin: 0,
+	transition: "color 0.3s ease",
+});
+
+globalStyle(`html[data-theme="dark"] .${adrMetaItem}`, {
+	color: darkThemeVars.color.text,
+});
+
+export const adrMetaLabel = style({
+	fontWeight: 700,
+	color: "var(--quadrant-color-solid)",
+});
+
+export const adrStatusBadge = style({
+	display: "inline-flex",
+	alignItems: "center",
+	padding: "0.2rem 0.5rem",
+	borderRadius: "999px",
+	border: "1px solid var(--quadrant-color-solid)",
+	color: "var(--quadrant-color-solid)",
+	fontSize: "0.85rem",
+	fontWeight: 700,
+	textTransform: "uppercase",
+	letterSpacing: "0.04em",
+	backgroundColor: "rgba(255, 255, 255, 0.02)",
+});
+
+export const markdownContent = style({
+	display: "grid",
+	gap: rhythm2,
+	color: lightThemeVars.color.text,
+	transition: "color 0.3s ease",
+});
+
+globalStyle(`html[data-theme="dark"] .${markdownContent}`, {
+	color: darkThemeVars.color.text,
+});
+
+globalStyle(`.${markdownContent} > :first-child`, {
+	marginTop: 0,
+});
+
+globalStyle(`.${markdownContent} h2`, {
+	fontFamily: "'Space Grotesk', sans-serif",
+	fontSize: fontSize3,
+	fontWeight: 700,
+	margin: `${rhythm2} 0 ${rhythm1}`,
+	color: "var(--quadrant-color-solid)",
+});
+
+globalStyle(`.${markdownContent} h3`, {
+	fontFamily: "'Space Grotesk', sans-serif",
+	fontSize: fontSize2,
+	fontWeight: 700,
+	margin: `${rhythm2} 0 ${rhythm1}`,
+	color: lightThemeVars.color.text,
+});
+
+globalStyle(`html[data-theme="dark"] .${markdownContent} h3`, {
+	color: darkThemeVars.color.text,
+});
+
+globalStyle(`.${markdownContent} p`, {
+	fontFamily: "'IBM Plex Mono', monospace",
+	fontSize: "0.98rem",
+	lineHeight: "1.8",
+	margin: 0,
+	maxWidth: "72ch",
+});
+
+globalStyle(`.${markdownContent} ul, .${markdownContent} ol`, {
+	margin: 0,
+	paddingLeft: "1.5rem",
+	maxWidth: "72ch",
+	fontFamily: "'IBM Plex Mono', monospace",
+	lineHeight: "1.8",
+});
+
+globalStyle(`.${markdownContent} li + li`, {
+	marginTop: "0.35rem",
+});
+
+globalStyle(`.${markdownContent} code`, {
+	fontFamily: "'IBM Plex Mono', monospace",
+	fontSize: "0.9em",
+	padding: "0.1rem 0.35rem",
+	borderRadius: "4px",
+	backgroundColor: "rgba(255, 255, 255, 0.06)",
+});
+
 // --- ADR LINK ---
 export const adrLink = style([
 	spacingLevel2,

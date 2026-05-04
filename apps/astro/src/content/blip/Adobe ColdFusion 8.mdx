@@ -4,8 +4,13 @@ name: "Adobe ColdFusion 8"
 ring: "Hold"
 quadrant: "languages-frameworks"
 tags: ["be"]
-authors: ["Author"]
+authors: ["Alan Currie"]
 hasAdr: true
+adr:
+  status: "Deprecated"
+  author: "Alan Currie"
+  reviewers: ["Alan Currie"]
+  tags: ["Backend"]
 description: "CFML engine"
 created: "2023-01-02"
 move: [
@@ -18,9 +23,16 @@ move: [
 ]
 ---
 
-# "Adobe ColdFusion 8"
-**Ring**: "Hold"
-**Quadrant**: "languages-frameworks"
-**New**: false
-**Description**: "CFML engine"
-**has ADR**: false
+## Context
+
+Adobe ColdFusion 8 remains present in legacy workloads, but it sits well outside the current engineering baseline. The team needs a clear record that it is tolerated only for maintenance and migration purposes, not for new delivery.
+
+## Decision
+
+Mark Adobe ColdFusion 8 as deprecated. Keep it running only where necessary to support existing business capability while actively preferring migration paths toward more maintainable platforms.
+
+## Consequences
+
+- Creates a clear signal that new investment should not target this runtime.
+- Supports prioritisation of migration work for affected systems.
+- Leaves ongoing maintenance cost in place until replacement work is completed.
