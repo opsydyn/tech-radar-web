@@ -8,6 +8,7 @@ import { Tooltip, defaultStyles, withTooltip } from "@visx/tooltip";
 import type { WithTooltipProvidedProps } from "@visx/tooltip/lib/enhancers/withTooltip";
 import { useEffect, useState } from "react";
 import type { MoveTuple, MoveType } from "~types/radar-types";
+import { formatShortDate, normalizeDateValue } from "~utils/dateFormatter";
 
 type BlipHistoryData = {
 	date: string;
@@ -72,41 +73,18 @@ const darkTooltipStyles = {
 
 const keys = Object.keys(lightColors) as MoveType[];
 
-const normalizeMoveDate = (dateValue: MoveTuple[1]): string => {
-	if (dateValue instanceof Date) {
-		return dateValue.toISOString();
-	}
-
-	return dateValue;
-};
-
-const formatDate = (dateValue: MoveTuple[1]): string => {
-	const normalizedDate = normalizeMoveDate(dateValue);
-	const parsedDate = new Date(normalizedDate);
-
-	if (Number.isNaN(parsedDate.getTime())) {
-		return normalizedDate;
-	}
-
-	return new Intl.DateTimeFormat("en-US", {
-		year: "numeric",
-		month: "short",
-		day: "numeric",
-	}).format(parsedDate);
-};
-
 const transformMoveHistoryToChartData = (
 	moveHistory: MoveTuple[],
 ): BlipHistoryData[] => {
 	const sortedHistory = [...moveHistory].sort(
 		(a, b) =>
-			new Date(normalizeMoveDate(a[1])).getTime() -
-			new Date(normalizeMoveDate(b[1])).getTime(),
+			new Date(normalizeDateValue(a[1])).getTime() -
+			new Date(normalizeDateValue(b[1])).getTime(),
 	);
 
 	return sortedHistory.map(([moveType, dateValue]) => {
-		const formattedDate = formatDate(dateValue);
-		const actualDate = normalizeMoveDate(dateValue);
+		const formattedDate = formatShortDate(dateValue);
+		const actualDate = normalizeDateValue(dateValue, "No date recorded");
 
 		const data: BlipHistoryData = {
 			date: formattedDate,

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Blip } from "~types/radar-types";
 import { getBlipPath } from "~utils/blipRouting";
-import { formatDate } from "~utils/dateFormatter";
+import { formatDate, normalizeDateValue } from "~utils/dateFormatter";
 
 type BlipDetailProps = {
 	blip: Blip | null;
@@ -10,9 +10,6 @@ type BlipDetailProps = {
 
 const getDescription = (desc: unknown) =>
 	typeof desc === "string" ? desc.trim() : "awaiting description";
-
-const normalizeMoveDate = (dateValue: Blip["move"][number][1]): string =>
-	dateValue instanceof Date ? dateValue.toISOString() : dateValue;
 
 const formatMoveDate = (dateValue: Blip["move"][number][1]): string =>
 	formatDate(dateValue);
@@ -180,7 +177,7 @@ export const BlipDetail = ({ blip, quadrantColor }: BlipDetailProps) => {
 					>
 						{blip.move.map(([type, date]) => (
 							<div
-								key={`${blip.id}-${type}-${normalizeMoveDate(date)}`}
+								key={`${blip.id}-${type}-${normalizeDateValue(date)}`}
 								style={{
 									display: "flex",
 									alignItems: "center",
