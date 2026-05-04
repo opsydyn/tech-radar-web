@@ -1,5 +1,5 @@
 import { style, styleVariants } from "@vanilla-extract/css";
-import { match } from "ts-pattern";
+import { Match } from "effect";
 
 // Base styles
 export const container = style({
@@ -68,20 +68,21 @@ export const badgeVariants = styleVariants({
 
 // Size variants using pattern matching approach
 const createSizeVariant = (size: "small" | "medium" | "large") =>
-	match(size)
-		.with("small", () => ({
+	Match.value(size).pipe(
+		Match.when("small", () => ({
 			fontSize: "0.75rem",
 			padding: "0.375rem 0.75rem",
-		}))
-		.with("medium", () => ({
+		})),
+		Match.when("medium", () => ({
 			fontSize: "0.875rem",
 			padding: "0.5rem 1rem",
-		}))
-		.with("large", () => ({
+		})),
+		Match.when("large", () => ({
 			fontSize: "1rem",
 			padding: "0.75rem 1.25rem",
-		}))
-		.exhaustive();
+		})),
+		Match.exhaustive,
+	);
 
 export const sizeVariants = styleVariants({
 	small: createSizeVariant("small"),

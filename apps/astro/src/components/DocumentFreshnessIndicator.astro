@@ -1,7 +1,6 @@
 ---
-import { match } from "ts-pattern";
+import { Match } from "effect";
 import {
-	type DocumentFreshness,
 	type DocumentFreshnessLevel,
 	calculateDocumentFreshness,
 } from "../utils/documentFreshness";
@@ -35,12 +34,13 @@ const ICON_COMPONENTS: Record<DocumentFreshnessLevel, typeof FreshIcon> = {
 
 const IconComponent = ICON_COMPONENTS[freshness.level];
 
-const shouldShowRecommendation = match([
+const shouldShowRecommendation = Match.value({
 	showRecommendation,
-	freshness.actionable,
-])
-	.with([true, true], () => true)
-	.otherwise(() => false);
+	actionable: freshness.actionable,
+}).pipe(
+	Match.when({ showRecommendation: true, actionable: true }, () => true),
+	Match.orElse(() => false),
+);
 ---
 
 <div class={`${styles.container} ${styles.responsiveContainer}`}>

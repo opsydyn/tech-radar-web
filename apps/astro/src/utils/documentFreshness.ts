@@ -5,7 +5,7 @@ import {
 	parseISO,
 	startOfDay,
 } from "date-fns";
-import { match } from "ts-pattern";
+import { Match } from "effect";
 
 export type DocumentFreshnessLevel =
 	| "fresh"
@@ -72,20 +72,21 @@ const FRESHNESS_CONFIG: Record<
  * Determine freshness level based on days old using exhaustive pattern matching
  */
 const determineFreshnessLevel = (daysOld: number): DocumentFreshnessLevel =>
-	match(daysOld)
-		.when(
+	Match.value(daysOld).pipe(
+		Match.when(
 			(days) => days <= FRESHNESS_THRESHOLDS.fresh.max,
 			() => "fresh" as const,
-		)
-		.when(
+		),
+		Match.when(
 			(days) => days <= FRESHNESS_THRESHOLDS.aging.max,
 			() => "aging" as const,
-		)
-		.when(
+		),
+		Match.when(
 			(days) => days <= FRESHNESS_THRESHOLDS.stale.max,
 			() => "stale" as const,
-		)
-		.otherwise(() => "critical" as const);
+		),
+		Match.orElse(() => "critical" as const),
+	);
 
 /**
  * Generate message based on freshness level using exhaustive pattern matching
@@ -95,21 +96,24 @@ const generateMessage = (
 	daysOld: number,
 	monthsOld: number,
 ): string =>
-	match(level)
-		.with("fresh", () =>
+	Match.value(level).pipe(
+		Match.when("fresh", () =>
 			FRESHNESS_CONFIG.fresh.messageTemplate(daysOld, "days"),
-		)
-		.with("aging", () =>
+		),
+		Match.when("aging", () =>
 			FRESHNESS_CONFIG.aging.messageTemplate(Math.floor(daysOld / 7), "weeks"),
-		)
-		.with("stale", () =>
+		),
+		Match.when("stale", () =>
 			FRESHNESS_CONFIG.stale.messageTemplate(monthsOld, "months"),
-		)
-		.with("critical", () =>
+		),
+		Match.when("critical", () =>
 			FRESHNESS_CONFIG.critical.messageTemplate(monthsOld, "months"),
-		)
-		.with("invalid", () => FRESHNESS_CONFIG.invalid.messageTemplate(0, ""))
-		.exhaustive();
+		),
+		Match.when("invalid", () =>
+			FRESHNESS_CONFIG.invalid.messageTemplate(0, ""),
+		),
+		Match.exhaustive,
+	);
 
 /**
  * Calculate document freshness with exhaustive pattern matching
@@ -119,16 +123,16 @@ export const calculateDocumentFreshness = (
 ): DocumentFreshness => {
 	const parsedDate = parseISO(dateString);
 
-	return match(isValid(parsedDate))
-		.with(false, () => ({
+	return Match.value(isValid(parsedDate)).pipe(
+		Match.when(false, () => ({
 			level: "invalid" as const,
 			daysOld: 0,
 			monthsOld: 0,
 			message: generateMessage("invalid", 0, 0),
 			recommendation: FRESHNESS_CONFIG.invalid.recommendation,
 			actionable: FRESHNESS_CONFIG.invalid.actionable,
-		}))
-		.with(true, () => {
+		})),
+		Match.when(true, () => {
 			const now = startOfDay(new Date());
 			const daysOld = differenceInDays(now, parsedDate);
 			const monthsOld = differenceInMonths(now, parsedDate);
@@ -142,6 +146,7 @@ export const calculateDocumentFreshness = (
 				recommendation: FRESHNESS_CONFIG[level].recommendation,
 				actionable: FRESHNESS_CONFIG[level].actionable,
 			};
-		})
-		.exhaustive();
+		}),
+		Match.exhaustive,
+	);
 };

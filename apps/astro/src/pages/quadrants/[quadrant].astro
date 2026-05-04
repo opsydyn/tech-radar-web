@@ -2,7 +2,7 @@
 export const prerender = true;
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
-import { match } from "ts-pattern";
+import { Match } from "effect";
 import BlipListIsland from "~components/BlipListIsland";
 import BlipLayout from "~layouts/BlipLayout.astro";
 import type { Blip } from "~types/radar-types";
@@ -57,15 +57,16 @@ type QuadrantType =
 const getQuadrantColor = (quadrant: string): string => {
 	const lowerQuadrant = quadrant.toLowerCase() as QuadrantType;
 
-	return match(lowerQuadrant)
-		.with("tools", () => quadrantColorsSolid.tools)
-		.with("techniques", () => quadrantColorsSolid.techniques)
-		.with("platforms", () => quadrantColorsSolid.platforms)
-		.with(
+	return Match.value(lowerQuadrant).pipe(
+		Match.when("tools", () => quadrantColorsSolid.tools),
+		Match.when("techniques", () => quadrantColorsSolid.techniques),
+		Match.when("platforms", () => quadrantColorsSolid.platforms),
+		Match.when(
 			"languages-frameworks",
 			() => quadrantColorsSolid["languages-frameworks"],
-		)
-		.otherwise(() => quadrantColorsSolid.tools);
+		),
+		Match.orElse(() => quadrantColorsSolid.tools),
+	);
 };
 
 const quadrantColor = getQuadrantColor(quadrant);
@@ -75,19 +76,24 @@ const getNavItemClasses = (
 	navQuadrant: keyof typeof quadrants,
 	currentQuadrant: string,
 ) => {
-	const baseClasses = match(navQuadrant)
-		.with("tools", () => styles.quadrantNavItemTools)
-		.with("techniques", () => styles.quadrantNavItemTechniques)
-		.with("platforms", () => styles.quadrantNavItemPlatforms)
-		.with("languages-frameworks", () => styles.quadrantNavItemLanguages)
-		.exhaustive();
+	const baseClasses = Match.value(navQuadrant).pipe(
+		Match.when("tools", () => styles.quadrantNavItemTools),
+		Match.when("techniques", () => styles.quadrantNavItemTechniques),
+		Match.when("platforms", () => styles.quadrantNavItemPlatforms),
+		Match.when("languages-frameworks", () => styles.quadrantNavItemLanguages),
+		Match.exhaustive,
+	);
 
-	const activeClasses = match(navQuadrant)
-		.with("tools", () => styles.quadrantNavItemActiveTools)
-		.with("techniques", () => styles.quadrantNavItemActiveTechniques)
-		.with("platforms", () => styles.quadrantNavItemActivePlatforms)
-		.with("languages-frameworks", () => styles.quadrantNavItemActiveLanguages)
-		.exhaustive();
+	const activeClasses = Match.value(navQuadrant).pipe(
+		Match.when("tools", () => styles.quadrantNavItemActiveTools),
+		Match.when("techniques", () => styles.quadrantNavItemActiveTechniques),
+		Match.when("platforms", () => styles.quadrantNavItemActivePlatforms),
+		Match.when(
+			"languages-frameworks",
+			() => styles.quadrantNavItemActiveLanguages,
+		),
+		Match.exhaustive,
+	);
 
 	return navQuadrant === currentQuadrant
 		? `${baseClasses} ${activeClasses}`

@@ -61,7 +61,7 @@ This project uses various packages for development and runtime:
 - **UI & Styling**: `tailwindcss`, `@vanilla-extract/css`, `@vanilla-extract/recipes`, `@vanilla-extract/sprinkles`, `@vanilla-extract/vite-plugin`.
 - **React & Types**: `react`, `react-dom`, `@types/react`, `@types/react-dom`.
 - **State Management**: `@nanostores/react`, `@nanostores/logger`, `@nanostores/persistent`.
-- **Testing & Other Utilities**: `vitest`, `chalk`, `ts-pattern`, `@visx/*`.
+- **Testing & Other Utilities**: `vitest`, `chalk`, `effect`, `@visx/*`.
 
 ## Development Tools
 
