@@ -4,7 +4,8 @@ import { localPoint } from "@visx/event";
 import { Group } from "@visx/group";
 import { useTooltipInPortal } from "@visx/tooltip";
 import { Zoom } from "@visx/zoom";
-import { useEffect, useState } from "react";
+import type { CSSProperties, MouseEvent } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { RadarChart } from "~components/radar/BaseChart";
 import {
 	EditionSwitcher,
@@ -14,28 +15,70 @@ import { Labels } from "~components/radar/Labels";
 import { LegendTwo } from "~components/radar/Legend";
 // import { Legend, LegendTwo } from "~components/radar/Legend";
 import { MiniMapControls } from "~components/radar/MiniMapControls";
-import { RadarBlip } from "~components/radar/RadarBlip";
+import {
+	getRadarBlipColor,
+	MiniMapBlip,
+	RadarBlip,
+} from "~components/radar/RadarBlip";
 import { RadarControls } from "~components/radar/RadarControls";
 import { RadarRings } from "~components/radar/RadarRings";
 import UseBlipPositions from "~hooks/UseBlipPositions";
 import { useBlipSearch } from "~hooks/useBlipSearch";
 import { miniMapState, radarConfig } from "~stores/radar-store";
 import { theme } from "~stores/theme-store";
-import type { Blip } from "~types/radar-types";
+import type { Blip, BlipWithPosition } from "~types/radar-types";
 import type { Edition } from "~utils/editionHelpers";
 import { getBlipsForEdition } from "~utils/editionHelpers";
 
 import * as styles from "./Radar.css";
 
-const Radar = ({
-	blips,
-	editions,
-}: { blips: Array<Blip>; editions: Array<Edition> }) => {
+type RadarTooltipState = {
+	blip: BlipWithPosition;
+	left: number;
+	top: number;
+};
+
+type RadarTooltipStyle = CSSProperties & {
+	readonly "--radar-blip-color": string;
+};
+
+const createTooltipPosition = (event: MouseEvent<Element>) => ({
+	left: event.clientX + 12,
+	top: event.clientY - 18,
+});
+
+const RadarBlipTooltip = ({ blip }: { blip: BlipWithPosition }) => {
+	const blipColor = getRadarBlipColor(blip.quadrant);
+	const tooltipStyle: RadarTooltipStyle = {
+		"--radar-blip-color": blipColor,
+	};
+
+	return (
+		<div className={styles.blipTooltip} style={tooltipStyle}>
+			<div className={styles.blipTooltipHeader}>
+				<span className={styles.blipTooltipBadge}>{blip.id}</span>
+				<strong className={styles.blipTooltipTitle}>{blip.name}</strong>
+			</div>
+			<div className={styles.blipTooltipDetails}>
+				<span>
+					<span className={styles.blipTooltipLabel}>Quadrant:</span>{" "}
+					{blip.quadrant}
+				</span>
+				<span>
+					<span className={styles.blipTooltipLabel}>Ring:</span> {blip.ring}
+				</span>
+			</div>
+		</div>
+	);
+};
+
+const Radar = ({ blips, editions }: { blips: Blip[]; editions: Edition[] }) => {
 	const { width, height, centerX, centerY } = useStore(radarConfig);
-	const { containerRef } = useTooltipInPortal();
+	const { containerRef, TooltipInPortal } = useTooltipInPortal();
 	const miniMapstate = useStore(miniMapState);
 	const currentTheme = useStore(theme);
 	const [bgColor, setBgColor] = useState<string>("#000000");
+	const [tooltip, setTooltip] = useState<RadarTooltipState | null>(null);
 
 	// Handle theme state on client-side only to avoid hydration mismatch
 	useEffect(() => {
@@ -47,9 +90,10 @@ const Radar = ({
 	const currentEdition = useStore(selectedEdition);
 
 	// Get blips for current edition (or empty array if no edition selected yet)
-	const editionBlips = currentEdition
-		? getBlipsForEdition(blips, currentEdition)
-		: [];
+	const editionBlips = useMemo(
+		() => (currentEdition ? getBlipsForEdition(blips, currentEdition) : []),
+		[blips, currentEdition],
+	);
 
 	// Use the search hook to filter edition-specific blips
 	const {
@@ -60,6 +104,7 @@ const Radar = ({
 		resultsCount,
 		hasSearchTerm,
 	} = useBlipSearch(editionBlips);
+	const resultsSuffix = resultsCount === 1 ? "" : "s";
 
 	// Calculate positions for edition + search filtered blips
 	const radarBlips = UseBlipPositions(filteredBlips);
@@ -77,6 +122,24 @@ const Radar = ({
 	};
 
 	const [hoveredBlipId, setHoveredBlipId] = useState<string | null>(null);
+	const handleBlipHover = useCallback(
+		(event: MouseEvent<Element>, blip: BlipWithPosition) => {
+			const { left, top } = createTooltipPosition(event);
+			setHoveredBlipId((currentBlipId) =>
+				currentBlipId === blip.id ? currentBlipId : blip.id,
+			);
+			setTooltip((currentTooltip) =>
+				currentTooltip?.blip.id === blip.id
+					? currentTooltip
+					: { blip, left, top },
+			);
+		},
+		[],
+	);
+	const handleBlipUnhover = useCallback(() => {
+		setHoveredBlipId(null);
+		setTooltip(null);
+	}, []);
 
 	return (
 		<Zoom<SVGSVGElement>
@@ -133,7 +196,7 @@ const Radar = ({
 							{hasSearchTerm && (
 								<div className={styles.searchFooter}>
 									<span className={styles.searchResultsCount}>
-										{resultsCount} result{resultsCount !== 1 ? "s" : ""}
+										{resultsCount} result{resultsSuffix}
 									</span>
 									<button
 										type="button"
@@ -168,8 +231,23 @@ const Radar = ({
 								cursor: zoom.isDragging ? "grabbing" : "grab",
 								touchAction: "none",
 							}}
-							onMouseLeave={() => setHoveredBlipId(null)}
+							onMouseLeave={handleBlipUnhover}
 						>
+							<defs>
+								<filter
+									id="radar-blip-outer-glow"
+									x="-50%"
+									y="-50%"
+									width="200%"
+									height="200%"
+								>
+									<feGaussianBlur stdDeviation="8" result="coloredBlur" />
+									<feMerge>
+										<feMergeNode in="coloredBlur" />
+										<feMergeNode in="SourceGraphic" />
+									</feMerge>
+								</filter>
+							</defs>
 							<RectClipPath id="zoom-clip" width={width} height={height} />
 							<rect width={width} height={height} rx={14} fill={bgColor} />
 							<g transform={transformString}>
@@ -180,6 +258,8 @@ const Radar = ({
 									{/* Global dimming overlay */}
 									{hoveredBlipId && (
 										<rect
+											x={-centerX}
+											y={-centerY}
 											width={width}
 											height={height}
 											fill="#000"
@@ -187,7 +267,10 @@ const Radar = ({
 											style={{ pointerEvents: "none" }}
 										/>
 									)}
+									{/* biome-ignore lint/a11y/noStaticElementInteractions: transparent SVG hit layer delegates drag, touch, and zoom gestures for the radar surface. */}
 									<rect
+										x={-centerX}
+										y={-centerY}
 										width={width}
 										height={height}
 										rx={14}
@@ -215,8 +298,8 @@ const Radar = ({
 												hoveredBlipId !== null && hoveredBlipId !== blip.id
 											}
 											isHovered={hoveredBlipId === blip.id}
-											onHover={() => setHoveredBlipId(blip.id)}
-											onUnhover={() => setHoveredBlipId(null)}
+											onHover={handleBlipHover}
+											onUnhover={handleBlipUnhover}
 										/>
 									))}
 								</Group>
@@ -235,9 +318,9 @@ const Radar = ({
 									<Labels />
 									<Group top={centerY} left={centerX}>
 										<RadarRings />
-										{miniMapBlips.map((blip, i) => {
-											return <RadarBlip key={blip.id} blip={blip} index={i} />;
-										})}
+										{miniMapBlips.map((blip) => (
+											<MiniMapBlip key={blip.id} blip={blip} />
+										))}
 									</Group>
 									<rect
 										width={width}
@@ -251,6 +334,19 @@ const Radar = ({
 								</g>
 							)}
 						</svg>
+						{tooltip && (
+							<TooltipInPortal
+								key={`tooltip-${tooltip.blip.id}`}
+								top={tooltip.top}
+								left={tooltip.left}
+								offsetLeft={0}
+								offsetTop={0}
+								unstyled
+								applyPositionStyle
+							>
+								<RadarBlipTooltip blip={tooltip.blip} />
+							</TooltipInPortal>
+						)}
 						<RadarControls zoom={zoom} />
 						<MiniMapControls />
 					</div>

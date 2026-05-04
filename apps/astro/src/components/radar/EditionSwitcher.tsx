@@ -10,11 +10,12 @@
 
 import { useStore } from "@nanostores/react";
 import { atom } from "nanostores";
+import { useEffect, useMemo } from "react";
 import type { Edition } from "~utils/editionHelpers";
 import {
 	formatEditionLabel,
-	sortEditionsByDate,
 	getLatestEdition,
+	sortEditionsByDate,
 } from "~utils/editionHelpers";
 import * as styles from "./EditionSwitcher.css";
 
@@ -36,15 +37,20 @@ export const EditionSwitcher = ({ editions }: EditionSwitcherProps) => {
 	const selected = useStore(selectedEdition);
 
 	// Sort editions most recent first
-	const sortedEditions = sortEditionsByDate(editions);
+	const sortedEditions = useMemo(
+		() => sortEditionsByDate(editions),
+		[editions],
+	);
 
 	// Initialize with latest edition if not set
-	if (!selected && sortedEditions.length > 0) {
-		const latest = getLatestEdition(editions);
-		if (latest) {
-			selectedEdition.set(latest);
+	useEffect(() => {
+		if (!selected && sortedEditions.length > 0) {
+			const latest = getLatestEdition(editions);
+			if (latest) {
+				selectedEdition.set(latest);
+			}
 		}
-	}
+	}, [editions, selected, sortedEditions.length]);
 
 	const handleChange = (value: string) => {
 		const editionNumber = Number.parseInt(value, 10);

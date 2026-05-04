@@ -500,6 +500,54 @@ export const searchResultsCount = style({
 	},
 });
 
+export const blipTooltip = style({
+	minWidth: "240px",
+	maxWidth: "360px",
+	background: "rgba(8, 10, 14, 0.94)",
+	border: "1px solid var(--radar-blip-color)",
+	borderLeft: "8px solid var(--radar-blip-color)",
+	borderRadius: "10px",
+	boxShadow:
+		"0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 36px rgba(0, 0, 0, 0.42), 0 0 28px var(--radar-blip-color)",
+	color: "#f8fafc",
+	fontFamily: "'IBM Plex Mono', monospace",
+	padding: "0.85rem 1rem",
+	pointerEvents: "none",
+});
+
+export const blipTooltipHeader = style({
+	alignItems: "center",
+	display: "flex",
+	gap: "0.65rem",
+	marginBottom: "0.6rem",
+});
+
+export const blipTooltipBadge = style({
+	background: "var(--radar-blip-color)",
+	borderRadius: "999px",
+	color: "#020617",
+	fontSize: "0.78rem",
+	fontWeight: 800,
+	lineHeight: 1,
+	padding: "0.35rem 0.5rem",
+});
+
+export const blipTooltipTitle = style({
+	fontFamily: "'Space Grotesk', sans-serif",
+	fontSize: "1.1rem",
+	letterSpacing: "0.01em",
+	lineHeight: 1.1,
+});
+
+export const blipTooltipDetails = style({
+	display: "grid",
+	gap: "0.35rem",
+});
+
+export const blipTooltipLabel = style({
+	color: "#94a3b8",
+});
+
 // Theme indicator for displaying current theme state
 export const themeIndicator = style({
 	marginTop: "12px",
