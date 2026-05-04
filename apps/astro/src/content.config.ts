@@ -1,4 +1,5 @@
 import { defineCollection } from "astro:content";
+import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 
 const QuadrantEnum = z.enum([
@@ -34,44 +35,6 @@ const Edition = z.coerce.date();
 const MoveTuple = z.tuple([MoveEnum, Edition]);
 const Tags = z.array(TagsEnum);
 
-// 🗺️ Wardley mapping schemas following functional programming patterns
-const WardleyEvolutionStageEnum = z.enum([
-	"Genesis",
-	"Custom",
-	"Product",
-	"Commodity",
-]);
-
-const WardleyVisibilityEnum = z.enum(["Visible", "Internal", "Infrastructure"]);
-
-const WardleyComponentTypeEnum = z.enum([
-	"User",
-	"Business",
-	"Data",
-	"Infrastructure",
-	"Anchor",
-]);
-
-const WardleyMovementEnum = z.enum(["Evolving", "Stable", "Declining"]);
-
-// Wardley position schema with validation
-const WardleyPositionSchema = z.object({
-	evolution: z.number().min(0).max(1), // 0-1 (Genesis to Commodity)
-	value: z.number().min(0).max(1), // 0-1 (Infrastructure to User-facing)
-});
-
-// Complete Wardley component data schema
-const WardleyComponentSchema = z.object({
-	position: WardleyPositionSchema,
-	stage: WardleyEvolutionStageEnum,
-	visibility: WardleyVisibilityEnum,
-	componentType: WardleyComponentTypeEnum,
-	size: z.number().min(1).max(10), // 1-10 relative importance
-	dependencies: z.array(z.string()).optional(), // IDs of other blips this depends on
-	movement: WardleyMovementEnum.optional(),
-	strategicNotes: z.string().optional(), // Strategic context/notes
-});
-
 const RelatedBlipSchema = z.object({
 	blipId: z.string(),
 	relationshipType: RelationshipTypeEnum,
@@ -95,8 +58,6 @@ const BlipSchema = z.object({
 	move: z.array(MoveTuple),
 	relatedBlips: z.array(RelatedBlipSchema).optional(),
 	created: z.coerce.date().optional(),
-	// 🗺️ Optional Wardley mapping data
-	wardley: WardleyComponentSchema.optional(),
 });
 
 const AdrSchema = z.object({
@@ -119,17 +80,26 @@ const EditionSchema = z.object({
 });
 
 const adrCollection = defineCollection({
-	type: "content",
+	loader: glob({
+		base: "./src/content/adr",
+		pattern: "**/*.{md,mdx}",
+	}),
 	schema: AdrSchema,
 });
 
 const blipCollection = defineCollection({
-	type: "content",
+	loader: glob({
+		base: "./src/content/blip",
+		pattern: "**/*.{md,mdx}",
+	}),
 	schema: BlipSchema,
 });
 
 const editionCollection = defineCollection({
-	type: "content",
+	loader: glob({
+		base: "./src/content/edition",
+		pattern: "**/*.{md,mdx}",
+	}),
 	schema: EditionSchema,
 });
 
@@ -138,11 +108,3 @@ export const collections = {
 	blip: blipCollection,
 	edition: editionCollection,
 };
-
-// 🎪 Export types for use in components
-export type WardleyPosition = z.infer<typeof WardleyPositionSchema>;
-export type WardleyComponent = z.infer<typeof WardleyComponentSchema>;
-export type WardleyEvolutionStage = z.infer<typeof WardleyEvolutionStageEnum>;
-export type WardleyVisibility = z.infer<typeof WardleyVisibilityEnum>;
-export type WardleyComponentType = z.infer<typeof WardleyComponentTypeEnum>;
-export type WardleyMovement = z.infer<typeof WardleyMovementEnum>;

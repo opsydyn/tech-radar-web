@@ -15,7 +15,7 @@ const formatBritishDate = (dt: DateTime.DateTime): string =>
  */
 export function formatDate(dateValue: string | Date | undefined): string {
 	return pipe(
-		Option.fromNullable(dateValue),
+		Option.fromNullishOr(dateValue),
 		Option.flatMap((value) =>
 			DateTime.make(typeof value === "string" ? value : value.toISOString()),
 		),
