@@ -1,0 +1,49 @@
+---
+import { ViewTransitions } from "astro:transitions";
+
+import * as styles from "./Layout.css";
+
+type Props = {
+  content: {
+    title: string | undefined;
+    author: string;
+    date: string;
+    url: string | URL;
+    slug: string;
+    description: string;
+  };
+};
+
+const {
+  content: { title, url, slug, date, author },
+} = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="canonical" href={new URL(url ? url : "", Astro.site).pathname} />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- <script is:inline src="https://unpkg.com/react-scan/dist/auto.global.js" /> -->
+    <title>{title}</title>
+    <ViewTransitions />
+  </head>
+  <body>
+    <div class:list={[styles.container]}>
+      <div class:list={[styles.sideColumn]}>
+        <slot name="left" />
+      </div>
+      <div class:list={[styles.adrText]}>
+        <slot />
+        <h1>{title} by {author}</h1>
+        <h2>{slug}</h2>
+        <h2>{date}</h2>
+        <a href={slug}>{slug}</a>
+      </div>
+    </div>
+  </body>
+</html>

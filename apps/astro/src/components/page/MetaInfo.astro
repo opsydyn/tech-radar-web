@@ -1,0 +1,27 @@
+---
+import TypeWriterContainer from "~components/TypeWriterContainer.astro";
+import * as styles from "../../pages/blip/Blip.css";
+
+interface Props {
+	date: string;
+	status?: string;
+	cursorColor?: string;
+	showDate?: boolean;
+}
+
+const { date, status, cursorColor = "#6464ff", showDate = true } = Astro.props;
+---
+
+<div class={styles.detailsMeta}>
+  {showDate && <span class={styles.detailsDate}>{date}</span>}
+  {status && (
+    <span class={styles.detailsRing}>
+      <TypeWriterContainer
+        text={status}
+        speed={80}
+        cursorColor={cursorColor}
+        cursorSize="1.5rem"
+      />
+    </span>
+  )}
+</div>

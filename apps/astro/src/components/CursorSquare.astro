@@ -1,0 +1,106 @@
+---
+import * as styles from "./CursorSquare.css";
+
+type Props = {
+	color?: string;
+	duration?: number;
+	size?: string;
+	threshold?: number;
+	resetOnScroll?: boolean;
+};
+
+const {
+	color = "var(--quadrant-color-solid)",
+	duration = 5,
+	size = "2rem",
+	threshold = 0.1,
+	resetOnScroll = true,
+} = Astro.props;
+
+const customStyles = {
+	[styles.cursorColor]: color,
+	[styles.cursorSize]: size,
+};
+---
+
+<span id="cursor" class={styles.cursorSquare} style={customStyles} data-animation-state="idle"></span>
+
+<script is:inline define:vars={{ animationDuration: duration * 1000, cursorActiveClass: styles.cursorActive, threshold, resetOnScroll }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const cursor = document.getElementById('cursor');
+    
+    if (!cursor) return;
+    
+    // Animation state tracking
+    let animationTimeout;
+    
+    const startAnimation = () => {
+      // Only start if not currently animating
+      if (cursor.dataset.animationState === "idle") {
+        // Mark as animating
+        cursor.dataset.animationState = "animating";
+        
+        // Start animation
+        cursor.classList.add(cursorActiveClass);
+        
+        // Set timeout to end animation
+        animationTimeout = setTimeout(() => {
+          cursor.classList.remove(cursorActiveClass);
+          cursor.style.opacity = '1';
+          cursor.dataset.animationState = "complete";
+        }, animationDuration);
+      }
+    };
+    
+    const resetAnimation = () => {
+      // Clear any ongoing animation
+      clearTimeout(animationTimeout);
+      
+      // Reset styles
+      cursor.classList.remove(cursorActiveClass);
+      cursor.style.opacity = '0';
+      
+      // Mark as ready for animation
+      cursor.dataset.animationState = "idle";
+    };
+    
+    // Define action lookup table based on element state and visibility
+    const actionMap = {
+      visible: {
+        idle: () => startAnimation(),
+        animating: () => {}, // Already animating, do nothing
+        complete: () => {} // Already complete, do nothing
+      },
+      hidden: {
+        idle: () => {}, // Not started yet, do nothing
+        animating: () => {}, // Currently animating, let it finish
+        complete: () => resetOnScroll ? resetAnimation() : {} // Reset if enabled
+      }
+    };
+    
+    // Create intersection observer
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          // Determine visibility state
+          const visibility = entry.isIntersecting ? 'visible' : 'hidden';
+          
+          // Get current animation state
+          const animationState = cursor.dataset.animationState;
+          
+          // Execute appropriate action from lookup table
+          actionMap[visibility][animationState]();
+          
+          // Handle one-time observation if needed
+          if (entry.isIntersecting && !resetOnScroll) {
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold }
+    );
+    
+    // Start observing
+    observer.observe(cursor);
+  });
+</script>

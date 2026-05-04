@@ -1,0 +1,28 @@
+---
+title: "TypeScript"
+tags: ["Frontend"]
+created: "2023-03-10"
+status: "Accepted"
+author: "Alan Currie"
+reviewers: ["Alan Currie"]
+id: "4"
+---
+
+import * as styles from "./Adr.css";
+
+<h1 class:list={[styles.twStyle]}>TypeScript</h1>
+
+## Context
+
+As our codebase grows, we're experiencing increasing challenges with type-related bugs and code maintainability. We need a solution that provides better type safety while maintaining JavaScript compatibility.
+
+## Decision
+
+We have decided to adopt TypeScript as our primary language for frontend and backend development. TypeScript's static typing, excellent IDE support, and seamless integration with JavaScript make it an ideal choice.
+
+## Consequences
+
+- Improved code quality and reduced runtime errors
+- Better developer experience with enhanced IDE support
+- Slight learning curve for developers new to static typing
+- Need to update our build pipeline to handle TypeScript compilation

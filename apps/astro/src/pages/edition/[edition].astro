@@ -1,0 +1,194 @@
+---
+export const prerender = true;
+import { getCollection } from "astro:content";
+import type { GetStaticPaths } from "astro";
+import BlipLayout from "~layouts/BlipLayout.astro";
+import { formatDate } from "../../utils/dateFormatter";
+import * as styles from "../blip/Blip.css";
+
+// Import shared components
+import PageHeader from "../../components/page/PageHeader.astro";
+import StickyNavigation from "../../components/page/StickyNavigation.astro";
+
+export const getStaticPaths: GetStaticPaths = async () => {
+	const editions = await getCollection("edition");
+	return editions.map(({ data }) => ({
+		params: { edition: data.id },
+	}));
+};
+
+const editions = await getCollection("edition");
+
+const { edition } = Astro.params;
+const editionEntry = editions.find(({ data }) => data.id === edition);
+const editionData = editionEntry?.data;
+const { Content } = editionEntry
+	? await editionEntry.render()
+	: { Content: null };
+
+const formattedDate = formatDate(editionData?.date);
+
+// Use a consistent color for all editions
+const editionColorValue = "#4CAF50"; // Green color for editions
+---
+
+<BlipLayout seo={{ title: editionData?.title ?? "Tech Radar Edition" }}>
+  <div slot="center" class={styles.container} style={`
+    --quadrant-color: ${editionColorValue};
+    --quadrant-color-solid: ${editionColorValue};
+    --quadrant-color-dark: ${editionColorValue};
+  `}>
+    <!-- Hero Section -->
+    <PageHeader
+      title={editionData?.title}
+      subtitle={formattedDate}
+    />
+
+    <!-- Navigation Bar -->
+    <StickyNavigation
+      backLink="/"
+      backText="Back to Radar"
+      tabs={[
+        { href: "#highlights", text: "Highlights" },
+        { href: "#new-entries", text: "New Entries" },
+        { href: "#moved-out", text: "Moved Out" }
+      ]}
+    />
+
+    <!-- Main Content -->
+    <div class={styles.detailsContent} id="overview">
+      <article class="edition-content">
+        <Content />
+      </article>
+    </div>
+
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+          anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+
+            if (targetElement) {
+              window.scrollTo({
+                top: targetElement.offsetTop - 70,
+                behavior: 'smooth'
+              });
+
+              history.pushState(null, null, targetId);
+            }
+          });
+        });
+
+        // Simple sticky navigation
+        const navContainer = document.getElementById('navContainer');
+        const navPosition = navContainer.offsetTop;
+
+        function handleScroll() {
+          if (window.scrollY >= navPosition) {
+            navContainer.classList.add('sticky');
+            document.body.style.paddingTop = navContainer.offsetHeight + 'px';
+          } else {
+            navContainer.classList.remove('sticky');
+            document.body.style.paddingTop = '0';
+          }
+        }
+
+        window.addEventListener('scroll', handleScroll);
+        handleScroll(); // Initial check
+      });
+    </script>
+
+    <style>
+      .edition-content {
+        font-family: 'IBM Plex Mono', monospace;
+        line-height: 1.6;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .edition-content h1 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--quadrant-color-solid);
+      }
+
+      .edition-content h2 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.8rem;
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--quadrant-color-solid);
+      }
+
+      .edition-content h3 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.4rem;
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+        color: var(--quadrant-color-solid);
+      }
+
+      .edition-content ul {
+        padding-left: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .edition-content li {
+        margin-bottom: 0.5rem;
+      }
+
+      .edition-content strong {
+        color: var(--quadrant-color-solid);
+      }
+
+      /* Dark theme adjustments */
+      html[data-theme="dark"] .edition-content {
+        color: #e0e0e0;
+      }
+
+      html[data-theme="dark"] .edition-content h1,
+      html[data-theme="dark"] .edition-content h2,
+      html[data-theme="dark"] .edition-content h3 {
+        color: #ffffff;
+      }
+
+      html[data-theme="dark"] .edition-content h2 {
+        border-bottom-color: var(--quadrant-color-solid);
+      }
+    </style>
+
+  </div>
+</BlipLayout>
+
+<style>
+  .sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: #111;
+    width: 100%;
+  }
+</style>
+
+<script>
+  // Add IDs to section headings for navigation
+  document.addEventListener('DOMContentLoaded', function() {
+    const h2Elements = document.querySelectorAll('.edition-content h2');
+    h2Elements.forEach(heading => {
+      if (heading.textContent) {
+        const id = heading.textContent.toLowerCase().replace(/\s+/g, '-');
+        heading.id = id;
+      }
+    });
+  });
+</script>

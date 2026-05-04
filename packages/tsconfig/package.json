@@ -1,0 +1,10 @@
+{
+  "name": "@tech-radar/tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "files": [
+    "base.json",
+    "astro.json",
+    "react.json"
+  ]
+}

@@ -1,0 +1,44 @@
+---
+import ContentLayout from "~layouts/CotentLayout.astro";
+export const prerender = true
+import type { Adr } from "~types/radar-types";
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+
+type Props = {
+  adr: AdrCollectionEntry;
+};
+
+type AdrCollectionEntry = CollectionEntry<"adr"> & { data: Adr };
+
+export async function getStaticPaths() {
+  const adrs: Array<AdrCollectionEntry> = await getCollection("adr");
+
+  return adrs.map((adr) => ({
+    params: {
+      slug: adr.slug,
+    },
+    props: { adr },
+  }));
+}
+
+const { adr } = Astro.props as { adr: AdrCollectionEntry };
+const adrData = adr?.data as Adr | undefined;
+
+const content = {
+  title: adrData?.title,
+  author: "adr.collection",
+  date: "adrData?.date",
+  url: "http://url.com",
+  description: adr.id,
+  slug: adr.slug,
+};
+
+const { Content } = await adr.render();
+---
+
+<ContentLayout content={content}>
+  <div>
+    <Content />
+  </div>
+</ContentLayout>

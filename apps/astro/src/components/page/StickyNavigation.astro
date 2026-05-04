@@ -1,0 +1,115 @@
+---
+import * as styles from "../../pages/blip/Blip.css";
+
+interface Props {
+	backLink: string;
+	backText: string;
+	tabs: Array<{ href: string; text: string; condition?: boolean }>;
+	quadrantLinks?: boolean;
+}
+
+const { backLink, backText, tabs, quadrantLinks = false } = Astro.props;
+---
+
+<div class={styles.navContainer} id="navContainer">
+  <nav class={styles.fullBleed} id="mainNav">
+    <div class={styles.navBar}>
+      <a href={backLink} class={styles.navBack}>
+        ← {backText}
+      </a>
+      <div class={styles.navTabs} id="navTabs">
+        {tabs.map(tab => (tab.condition !== false) && (
+          <a href={tab.href} class={styles.navTab}>{tab.text}</a>
+        ))}
+      </div>
+    </div>
+    
+    {quadrantLinks && (
+      <>
+        <a href="/quadrants/techniques" class={styles.navTab}>Techniques</a>
+        <a href="/quadrants/platforms" class={styles.navTab}>Platforms</a>
+        <a href="/quadrants/tools" class={styles.navTab}>Tools</a>
+        <a href="/quadrants/languages-frameworks" class={styles.navTab}>Languages & Frameworks</a>
+      </>
+    )}
+  </nav>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const setupSmoothScrolling = () => {
+      const HEADER_OFFSET = 70;
+      
+      const scrollToElement = (element: HTMLElement): void => {
+        window.scrollTo({
+          top: element.offsetTop - HEADER_OFFSET,
+          behavior: 'smooth'
+        });
+      };
+      
+      const updateHistory = (targetId: string): void => {
+        history.pushState(null, '', targetId);
+      };
+      
+      const handleAnchorClick = (anchor: HTMLAnchorElement) => (e: MouseEvent): void => {
+        e.preventDefault();
+        
+        const targetId = anchor.getAttribute('href');
+        if (!targetId) return;
+        
+        const targetElement = document.querySelector(targetId) as HTMLElement | null;
+        if (!targetElement) return;
+        
+        scrollToElement(targetElement);
+        updateHistory(targetId);
+      };
+      
+      const anchors = document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]');
+      anchors.forEach(anchor => {
+        anchor.addEventListener('click', handleAnchorClick(anchor));
+      });
+    };
+    
+    const setupStickyNavigation = () => {
+      const navContainer = document.getElementById('navContainer') as HTMLElement | null;
+      
+      if (!navContainer) return;
+      
+      const navPosition = navContainer.offsetTop;
+      
+      const addStickyClass = (): void => {
+        navContainer.classList.add('sticky');
+        document.body.style.paddingTop = `${navContainer.offsetHeight}px`;
+      };
+      
+      const removeStickyClass = (): void => {
+        navContainer.classList.remove('sticky');
+        document.body.style.paddingTop = '0';
+      };
+      
+      const handleScroll = (): void => {
+        const isScrolledPastNav = window.scrollY >= navPosition;
+        isScrolledPastNav ? addStickyClass() : removeStickyClass();
+      };
+      
+      window.addEventListener('scroll', handleScroll);
+      handleScroll();
+    };
+    
+    setupSmoothScrolling();
+    setupStickyNavigation();
+  });
+</script>
+
+<style>
+  .sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: #111;
+    width: 100%;
+  }
+</style>

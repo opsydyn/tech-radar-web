@@ -1,0 +1,30 @@
+---
+import { Font } from "astro:assets";
+// import { ClientRouter } from "astro:transitions";
+import RadarIcon from "~assets/svg/radar.svg";
+import ThemeSwitcher from "~components/themeSwitcher/ThemeSwitcher.astro";
+import * as styles from "./Layout.css";
+---
+<Font cssVariable='--font-ibm-plex-mono' preload />
+<Font cssVariable='--font-space-grotesk' preload />
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Tech Radar</title>
+    <!-- <ClientRouter /> -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <a class:list={[styles.radarIcon]} href="/"><RadarIcon  width={24} height={24} /></a>
+    <ThemeSwitcher />
+    <main class={styles.mainContentBlip}>
+      <slot name="center" />
+    </main>
+  </body>
+</html>

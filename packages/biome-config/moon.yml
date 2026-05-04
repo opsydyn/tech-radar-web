@@ -1,0 +1,17 @@
+layer: 'library'
+language: 'typescript'
+
+fileGroups:
+  configs:
+    - '*.json'
+
+tasks:
+  check:
+    command: 'biome check .'
+    inputs:
+      - '@group(configs)'
+
+  format:
+    command: 'biome format . --write'
+    inputs:
+      - '@group(configs)'

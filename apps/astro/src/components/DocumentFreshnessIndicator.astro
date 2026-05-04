@@ -1,0 +1,64 @@
+---
+import { match } from "ts-pattern";
+import {
+	type DocumentFreshness,
+	type DocumentFreshnessLevel,
+	calculateDocumentFreshness,
+} from "../utils/documentFreshness";
+import * as styles from "./DocumentFreshnessIndicator.css";
+
+import AgingIcon from "~assets/svg/freshness-aging.svg";
+import CriticalIcon from "~assets/svg/freshness-critical.svg";
+import FreshIcon from "~assets/svg/freshness-fresh.svg";
+import InvalidIcon from "~assets/svg/freshness-invalid.svg";
+import StaleIcon from "~assets/svg/freshness-stale.svg";
+
+interface Props {
+	dateString: string;
+	showRecommendation?: boolean;
+	size?: "small" | "medium" | "large";
+}
+
+const { dateString, showRecommendation = true, size = "medium" } = Astro.props;
+
+// Calculate freshness on the server
+const freshness = calculateDocumentFreshness(dateString);
+
+// Map freshness level to imported SVG component
+const ICON_COMPONENTS: Record<DocumentFreshnessLevel, typeof FreshIcon> = {
+	fresh: FreshIcon,
+	aging: AgingIcon,
+	stale: StaleIcon,
+	critical: CriticalIcon,
+	invalid: InvalidIcon,
+};
+
+const IconComponent = ICON_COMPONENTS[freshness.level];
+
+const shouldShowRecommendation = match([
+	showRecommendation,
+	freshness.actionable,
+])
+	.with([true, true], () => true)
+	.otherwise(() => false);
+---
+
+<div class={`${styles.container} ${styles.responsiveContainer}`}>
+  <!-- Freshness Badge -->
+  <div class={`${styles.badgeVariants[freshness.level]} ${styles.sizeVariants[size]}`}>
+    <div class={styles.iconContainer}>
+      <IconComponent width="16" height="16" />
+    </div>
+    <span class={styles.textContainer}>{freshness.message}</span>
+  </div>
+
+  <!-- Recommendation -->
+  {shouldShowRecommendation && (
+    <div class={styles.recommendation}>
+      <div class={styles.recommendationIcon}>
+        <CriticalIcon width="16" height="16" />
+      </div>
+      <span>{freshness.recommendation}</span>
+    </div>
+  )}
+</div>

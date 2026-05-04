@@ -1,0 +1,66 @@
+{
+	"extends": "../../packages/tsconfig/astro.json",
+	"include": [
+		"src",
+		".astro/types.d.ts",
+		".astro/actions.d.ts",
+		"**/*"
+	],
+	"compilerOptions": {
+		"types": [
+			"astro/client",
+			"vitest/importMeta"
+		],
+		"paths": {
+			"@/*": [
+				"./src/*"
+			],
+			"~actors/*": [
+				"./src/actors/*"
+			],
+			"~assets/*": [
+				"./src/assets/*"
+			],
+			"~components/*": [
+				"./src/components/*"
+			],
+			"~content/*": [
+				"./src/content/*"
+			],
+			"~data/*": [
+				"./src/data/*"
+			],
+			"~hooks/*": [
+				"./src/hooks/*"
+			],
+			"~layouts/*": [
+				"./src/layouts/*"
+			],
+			"~lib/*": [
+				"./src/lib/*"
+			],
+			"~machines/*": [
+				"./src/machines/*"
+			],
+			"~pages/*": [
+				"./src/pages/*"
+			],
+			"~stores/*": [
+				"./src/stores/*"
+			],
+			"~styles/*": [
+				"./src/styles/*"
+			],
+			"~types/*": [
+				"./src/types/*"
+			],
+			"~utils/*": [
+				"./src/utils/*"
+			]
+		},
+		"outDir": "../../.moon/cache/types/apps/astro"
+	},
+	"exclude": [
+		"dist"
+	]
+}

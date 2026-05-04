@@ -1,0 +1,104 @@
+---
+export const prerender = true;
+import { getCollection } from "astro:content";
+import type { GetStaticPaths } from "astro";
+import TypeWriterContainer from "~components/TypeWriterContainer.astro";
+import BlipLayout from "~layouts/BlipLayout.astro";
+import { formatDate } from "../../utils/dateFormatter";
+import { getTagColor } from "../../utils/tagColors";
+import * as styles from "../blip/Blip.css";
+
+import DocumentFreshnessIndicator from "../../components/DocumentFreshnessIndicator.astro";
+import MetaInfo from "../../components/page/MetaInfo.astro";
+// Import shared components
+import PageHeader from "../../components/page/PageHeader.astro";
+import StickyNavigation from "../../components/page/StickyNavigation.astro";
+
+export const getStaticPaths: GetStaticPaths = async () => {
+	const adrs = await getCollection("adr");
+	return adrs.map(({ data }) => ({
+		params: { adrId: data.id },
+	}));
+};
+
+const adrs = await getCollection("adr");
+
+const { adrId } = Astro.params;
+const adr = adrs.find(({ data }) => data.id === adrId);
+const adrData = adr?.data;
+const adrContent = await adr?.render();
+
+// Format the date
+const formattedDate = formatDate(adrData?.created);
+
+const primaryTag = adrData?.tags?.[0] || "Frontend";
+const tagColorValue = getTagColor(primaryTag);
+---
+
+<BlipLayout seo={{ title: adrData?.title ?? "ADR" }}>
+  <div slot="center" class={styles.container} style={`
+    --quadrant-color: ${tagColorValue};
+    --quadrant-color-solid: ${tagColorValue};
+    --quadrant-color-dark: ${tagColorValue};
+  `}>
+    <!-- Hero Section -->
+    <PageHeader title={adrData?.title} />
+
+    <!-- Navigation Bar -->
+    <StickyNavigation
+      backLink="/adrs"
+      backText="Back to ADRs"
+      tabs={[
+        { href: "#overview", text: "Overview" },
+        { href: "#content", text: "Content" }
+      ]}
+    />
+
+    <!-- Details Section -->
+    <section id="overview" class={styles.detailsSection}>
+      <MetaInfo
+        date={formattedDate}
+        status={adrData?.status || ""}
+        cursorColor="#6464ff"
+      />
+
+      <!-- Document Freshness Indicator for ADR -->
+      <DocumentFreshnessIndicator
+        dateString={adrData?.created?.toString() || ""}
+        showRecommendation={true}
+        size="medium"
+      />
+
+      <div class={styles.detailsContent}>
+        <div class={styles.detailsDescription}>
+          <p><strong>Author:</strong> {adrData?.author}</p>
+          <p><strong>Reviewers:</strong> {adrData?.reviewers?.join(", ")}</p>
+          <p><strong>Tags:</strong> {adrData?.tags?.join(", ")}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Content Section -->
+    <section id="content" class={styles.detailsSection}>
+      <h2 class={styles.sectionTitle}>ADR Content</h2>
+      <div class={styles.detailsContent}>
+        <div class="adr-content">
+          {adrContent?.Content && <adrContent.Content />}
+        </div>
+      </div>
+    </section>
+  </div>
+</BlipLayout>
+
+<style>
+  .sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: #111;
+    width: 100%;
+  }
+</style>

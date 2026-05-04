@@ -1,0 +1,55 @@
+---
+import * as styles from "./Layout.css";
+import "../styles/animation-control.css.ts";
+// import { ClientRouter } from "astro:transitions";
+import RadarIcon from "~assets/svg/radar.svg";
+import ThemeSwitcher from "~components/themeSwitcher/ThemeSwitcher.astro";
+import { AnimationToggle } from "../components/AnimationToggle";
+import { animationEnabled } from "../stores/animation-store";
+
+const isAnimationsEnabled = animationEnabled.get();
+---
+
+<html lang="en" class={isAnimationsEnabled ? "" : "animations-disabled"}>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Tech Radar</title>
+    <!-- <ClientRouter /> -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  </head>
+  <body>
+   <div class:list={[styles.container]}>
+      <a class:list={[styles.radarIcon]} href="/"><RadarIcon  width={24} height={24} /></a>
+      <ThemeSwitcher />
+      <div class:list={[styles.mainContent]}>
+        <AnimationToggle client:only="react" />
+        <slot name="center" />
+      </div>
+  
+    </div>
+  </body>
+</html>
+
+<script>
+  import { animationEnabled } from "../stores/animation-store";
+  
+  function updateAnimationState(enabled: boolean) {
+    const htmlElement = document.documentElement;
+    
+    if (enabled) {
+      htmlElement.classList.remove('animations-disabled');
+    } else {
+      htmlElement.classList.add('animations-disabled');
+    }
+  }
+  
+  updateAnimationState(animationEnabled.get());
+  
+  animationEnabled.listen(updateAnimationState);
+</script>
+
+

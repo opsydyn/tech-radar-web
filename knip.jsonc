@@ -1,0 +1,78 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  "ignoreExportsUsedInFile": {
+    "interface": true,
+    "type": true
+  },
+  "workspaces": {
+    ".": {
+      "project": [
+        "*.config.{js,cjs,mjs,ts,mts}"
+      ]
+    },
+    "apps/astro": {
+      "project": [
+        "src/**/*.{astro,ts,tsx,js,jsx,mjs,cjs,mdx}",
+        "*.config.{js,cjs,mjs,ts,mts}",
+        "src/env.d.ts"
+      ],
+      "paths": {
+        "@/*": [
+          "./src/*"
+        ],
+        "~/*": [
+          "./src/*"
+        ],
+        "~actors/*": [
+          "./src/actors/*"
+        ],
+        "~assets/*": [
+          "./src/assets/*"
+        ],
+        "~components/*": [
+          "./src/components/*"
+        ],
+        "~content/*": [
+          "./src/content/*"
+        ],
+        "~data/*": [
+          "./src/data/*"
+        ],
+        "~hooks/*": [
+          "./src/hooks/*"
+        ],
+        "~layouts/*": [
+          "./src/layouts/*"
+        ],
+        "~lib/*": [
+          "./src/lib/*"
+        ],
+        "~machines/*": [
+          "./src/machines/*"
+        ],
+        "~pages/*": [
+          "./src/pages/*"
+        ],
+        "~stores/*": [
+          "./src/stores/*"
+        ],
+        "~styles/*": [
+          "./src/styles/*"
+        ],
+        "~types/*": [
+          "./src/types/*"
+        ],
+        "~utils/*": [
+          "./src/utils/*"
+        ]
+      },
+      "vitest": false
+    },
+    "apps/docs": {
+      "project": [
+        "src/**/*.{astro,ts,tsx,js,jsx,mjs,cjs,mdx}",
+        "*.config.{js,cjs,mjs,ts,mts}"
+      ]
+    }
+  }
+}

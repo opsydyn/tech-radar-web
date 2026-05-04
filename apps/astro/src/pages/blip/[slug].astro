@@ -1,0 +1,207 @@
+---
+export const prerender = true;
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import type {
+	GetStaticPaths,
+	InferGetStaticParamsType,
+	InferGetStaticPropsType,
+} from "astro";
+import BlipLayout from "~layouts/BlipLayout.astro";
+import type { Blip } from "~types/radar-types";
+
+import BlipHistory from "../../components/BlipHistory";
+import DocumentFreshnessIndicator from "../../components/DocumentFreshnessIndicator.astro";
+import RelatedBlipsSection from "../../components/RelatedBlipsSection.astro";
+import MetaInfo from "../../components/page/MetaInfo.astro";
+import PageHeader from "../../components/page/PageHeader.astro";
+import StickyNavigation from "../../components/page/StickyNavigation.astro";
+import {
+	findBlipByRouteParam,
+	getBlipPath,
+	getBlipSlug,
+} from "../../utils/blipRouting";
+import { formatDate } from "../../utils/dateFormatter";
+import {
+	getQuadrantColor,
+	getQuadrantColorDark,
+	getQuadrantColorSolid,
+} from "../../utils/quadrantColors";
+import { getEnrichedRelatedBlips } from "../../utils/relatedBlipsUtils";
+import * as styles from "./Blip.css";
+
+type BlipCollectionEntry = CollectionEntry<"blip"> & { data: Blip };
+type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+export const getStaticPaths = (async () => {
+	const blips: Array<BlipCollectionEntry> = await getCollection("blip");
+
+	return blips.flatMap(({ data }: { data: Blip }) => {
+		const slug = getBlipSlug(data);
+		const idPath = data.id === slug ? [] : [{ params: { slug: data.id } }];
+
+		return [{ params: { slug } }, ...idPath];
+	});
+}) satisfies GetStaticPaths;
+
+const blips: Array<BlipCollectionEntry> = await getCollection("blip");
+const { slug } = Astro.params as Params;
+
+const blip =
+	typeof slug === "string" ? findBlipByRouteParam(blips, slug) : undefined;
+const blipData = blip?.data as Blip | undefined;
+const getAdrPath = `../adr/${blipData?.name?.toLocaleLowerCase()}`;
+const formattedDate = formatDate(blipData?.created?.toString() || "");
+
+// Get enhanced related blips with relationship data
+const enrichedRelatedBlips = blipData?.id
+	? await getEnrichedRelatedBlips(blipData.id)
+	: [];
+
+// Fallback to same-quadrant blips if no relationships are defined
+const fallbackRelatedBlips =
+	enrichedRelatedBlips.length === 0
+		? blips
+				.filter(
+					({ data }) =>
+						data.quadrant === blipData?.quadrant && data.id !== blipData?.id,
+				)
+				.slice(0, 3)
+				.map(({ data }) => data)
+		: [];
+
+// Get the quadrant colors for styling
+const quadrantColorValue = getQuadrantColor(blipData?.quadrant);
+const quadrantColorSolidValue = getQuadrantColorSolid(blipData?.quadrant);
+const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
+---
+
+<BlipLayout>
+  <div slot="center" class={styles.container} style={`
+    --quadrant-color: ${quadrantColorValue};
+    --quadrant-color-solid: ${quadrantColorSolidValue};
+    --quadrant-color-dark: ${quadrantColorDarkValue};
+  `}>
+    <!-- Hero Section -->
+    <PageHeader title={blipData?.name ?? "Tech Radar Blip"} />
+
+    <!-- Navigation Bar -->
+    <StickyNavigation
+      backLink={`/quadrants/${blipData?.quadrant?.toLowerCase()}`}
+      backText={blipData?.quadrant ?? "Back"}
+      tabs={[
+        { href: "#overview", text: "Overview" },
+        { href: "#adr", text: "ADR", condition: blipData?.hasAdr },
+        { href: "#history", text: "History", condition: blipData?.move && blipData.move.length > 0 },
+        { href: "#related", text: "Related" }
+      ]}
+      quadrantLinks={true}
+    />
+
+    <!-- Details Section -->
+    <section id="overview" class={styles.detailsSection} slot="left">
+      <MetaInfo
+        date={formattedDate}
+        status={blipData?.ring || ""}
+        cursorColor={quadrantColorSolidValue}
+      />
+
+      <!-- Document Freshness Indicator for Architecture Practice -->
+      <DocumentFreshnessIndicator
+        dateString={blipData?.created?.toString() || ""}
+        showRecommendation={true}
+        size="medium"
+      />
+
+      <div class={styles.detailsContent}>
+        <p class={styles.detailsDescription}>
+          {blipData?.description
+            ? typeof blipData.description === "object"
+              ? "Awaiting description"
+              : blipData.description.trim()
+            : "Awaiting description"
+          }
+        </p>
+
+        <p class={styles.detailsLongText}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc vel tincidunt lacinia,
+          nunc nisl aliquam nunc, eget aliquam nunc nisl eu nunc. Pellentesque habitant morbi tristique
+          senectus et netus et malesuada fames ac turpis egestas.
+        </p>
+
+        <p class={styles.detailsLongText}>
+          Etiam euismod, nunc vel tincidunt lacinia, nunc nisl aliquam nunc, eget aliquam nunc nisl eu nunc.
+          Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+        </p>
+
+      </div>
+    </section>
+
+    {/* History Section */}
+    {blipData?.move && blipData.move.length > 0 && (
+      <section id="history" class={styles.detailsSection} slot="left">
+        <h2 class={styles.sectionTitle}>Movement History</h2>
+        <div class={styles.detailsContent}>
+          <p class={styles.detailsDescription}>
+            This visualization shows how this technology has moved through the radar over time.
+          </p>
+          <div class={styles.historyChart}>
+            <BlipHistory width={700} height={300} moveHistory={blipData.move} client:load />
+          </div>
+        </div>
+        <div id="adr" class={blipData?.hasAdr ? styles.adrSection : styles.adrSectionNoAdr}>
+          <h3 class={styles.sectionTitle}>Architecture Decision Record</h3>
+          {blipData?.hasAdr ? <a href={getAdrPath} class={styles.adrLink}>View Architecture Decision Record</a>  : <p class={styles.adrPending}>await ADR</p>}
+        </div>
+      </section>
+    )}
+
+    <!-- Related Blips Section -->
+    <section id="related" class={styles.fullBleed}>
+      <div class={styles.relatedBlipsSection}>
+        {enrichedRelatedBlips.length > 0 ? (
+          <RelatedBlipsSection
+            relatedBlips={enrichedRelatedBlips}
+            currentBlipName={blipData?.name || ""}
+          />
+        ) : (
+          <>
+            <h2 class={styles.relatedBlipsTitle}>Related Technologies</h2>
+            <div class={styles.relatedBlipsGrid}>
+              {fallbackRelatedBlips.map((blip) => (
+                <a href={getBlipPath(blip)} class={styles.relatedBlipCard}>
+                  <span class={styles.relatedBlipMetaUnderlined}>{blip.ring}</span>
+                  <div class={styles.relatedBlipTitleWrapper}>
+                    <h3 class={styles.relatedBlipTitle}>{blip.name}</h3>
+                  </div>
+                  <p class={styles.relatedBlipMetaUnderlined}>{blip.quadrant}</p>
+                </a>
+              ))}
+
+              {fallbackRelatedBlips.length === 0 && (
+                <div class={styles.relatedBlipCard}>
+                  <h3 class={styles.relatedBlipTitle}>No related technologies</h3>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+  </div>
+</BlipLayout>
+
+
+<style>
+  /* .sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: #111;
+    width: 100%;
+  } */
+</style>

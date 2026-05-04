@@ -1,0 +1,28 @@
+---
+title: "GraphQL"
+tags: ["Backend"]
+created: "2023-04-05"
+status: "Rejected"
+author: "Alan Currie"
+reviewers: ["Alan Currie"]
+id: "5"
+---
+
+import * as styles from "./Adr.css";
+
+<h1 class:list={[styles.twStyle]}>GraphQL</h1>
+
+## Context
+
+Our API endpoints have grown organically, leading to issues with over-fetching and under-fetching of data. We need a more flexible approach to API design that allows clients to request exactly the data they need.
+
+## Decision
+
+After evaluation, we have decided NOT to adopt GraphQL for our API layer. While GraphQL offers benefits in terms of flexibility, we determined that the added complexity, learning curve, and potential performance implications outweigh the benefits for our specific use case.
+
+## Consequences
+
+- We will continue using REST APIs with careful endpoint design
+- We'll implement specialized endpoints for specific data needs
+- We'll avoid the complexity of setting up GraphQL infrastructure
+- We may revisit this decision in the future as our needs evolve

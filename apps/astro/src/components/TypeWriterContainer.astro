@@ -1,0 +1,54 @@
+---
+import CursorSquare from "./CursorSquare.astro";
+/**
+ * TypeWriterContainer - Combines TypeWriter and CursorSquare components
+ * for a complete typing effect with cursor
+ */
+import TypeWriter from "./TypeWriter.astro";
+
+type Props = {
+	text: string; // Text to be typed
+	speed?: number; // Typing speed in milliseconds per character
+	startDelay?: number; // Delay before typing starts in milliseconds
+	cursorDuration?: number; // How long the cursor should blink before becoming static
+	cursorColor?: string; // Color of the cursor
+	cursorSize?: string; // Size of the cursor
+	className?: string; // Optional CSS class for styling
+};
+
+const {
+	text,
+	speed = 50,
+	startDelay = 0,
+	cursorDuration = 5,
+	cursorColor = "var(--quadrant-color-solid)",
+	cursorSize = "2rem",
+	className = "",
+} = Astro.props;
+---
+
+<div class={`typewriter-container ${className}`}>
+  <TypeWriter 
+    text={text} 
+    speed={speed} 
+    startDelay={startDelay} 
+    className="typewriter-text"
+  />
+  <CursorSquare 
+    color={cursorColor} 
+    duration={cursorDuration} 
+    size={cursorSize} 
+  />
+</div>
+
+<style>
+  .typewriter-container {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+  }
+  
+  :global(.typewriter-container .typewriter-text) {
+    margin-right: 0.2em;
+  }
+</style>

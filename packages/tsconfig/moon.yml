@@ -1,0 +1,22 @@
+layer: 'library'
+language: 'typescript'
+
+fileGroups:
+  configs:
+    - '*.json'
+
+tasks:
+  check:
+    command: 'tsc --noEmit'
+    inputs:
+      - '@group(configs)'
+
+  lint:
+    command: 'biome check .'
+    inputs:
+      - '@group(configs)'
+
+  format:
+    command: 'biome format . --write'
+    inputs:
+      - '@group(configs)'

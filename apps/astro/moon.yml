@@ -1,0 +1,80 @@
+layer: 'application'
+# https://github.com/moonrepo/moon-configs
+
+fileGroups:
+  app:
+    - 'astro.config.*'
+  sources:
+    - 'src/**/*'
+    - '*.{js,jsx,ts,tsx}'
+    - '!*.{spec,test}.{js,jsx,ts,tsx}'
+
+tags: ['astro','vite', 'vitest']
+
+# Define code owners for the Astro app
+owners:
+  paths:
+    'src/': ['@frontend-team', '@design-system-team']
+    'src/components/': ['@ui-component-team']
+    'src/layouts/': ['@design-system-team']
+    'src/pages/': ['@frontend-team']
+    '*.config.*': ['@frontend-infra-team']
+
+tasks:
+  astro:
+    command: 'astro'
+    preset: 'utility'
+
+  dev:
+    command: 'astro dev'
+    preset: 'server'
+
+  build:
+    command: 'astro build'
+    inputs:
+      - '@group(app)'
+      - '@group(sources)'
+    outputs:
+      - 'dist'
+
+  check:
+    command: 'astro check'
+    inputs:
+      - '@group(app)'
+      - '@group(sources)'
+
+  preview:
+    command: 'astro preview'
+    deps:
+      - 'build'
+    preset: 'server'
+
+  # biome:check:
+  #   command: 'biome check'
+  #   inputs:
+  #     - '@group(source)'
+  #   options:
+  #     affectedFiles: true
+
+  # biome:format:
+  #   command: 'biome format --write'
+  #   inputs:
+  #     - '@group(source)'
+  #   options:
+  #     affectedFiles: true
+
+  # biome:lint:
+  #   command: 'biome lint'
+  #   inputs:
+  #     - '@group(source)'
+  #   options:
+  #     affectedFiles: true
+
+  # lint:
+  #   deps:
+  #     - 'biome:lint'
+  #     - 'biome:check'
+
+  # format:
+  #   deps:
+  #     - 'biome:format'

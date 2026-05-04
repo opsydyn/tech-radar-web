@@ -1,0 +1,28 @@
+---
+title: "Tailwind CSS"
+tags: ["Frontend"]
+created: "2023-07-10"
+status: "Accepted"
+author: "Alan Currie"
+reviewers: ["Alan Currie"]
+id: "8"
+---
+
+import * as styles from "./Adr.css";
+
+<h1 class:list={[styles.twStyle]}>Tailwind CSS</h1>
+
+## Context
+
+Our CSS has become increasingly complex and difficult to maintain. We need a more structured approach to styling that promotes consistency and reduces CSS bloat.
+
+## Decision
+
+We have decided to adopt Tailwind CSS as our primary styling solution. Tailwind's utility-first approach allows for rapid UI development while maintaining consistency through a design system.
+
+## Consequences
+
+- Faster UI development with pre-defined utility classes
+- Consistent design language across the application
+- Initial learning curve for developers used to traditional CSS
+- Improved maintainability through standardized design tokens

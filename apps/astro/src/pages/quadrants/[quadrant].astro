@@ -1,0 +1,129 @@
+---
+export const prerender = true;
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import { match } from "ts-pattern";
+import BlipListIsland from "~components/BlipListIsland";
+import BlipLayout from "~layouts/BlipLayout.astro";
+import type { Blip } from "~types/radar-types";
+import { getEffectiveTheme } from "../../stores/theme-store";
+
+import * as styles from "./Quadrant.css";
+
+type BlipCollectionEntry = CollectionEntry<"blip"> & { data: Blip };
+
+export async function getStaticPaths() {
+	const quadrants = {
+		tools: "Tools",
+		techniques: "Techniques",
+		platforms: "Platforms",
+		"languages-frameworks": "Languages & Frameworks",
+	};
+	return Object.keys(quadrants).map((quadrant) => {
+		return {
+			params: { quadrant: quadrant },
+		};
+	});
+}
+
+const quadrants = {
+	tools: "Tools",
+	techniques: "Techniques",
+	platforms: "Platforms",
+	"languages-frameworks": "Languages & Frameworks",
+} as const;
+
+const quadrant = Astro.params.quadrant as keyof typeof quadrants;
+const blips: Array<BlipCollectionEntry> = await getCollection("blip");
+
+const blipData = blips.filter(
+	({ data }: { data: Blip }) =>
+		data.quadrant.toLowerCase() === quadrant.toLowerCase(),
+);
+
+const quadrantColorsSolid = {
+	tools: "rgb(80, 197, 241)",
+	techniques: "rgb(255, 163, 71)",
+	platforms: "rgb(125, 110, 238)",
+	"languages-frameworks": "rgb(81, 245, 141)",
+};
+
+type QuadrantType =
+	| "tools"
+	| "techniques"
+	| "platforms"
+	| "languages-frameworks";
+
+const getQuadrantColor = (quadrant: string): string => {
+	const lowerQuadrant = quadrant.toLowerCase() as QuadrantType;
+
+	return match(lowerQuadrant)
+		.with("tools", () => quadrantColorsSolid.tools)
+		.with("techniques", () => quadrantColorsSolid.techniques)
+		.with("platforms", () => quadrantColorsSolid.platforms)
+		.with(
+			"languages-frameworks",
+			() => quadrantColorsSolid["languages-frameworks"],
+		)
+		.otherwise(() => quadrantColorsSolid.tools);
+};
+
+const quadrantColor = getQuadrantColor(quadrant);
+
+// Helper function to get nav item style classes
+const getNavItemClasses = (
+	navQuadrant: keyof typeof quadrants,
+	currentQuadrant: string,
+) => {
+	const baseClasses = match(navQuadrant)
+		.with("tools", () => styles.quadrantNavItemTools)
+		.with("techniques", () => styles.quadrantNavItemTechniques)
+		.with("platforms", () => styles.quadrantNavItemPlatforms)
+		.with("languages-frameworks", () => styles.quadrantNavItemLanguages)
+		.exhaustive();
+
+	const activeClasses = match(navQuadrant)
+		.with("tools", () => styles.quadrantNavItemActiveTools)
+		.with("techniques", () => styles.quadrantNavItemActiveTechniques)
+		.with("platforms", () => styles.quadrantNavItemActivePlatforms)
+		.with("languages-frameworks", () => styles.quadrantNavItemActiveLanguages)
+		.exhaustive();
+
+	return navQuadrant === currentQuadrant
+		? `${baseClasses} ${activeClasses}`
+		: baseClasses;
+};
+---
+
+<BlipLayout>
+	<div slot="center" class={styles.quadrantContainer}>
+		<header class={styles.quadrantHeader}>
+			<div class={styles.navigationContainer}>
+				<div>
+					<!-- <a href="/" class={styles.homeLink}>
+						← Back to Radar
+					</a> -->
+					<h1 class={styles.quadrantTitle}>
+						{quadrants[quadrant]}
+					</h1>
+				</div>
+				<nav class={styles.quadrantNav}>
+					{Object.entries(quadrants).map(([key, label]) => (
+						<a
+							href={`/quadrants/${key}`}
+							class={getNavItemClasses(key as keyof typeof quadrants, quadrant)}
+						>
+							{label}
+						</a>
+					))}
+				</nav>
+			</div>
+		</header>
+		<BlipListIsland
+			client:only="react"
+			blips={blipData.map(({data}) => data)}
+			quadrant={quadrant}
+			quadrantColor={quadrantColor}
+		/>
+	</div>
+</BlipLayout>

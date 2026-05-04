@@ -1,0 +1,7 @@
+{
+	// "extends": "../../tsconfig.options.json",
+	"composite": true,
+	"compilerOptions": {
+		"outDir": "../../.moon/cache/types/packages/tsconfig"
+	}
+}

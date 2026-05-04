@@ -1,0 +1,133 @@
+---
+/**
+ * TypeWriter component - Creates a typewriter effect for text
+ * Starts typing when scrolled into view using Intersection Observer
+ * Resets and replays animation when scrolled out and back into view
+ */
+type Props = {
+  text: string;           // Text to be typed
+  speed?: number;         // Typing speed in milliseconds per character
+  startDelay?: number;    // Delay before typing starts in milliseconds
+  cursor?: boolean;       // Whether to show the cursor (use false if you're adding CursorSquare separately)
+  className?: string;     // Optional CSS class for styling
+  onComplete?: string;    // Optional JavaScript to execute when typing is complete
+  threshold?: number;     // Intersection observer threshold (0-1), default: 0.1
+  resetOnScroll?: boolean; // Whether to reset and replay animation when scrolled back into view, default: true
+};
+
+const {
+  text,
+  speed = 50,
+  startDelay = 0,
+  cursor = false,
+  className = "",
+  onComplete = "",
+  threshold = 0.1,
+  resetOnScroll = true
+} = Astro.props;
+---
+
+<span id="typewriter" class={`typewriter ${className}`} data-typing="false" data-text={text}></span>
+
+<script is:inline define:vars={{ text, speed, startDelay, cursor, onComplete, threshold, resetOnScroll }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const typewriterElement = document.getElementById('typewriter');
+    if (!typewriterElement) return;
+    
+    // Track animation state
+    let animationTimeout;
+    
+    const typeCharacter = (index) => {
+      if (index >= text.length) {
+        handleCompletion(typewriterElement, onComplete, text);
+        return;
+      }
+      
+      typewriterElement.textContent += text.charAt(index);
+      
+      animationTimeout = setTimeout(() => typeCharacter(index + 1), speed);
+    };
+    
+    const handleCompletion = (element, completionCode, textContent) => {
+      if (completionCode) {
+        const safeExecute = (code) => {
+          const completionFunction = new Function(code);
+          completionFunction();
+          return true;
+        };
+        
+        safeExecute(completionCode) || 
+          console.warn('Could not execute completion callback');
+      }
+      
+      // Mark as complete but ready for reset
+      element.dataset.typing = "complete";
+      
+      element.dispatchEvent(new CustomEvent('typingComplete', {
+        bubbles: true,
+        detail: { textContent }
+      }));
+    };
+    
+    const resetTyping = () => {
+      // Clear any ongoing animation
+      clearTimeout(animationTimeout);
+      // Reset content
+      typewriterElement.textContent = '';
+      // Mark as ready for typing
+      typewriterElement.dataset.typing = "false";
+    };
+    
+    const startTyping = () => {
+      // Only start if not currently typing
+      if (typewriterElement.dataset.typing === "false") {
+        // Mark as currently typing
+        typewriterElement.dataset.typing = "typing";
+        // Start typing after delay
+        animationTimeout = setTimeout(() => typeCharacter(0), startDelay);
+      }
+    };
+    
+    // Define action lookup table based on element state and visibility
+    const actionMap = {
+      visible: {
+        false: () => startTyping(),
+        typing: () => {}, // Already typing, do nothing
+        complete: () => {} // Already complete, do nothing
+      },
+      hidden: {
+        false: () => {}, // Not started yet, do nothing
+        typing: () => {}, // Currently typing, let it finish
+        complete: () => resetOnScroll ? resetTyping() : {} // Reset if enabled
+      }
+    };
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          // Determine visibility state
+          const visibility = entry.isIntersecting ? 'visible' : 'hidden';
+          // Get current typing state
+          const typingState = typewriterElement.dataset.typing;
+          
+          // Execute appropriate action from lookup table
+          actionMap[visibility][typingState]();
+          
+          // Handle one-time observation if needed
+          if (entry.isIntersecting && !resetOnScroll) {
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold }
+    );
+    
+    observer.observe(typewriterElement);
+  });
+</script>
+
+<style>
+  .typewriter {
+    display: inline-block;
+  }
+</style>

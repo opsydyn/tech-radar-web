@@ -1,0 +1,76 @@
+---
+import { Image } from "astro:assets";
+import ArtboardIcon from "~assets/svg/artboard.svg";
+import BinaryIcon from "~assets/svg/binary.svg";
+import EditionIcon from "~assets/svg/edition.svg";
+import PyramidIcon from "~assets/svg/pyramid.svg";
+import ToolIcon from "~assets/svg/tool.svg";
+import { quadrantColorsSolid } from "~utils/quadrantColors";
+import * as styles from "./CornerNav.css";
+
+type CornerNavLink = {
+	href: string;
+	label: string;
+	iconSrc: ImageMetadata;
+	ariaLabel: string;
+	backgroundColor?: string;
+};
+
+const navLinks: Array<CornerNavLink> = [
+	{
+		href: "/edition/1",
+		label: "Edition",
+		iconSrc: EditionIcon,
+		ariaLabel: "Go to edition",
+	},
+	{
+		href: "/quadrants/platforms",
+		label: "Platforms",
+		iconSrc: PyramidIcon,
+		ariaLabel: "Go to platforms quadrant",
+		backgroundColor: quadrantColorsSolid.Platforms,
+	},
+	{
+		href: "/quadrants/languages-frameworks",
+		label: "Languages",
+		iconSrc: BinaryIcon,
+		ariaLabel: "Go to languages and frameworks quadrant",
+		backgroundColor: quadrantColorsSolid["languages-frameworks"],
+	},
+	{
+		href: "/quadrants/tools",
+		label: "Tools",
+		iconSrc: ToolIcon,
+		ariaLabel: "Go to tools quadrant",
+		backgroundColor: quadrantColorsSolid.Tools,
+	},
+	{
+		href: "/quadrants/techniques",
+		label: "Techniques",
+		iconSrc: ArtboardIcon,
+		ariaLabel: "Go to techniques quadrant",
+		backgroundColor: quadrantColorsSolid.Techniques,
+	},
+];
+---
+
+<div class:list={[styles.cornerNavWrapper]}>
+  {navLinks.map((nav) => (
+    <a
+      href={nav.href}
+			class={styles.cornerNavLink}
+			style={nav.backgroundColor ? `background-color: ${nav.backgroundColor};` : undefined}
+      title={nav.label}
+			aria-label={nav.ariaLabel}
+    >
+      <Image
+        src={nav.iconSrc}
+        alt=""
+        class={styles.navIcon}
+        width={18}
+        height={18}
+      />
+      <span class={styles.navText}>{nav.label}</span>
+    </a>
+  ))}
+</div>
