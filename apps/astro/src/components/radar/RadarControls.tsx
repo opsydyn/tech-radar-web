@@ -1,8 +1,12 @@
 import type { ProvidedZoom, TransformMatrix } from "@visx/zoom/lib/types";
 import { getEffectiveTheme } from "~stores/theme-store";
+import { gapLevel5 } from "~styles/vertical-rhythm.css";
 
 import * as styles from "./Radar.css";
-import { gapLevel5 } from "~styles/vertical-rhythm.css";
+
+const zoomControlStep = 1.12;
+const zoomInScale = zoomControlStep;
+const zoomOutScale = 1 / zoomControlStep;
 
 declare type ZoomState = {
 	initialTransformMatrix: TransformMatrix;
@@ -21,14 +25,16 @@ export const RadarControls = ({ zoom }: { zoom: Zoom }) => {
 			<button
 				type="button"
 				className={`${styles.btn} ${styles.btnZoom} ${isDarkTheme ? styles.btnDark : styles.btnLight}`}
-				onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}
+				onClick={() => zoom.scale({ scaleX: zoomInScale, scaleY: zoomInScale })}
 			>
 				+
 			</button>
 			<button
 				type="button"
 				className={`${styles.btn} ${styles.btnZoom} ${styles.btnBottom} ${isDarkTheme ? styles.btnDark : styles.btnLight}`}
-				onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}
+				onClick={() =>
+					zoom.scale({ scaleX: zoomOutScale, scaleY: zoomOutScale })
+				}
 			>
 				-
 			</button>

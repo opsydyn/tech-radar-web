@@ -2,6 +2,7 @@ import {
 	createGlobalTheme,
 	createTheme,
 	globalStyle,
+	keyframes,
 	style,
 	styleVariants,
 } from "@vanilla-extract/css";
@@ -321,6 +322,98 @@ export const adrsButton = style({
 
 export const relative = style({
 	position: "relative",
+});
+
+const radarLoadingFade = keyframes({
+	from: { opacity: 0 },
+	to: { opacity: 1 },
+});
+
+const radarLoadingPulse = keyframes({
+	"0%, 100%": { opacity: 0.28 },
+	"50%": { opacity: 0.78 },
+});
+
+const radarLoadingBlipPulse = keyframes({
+	"0%, 100%": { opacity: 0.24, transform: "scale(0.72)" },
+	"45%": { opacity: 1, transform: "scale(1.18)" },
+	"70%": { opacity: 0.5, transform: "scale(0.94)" },
+});
+
+const radarLoadingSweepAnimation = keyframes({
+	from: { strokeDashoffset: 0, opacity: 0.2 },
+	"45%": { opacity: 0.8 },
+	to: { strokeDashoffset: -244, opacity: 0.2 },
+});
+
+export const radarLoadingOverlay = style({
+	position: "absolute",
+	inset: 0,
+	zIndex: 80,
+	pointerEvents: "none",
+	contain: "layout paint style",
+	opacity: 1,
+	transition: "opacity 420ms ease-out",
+	animation: `${radarLoadingFade} 220ms ease-out both`,
+	selectors: {
+		'&[data-state="ready"]': {
+			opacity: 0,
+		},
+	},
+});
+
+export const radarLoadingSvg = style({
+	display: "block",
+	width: "1000px",
+	height: "1000px",
+	maxWidth: "100%",
+	maxHeight: "100%",
+	borderRadius: "14px",
+	overflow: "hidden",
+});
+
+export const radarLoadingGrid = style({
+	animation: `${radarLoadingPulse} 1800ms ease-in-out infinite`,
+	transformBox: "fill-box",
+	transformOrigin: "center",
+	"@media": {
+		"(prefers-reduced-motion: reduce)": {
+			animation: "none",
+		},
+	},
+});
+
+export const radarLoadingSweep = style({
+	animation: `${radarLoadingSweepAnimation} 1900ms linear infinite`,
+	transformBox: "fill-box",
+	transformOrigin: "center",
+	"@media": {
+		"(prefers-reduced-motion: reduce)": {
+			animation: "none",
+		},
+	},
+});
+
+export const radarLoadingBlip = style({
+	animationName: radarLoadingBlipPulse,
+	animationIterationCount: "infinite",
+	animationTimingFunction: "ease-in-out",
+	transformBox: "fill-box",
+	transformOrigin: "center",
+	willChange: "opacity, transform",
+	"@media": {
+		"(prefers-reduced-motion: reduce)": {
+			animation: "none",
+		},
+	},
+});
+
+export const radarLoadingText = style({
+	fill: "rgba(255,255,255,0.72)",
+	fontFamily: "'IBM Plex Mono', monospace",
+	fontSize: "14px",
+	letterSpacing: "0.16em",
+	textTransform: "uppercase",
 });
 
 // Left side controls container (for quadrants, movement, and search)

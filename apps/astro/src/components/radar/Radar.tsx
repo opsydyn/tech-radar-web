@@ -4,7 +4,12 @@ import { localPoint } from "@visx/event";
 import { Group } from "@visx/group";
 import { useTooltipInPortal } from "@visx/tooltip";
 import { Zoom } from "@visx/zoom";
-import type { CSSProperties, MouseEvent } from "react";
+import type { PinchDelta, TransformMatrix } from "@visx/zoom/lib/types";
+import type {
+	CSSProperties,
+	MouseEvent,
+	WheelEvent as ReactWheelEvent,
+} from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { RadarChart } from "~components/radar/BaseChart";
 import {
@@ -41,6 +46,77 @@ const initialTransform = {
 	skewY: 0,
 };
 
+const minZoomScale = 0.7;
+const maxZoomScale = 2.5;
+const wheelZoomSensitivity = 0.0015;
+const pinchZoomSensitivity = 0.01;
+const minWheelZoomStep = 0.86;
+const maxWheelZoomStep = 1.16;
+const minPinchZoomStep = 0.92;
+const maxPinchZoomStep = 1.08;
+const wheelDeltaMode = {
+	pixel: 0,
+	line: 1,
+	page: 2,
+} as const;
+
+type RadarWheelEvent = WheelEvent | ReactWheelEvent;
+
+const clamp = (value: number, min: number, max: number) =>
+	Math.max(min, Math.min(value, max));
+
+const normalizeWheelDelta = (event: RadarWheelEvent) => {
+	const lineHeightDelta = 16;
+	const pageHeightDelta = 800;
+
+	if (event.deltaMode === wheelDeltaMode.line) {
+		return event.deltaY * lineHeightDelta;
+	}
+
+	if (event.deltaMode === wheelDeltaMode.page) {
+		return event.deltaY * pageHeightDelta;
+	}
+
+	return event.deltaY;
+};
+
+const smoothWheelDelta = (event: RadarWheelEvent) => {
+	const normalizedDelta = normalizeWheelDelta(event);
+	const scale = clamp(
+		Math.exp(-normalizedDelta * wheelZoomSensitivity),
+		minWheelZoomStep,
+		maxWheelZoomStep,
+	);
+
+	return { scaleX: scale, scaleY: scale };
+};
+
+const smoothPinchDelta: PinchDelta = ({ offset, lastOffset }) => {
+	const scaleDelta = offset[0] - lastOffset[0];
+	const scale = clamp(
+		1 + scaleDelta * pinchZoomSensitivity,
+		minPinchZoomStep,
+		maxPinchZoomStep,
+	);
+
+	return { scaleX: scale, scaleY: scale };
+};
+
+const createRadarTransformConstraint = (width: number, height: number) => {
+	const minTranslateX = -width * 0.5;
+	const maxTranslateX = width * 0.5;
+	const minTranslateY = -height * 0.5;
+	const maxTranslateY = height * 0.5;
+
+	return (transform: TransformMatrix): TransformMatrix => ({
+		...transform,
+		scaleX: clamp(transform.scaleX, minZoomScale, maxZoomScale),
+		scaleY: clamp(transform.scaleY, minZoomScale, maxZoomScale),
+		translateX: clamp(transform.translateX, minTranslateX, maxTranslateX),
+		translateY: clamp(transform.translateY, minTranslateY, maxTranslateY),
+	});
+};
+
 type RadarTooltipState = {
 	blip: BlipWithPosition;
 	left: number;
@@ -50,6 +126,35 @@ type RadarTooltipState = {
 type RadarTooltipStyle = CSSProperties & {
 	readonly "--radar-blip-color": string;
 };
+
+type SkeletonBlip = {
+	readonly id: string;
+	readonly x: number;
+	readonly y: number;
+	readonly radius: number;
+	readonly delay: number;
+	readonly duration: number;
+};
+
+const skeletonBlips: readonly SkeletonBlip[] = [
+	{ id: "s1", x: 628, y: 214, radius: 6, delay: 0, duration: 1700 },
+	{ id: "s2", x: 718, y: 352, radius: 4, delay: 180, duration: 1900 },
+	{ id: "s3", x: 562, y: 408, radius: 7, delay: 360, duration: 2100 },
+	{ id: "s4", x: 774, y: 618, radius: 5, delay: 540, duration: 1800 },
+	{ id: "s5", x: 652, y: 752, radius: 4, delay: 720, duration: 2200 },
+	{ id: "s6", x: 416, y: 698, radius: 7, delay: 900, duration: 2000 },
+	{ id: "s7", x: 294, y: 806, radius: 5, delay: 1080, duration: 1850 },
+	{ id: "s8", x: 238, y: 584, radius: 4, delay: 1260, duration: 2050 },
+	{ id: "s9", x: 332, y: 468, radius: 6, delay: 1440, duration: 1750 },
+	{ id: "s10", x: 196, y: 318, radius: 5, delay: 1620, duration: 2150 },
+	{ id: "s11", x: 438, y: 268, radius: 4, delay: 1980, duration: 1900 },
+	{ id: "s12", x: 514, y: 612, radius: 6, delay: 2160, duration: 2250 },
+];
+
+const getSkeletonBlipStyle = (blip: SkeletonBlip): CSSProperties => ({
+	animationDelay: `${blip.delay}ms`,
+	animationDuration: `${blip.duration}ms`,
+});
 
 const createTooltipPosition = (event: MouseEvent<Element>) => ({
 	left: event.clientX + 12,
@@ -80,6 +185,97 @@ const RadarBlipTooltip = ({ blip }: { blip: BlipWithPosition }) => {
 		</div>
 	);
 };
+
+const RadarLoadingState = ({
+	width,
+	height,
+	centerX,
+	centerY,
+	state,
+}: {
+	width: number;
+	height: number;
+	centerX: number;
+	centerY: number;
+	state: "loading" | "ready";
+}) => (
+	<div
+		className={styles.radarLoadingOverlay}
+		data-state={state}
+		aria-hidden="true"
+	>
+		<svg
+			className={styles.radarLoadingSvg}
+			width={width}
+			height={height}
+			viewBox={`0 0 ${width} ${height}`}
+			focusable="false"
+		>
+			<title>Loading radar</title>
+			<rect width={width} height={height} rx={14} fill="rgba(0, 0, 0, 0.86)" />
+			<g className={styles.radarLoadingGrid}>
+				{[100, 200, 300, 400].map((radius) => (
+					<circle
+						key={`loading-ring-${radius}`}
+						cx={centerX}
+						cy={centerY}
+						r={radius}
+						fill="none"
+						stroke="rgba(255,255,255,0.18)"
+						strokeWidth={1.5}
+					/>
+				))}
+				<line
+					x1={centerX}
+					y1={100}
+					x2={centerX}
+					y2={height - 100}
+					stroke="rgba(255,255,255,0.12)"
+					strokeWidth={2}
+				/>
+				<line
+					x1={100}
+					y1={centerY}
+					x2={width - 100}
+					y2={centerY}
+					stroke="rgba(255,255,255,0.12)"
+					strokeWidth={2}
+				/>
+			</g>
+			<circle
+				className={styles.radarLoadingSweep}
+				cx={centerX}
+				cy={centerY}
+				r={402}
+				fill="none"
+				stroke="rgba(255,255,255,0.72)"
+				strokeWidth={2}
+				strokeDasharray="38 84"
+			/>
+			<g>
+				{skeletonBlips.map((blip) => (
+					<circle
+						key={blip.id}
+						className={styles.radarLoadingBlip}
+						cx={blip.x}
+						cy={blip.y}
+						r={blip.radius}
+						fill="rgba(255,255,255,0.94)"
+						style={getSkeletonBlipStyle(blip)}
+					/>
+				))}
+			</g>
+			<text
+				x={centerX}
+				y={height - 124}
+				className={styles.radarLoadingText}
+				textAnchor="middle"
+			>
+				Calibrating tech radar…
+			</text>
+		</svg>
+	</div>
+);
 
 const Radar = ({ blips, editions }: { blips: Blip[]; editions: Edition[] }) => {
 	const { width, height, centerX, centerY } = useStore(radarConfig);
@@ -120,6 +316,27 @@ const Radar = ({ blips, editions }: { blips: Blip[]; editions: Edition[] }) => {
 
 	// Minimap also uses edition-filtered blips (not all blips)
 	const miniMapBlips = UseBlipPositions(editionBlips);
+	const constrainRadarTransform = useMemo(
+		() => createRadarTransformConstraint(width, height),
+		[width, height],
+	);
+	const isRadarPreparing = editions.length > 0 && currentEdition === null;
+	const [showRadarLoadingState, setShowRadarLoadingState] =
+		useState(isRadarPreparing);
+
+	useEffect(() => {
+		if (isRadarPreparing) {
+			setShowRadarLoadingState(true);
+			return;
+		}
+
+		const loadingExitDuration = 420;
+		const loadingExitTimer = window.setTimeout(() => {
+			setShowRadarLoadingState(false);
+		}, loadingExitDuration);
+
+		return () => window.clearTimeout(loadingExitTimer);
+	}, [isRadarPreparing]);
 
 	const [hoveredBlipId, setHoveredBlipId] = useState<string | null>(null);
 	const handleBlipHover = useCallback(
@@ -145,32 +362,18 @@ const Radar = ({ blips, editions }: { blips: Blip[]; editions: Edition[] }) => {
 		<Zoom<SVGSVGElement>
 			width={width}
 			height={height}
-			scaleXMin={0.7}
-			scaleXMax={2.5}
-			scaleYMin={0.7}
-			scaleYMax={2.5}
+			scaleXMin={minZoomScale}
+			scaleXMax={maxZoomScale}
+			scaleYMin={minZoomScale}
+			scaleYMax={maxZoomScale}
 			initialTransformMatrix={initialTransform}
+			wheelDelta={smoothWheelDelta}
+			pinchDelta={smoothPinchDelta}
+			constrain={constrainRadarTransform}
 		>
 			{(zoom) => {
-				// Clamp translation values before rendering
-				const clamp = (val: number, min: number, max: number) =>
-					Math.max(min, Math.min(val, max));
-				// Clamp the transform for smoother pan
-				const clampedTransform = {
-					...zoom.transformMatrix,
-					translateX: clamp(
-						zoom.transformMatrix.translateX,
-						-width * 0.5,
-						width * 0.5,
-					),
-					translateY: clamp(
-						zoom.transformMatrix.translateY,
-						-height * 0.5,
-						height * 0.5,
-					),
-				};
 				// Generate transform string manually
-				const transformString = `matrix(${clampedTransform.scaleX},${clampedTransform.skewY},${clampedTransform.skewX},${clampedTransform.scaleY},${clampedTransform.translateX},${clampedTransform.translateY})`;
+				const transformString = `matrix(${zoom.transformMatrix.scaleX},${zoom.transformMatrix.skewY},${zoom.transformMatrix.skewX},${zoom.transformMatrix.scaleY},${zoom.transformMatrix.translateX},${zoom.transformMatrix.translateY})`;
 				return (
 					<div className={styles.relative} ref={containerRef}>
 						{/* Left side controls container */}
@@ -291,7 +494,7 @@ const Radar = ({ blips, editions }: { blips: Blip[]; editions: Edition[] }) => {
 										}}
 										onDoubleClick={(event) => {
 											const point = localPoint(event) ?? { x: 0, y: 0 };
-											zoom.scale({ scaleX: 1.05, scaleY: 1.05, point });
+											zoom.scale({ scaleX: 1.12, scaleY: 1.12, point });
 										}}
 									/>
 									{radarBlips.map((blip) => (
@@ -350,6 +553,15 @@ const Radar = ({ blips, editions }: { blips: Blip[]; editions: Edition[] }) => {
 						)}
 						<RadarControls zoom={zoom} />
 						<MiniMapControls />
+						{showRadarLoadingState && (
+							<RadarLoadingState
+								width={width}
+								height={height}
+								centerX={centerX}
+								centerY={centerY}
+								state={isRadarPreparing ? "loading" : "ready"}
+							/>
+						)}
 					</div>
 				);
 			}}
