@@ -1,14 +1,13 @@
 ---
+import type { CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
 import GlobalStyles from "~components/GlobalStyles.astro";
 import Radar from "~components/radar/Radar";
-import MessageDrawer from "~components/MessageDrawer";
+import { RadarTopNavControls } from "~components/radar/RadarTopNavControls";
 import Layout from "~layouts/Layout.astro";
-import type { Blip } from "~types/radar-types";
-import { getCollection } from "astro:content";
-import type { CollectionEntry } from "astro:content";
-import { createEdition } from "~utils/editionHelpers";
 import * as styles from "~styles/pages/index.css";
-import CornerNav from "@/components/CornerNav.astro";
+import type { Blip } from "~types/radar-types";
+import { createEdition } from "~utils/editionHelpers";
 
 GlobalStyles;
 
@@ -16,7 +15,7 @@ type BlipCollectionEntry = CollectionEntry<"blip"> & { data: Blip };
 
 const blipCollection: BlipCollectionEntry[] = await getCollection("blip");
 
-const blips = blipCollection.map(({ data }: { data: Blip }) => {
+const blips: Blip[] = blipCollection.map(({ data }: { data: Blip }) => {
 	return {
 		id: data.id,
 		name: data.name,
@@ -43,11 +42,10 @@ const editions = editionCollection
 ---
 
 <Layout>
-  <div slot="center" class:list={[styles.flexContainer]}>
-    <CornerNav />
-    <div class:list={[styles.chartSection]}>
-      <Radar blips={blips} editions={editions} client:load />
-    </div>
-    <MessageDrawer blips={blips} client:only="react" />
-  </div>
+	<RadarTopNavControls slot="topNavControls" client:load />
+	<div slot="center" class:list={[styles.flexContainer]}>
+		<div class:list={[styles.chartSection]}>
+			<Radar blips={blips} editions={editions} client:load />
+		</div>
+	</div>
 </Layout>

@@ -5,7 +5,6 @@ import "../styles/animation-control.css.ts";
 import RadarIcon from "~assets/svg/radar.svg";
 import ThemeSwitcher from "~components/themeSwitcher/ThemeSwitcher.astro";
 import { withBasePath } from "~utils/sitePaths";
-import { AnimationToggle } from "../components/AnimationToggle";
 import { animationEnabled } from "../stores/animation-store";
 
 const isAnimationsEnabled = animationEnabled.get();
@@ -27,9 +26,13 @@ const homePath = withBasePath("/");
   <body>
    <div class:list={[styles.container]}>
       <a class:list={[styles.radarIcon]} href={homePath}><RadarIcon  width={24} height={24} /></a>
-      <ThemeSwitcher />
+      <div class={styles.topNavArea}>
+			<div class={styles.topNavControlsSlot}>
+				<slot name="topNavControls" />
+			</div>
+			<ThemeSwitcher />
+		</div>
       <div class:list={[styles.mainContent]}>
-        <AnimationToggle client:only="react" />
         <slot name="center" />
       </div>
   

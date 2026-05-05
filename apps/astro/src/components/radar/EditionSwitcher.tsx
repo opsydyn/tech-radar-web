@@ -66,9 +66,6 @@ export const EditionSwitcher = ({ editions }: EditionSwitcherProps) => {
 
 	return (
 		<div className={styles.container}>
-			<label htmlFor="edition-select" className={styles.label}>
-				Edition:
-			</label>
 			<select
 				id="edition-select"
 				className={styles.select}
@@ -82,16 +79,6 @@ export const EditionSwitcher = ({ editions }: EditionSwitcherProps) => {
 					</option>
 				))}
 			</select>
-
-			{/* Show edition date when selected */}
-			{selected && (
-				<span className={styles.dateDisplay} aria-live="polite">
-					{selected.date.toLocaleDateString("en-US", {
-						year: "numeric",
-						month: "short",
-					})}
-				</span>
-			)}
 		</div>
 	);
 };

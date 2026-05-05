@@ -8,6 +8,11 @@ import {
 } from "@vanilla-extract/css";
 import { recipe } from "@vanilla-extract/recipes";
 import { createSprinkles, defineProperties } from "@vanilla-extract/sprinkles";
+import {
+	sidebarDesktopWidth,
+	sidebarLeftInset,
+	sidebarRadarGap,
+} from "./RadarSidebar.css";
 // import { animationEnabled } from "~stores/animation-store";
 // import { colors, typography } from "~styles/theme.css";
 
@@ -322,6 +327,38 @@ export const adrsButton = style({
 
 export const relative = style({
 	position: "relative",
+});
+
+export const radarShell = style({
+	position: "relative",
+	display: "flex",
+	alignItems: "stretch",
+	justifyContent: "center",
+	width: "100%",
+	height: "100%",
+	minWidth: 0,
+	minHeight: 0,
+});
+
+export const sidebarSpacer = style({
+	width: 0,
+	flexShrink: 0,
+	transition: "width 220ms ease",
+	selectors: {
+		'&[data-open="true"]': {
+			width: `calc(8.75rem + ${sidebarLeftInset} + ${sidebarRadarGap})`,
+		},
+	},
+});
+
+export const radarCanvas = style({
+	position: "relative",
+	display: "flex",
+	alignItems: "center",
+	justifyContent: "center",
+	flex: 1,
+	minWidth: 0,
+	minHeight: 0,
 });
 
 const radarLoadingFade = keyframes({

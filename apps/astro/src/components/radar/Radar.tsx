@@ -11,14 +11,11 @@ import type {
 	WheelEvent as ReactWheelEvent,
 } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import MessageDrawer from "~components/MessageDrawer";
 import { RadarChart } from "~components/radar/BaseChart";
-import {
-	EditionSwitcher,
-	selectedEdition,
-} from "~components/radar/EditionSwitcher";
+import { selectedEdition } from "~components/radar/EditionSwitcher";
 import { Labels } from "~components/radar/Labels";
 import { LegendTwo } from "~components/radar/Legend";
-// import { Legend, LegendTwo } from "~components/radar/Legend";
 import { MiniMapControls } from "~components/radar/MiniMapControls";
 import {
 	getRadarBlipColor,
@@ -27,8 +24,15 @@ import {
 } from "~components/radar/RadarBlip";
 import { RadarControls } from "~components/radar/RadarControls";
 import { RadarRings } from "~components/radar/RadarRings";
+import { RadarSidebar } from "~components/radar/RadarSidebar";
+import {
+	clearRadarSearchableBlips,
+	radarSearchTerm,
+	setRadarSearchableBlips,
+} from "~components/radar/radarSearchStore";
+import type { Blip as TableBlip } from "~components/table/types";
 import UseBlipPositions from "~hooks/UseBlipPositions";
-import { useBlipSearch } from "~hooks/useBlipSearch";
+import { useBlipSearchResults } from "~hooks/useBlipSearch";
 import { miniMapState, radarConfig } from "~stores/radar-store";
 import { theme } from "~stores/theme-store";
 import type { Blip, BlipWithPosition } from "~types/radar-types";
@@ -36,6 +40,10 @@ import type { Edition } from "~utils/editionHelpers";
 import { getBlipsForEdition } from "~utils/editionHelpers";
 
 import * as styles from "./Radar.css";
+import {
+	setRadarSidebarOpenPreference,
+	subscribeRadarSidebarOpenPreference,
+} from "./radarSidebarState";
 
 const initialTransform = {
 	scaleX: 1.27,
@@ -277,13 +285,29 @@ const RadarLoadingState = ({
 	</div>
 );
 
+const usePersistentRadarSidebar = () => {
+	const [isOpen, setIsOpen] = useState(true);
+
+	useEffect(() => subscribeRadarSidebarOpenPreference(setIsOpen), []);
+
+	const handleOpenChange = useCallback((nextOpen: boolean) => {
+		setIsOpen(nextOpen);
+		void setRadarSidebarOpenPreference(nextOpen);
+	}, []);
+
+	return { isOpen, handleOpenChange };
+};
+
 const Radar = ({ blips, editions }: { blips: Blip[]; editions: Edition[] }) => {
 	const { width, height, centerX, centerY } = useStore(radarConfig);
 	const { containerRef, TooltipInPortal } = useTooltipInPortal();
 	const miniMapstate = useStore(miniMapState);
 	const currentTheme = useStore(theme);
+	const activeSearchTerm = useStore(radarSearchTerm);
 	const [bgColor, setBgColor] = useState<string>("#000000");
 	const [tooltip, setTooltip] = useState<RadarTooltipState | null>(null);
+	const { isOpen: isSidebarOpen, handleOpenChange: handleSidebarOpenChange } =
+		usePersistentRadarSidebar();
 
 	// Handle theme state on client-side only to avoid hydration mismatch
 	useEffect(() => {
@@ -300,16 +324,31 @@ const Radar = ({ blips, editions }: { blips: Blip[]; editions: Edition[] }) => {
 		[blips, currentEdition],
 	);
 
-	// Use the search hook to filter edition-specific blips
-	const {
-		searchTerm,
-		filteredBlips,
-		handleSearchChange,
-		clearSearch,
-		resultsCount,
-		hasSearchTerm,
-	} = useBlipSearch(editionBlips);
-	const resultsSuffix = resultsCount === 1 ? "" : "s";
+	useEffect(() => {
+		setRadarSearchableBlips(editionBlips);
+	}, [editionBlips]);
+
+	useEffect(() => clearRadarSearchableBlips, []);
+
+	const { filteredBlips } = useBlipSearchResults(
+		editionBlips,
+		activeSearchTerm,
+	);
+	const tableBlips = useMemo<TableBlip[]>(
+		() =>
+			filteredBlips.map(
+				({ description, hasAdr, id, name, quadrant, ring, tags }) => ({
+					description,
+					hasAdr,
+					id,
+					name,
+					quadrant,
+					ring,
+					tags,
+				}),
+			),
+		[filteredBlips],
+	);
 
 	// Calculate positions for edition + search filtered blips
 	const radarBlips = UseBlipPositions(filteredBlips);
@@ -375,193 +414,162 @@ const Radar = ({ blips, editions }: { blips: Blip[]; editions: Edition[] }) => {
 				// Generate transform string manually
 				const transformString = `matrix(${zoom.transformMatrix.scaleX},${zoom.transformMatrix.skewY},${zoom.transformMatrix.skewX},${zoom.transformMatrix.scaleY},${zoom.transformMatrix.translateX},${zoom.transformMatrix.translateY})`;
 				return (
-					<div className={styles.relative} ref={containerRef}>
-						{/* Left side controls container */}
-						<div className={styles.leftControlsContainer}>
-							{/* Legend components */}
-							<LegendTwo />
-						</div>
-
-						{/* Right side controls: Edition + Search */}
-						<div className={styles.rightSearchContainer}>
-							{/* 🆕 Edition Switcher */}
-							<EditionSwitcher editions={editions} />
-
-							{/* Search Input */}
-							<input
-								type="text"
-								className={styles.searchInput}
-								placeholder="Search blips..."
-								value={searchTerm}
-								onChange={handleSearchChange}
-								aria-label="Search radar blips"
-							/>
-							{hasSearchTerm && (
-								<div className={styles.searchFooter}>
-									<span className={styles.searchResultsCount}>
-										{resultsCount} result{resultsSuffix}
-									</span>
-									<button
-										type="button"
-										className={styles.searchClearButton}
-										onClick={clearSearch}
-										aria-label="Clear search"
-									>
-										Clear
-									</button>
-								</div>
-							)}
-
-							{/* Theme state indicator for testing */}
-
-							{/* <div className={styles.themeIndicator}>
-                  <div>
-                    <span role="img" aria-label="theme icon">
-                      {effectiveTheme === 'dark' ? '🌙' : effectiveTheme === 'light' ? '☀️' : '⚙️'}
-                    </span>
-                    {' '}{effectiveTheme.charAt(0).toUpperCase() + effectiveTheme.slice(1)} Mode
-                  </div>
-                </div> */}
-						</div>
-
-						<svg
-							ref={zoom.containerRef}
-							role="img"
-							aria-label="Interactive tech radar chart"
-							width={width}
-							height={height}
-							style={{
-								cursor: zoom.isDragging ? "grabbing" : "grab",
-								touchAction: "none",
-							}}
-							onMouseLeave={handleBlipUnhover}
-						>
-							<defs>
-								<filter
-									id="radar-blip-outer-glow"
-									x="-50%"
-									y="-50%"
-									width="200%"
-									height="200%"
+					<div className={styles.radarShell}>
+						<RadarSidebar
+							editions={editions}
+							isOpen={isSidebarOpen}
+							onOpenChange={handleSidebarOpenChange}
+						/>
+						<div
+							className={styles.sidebarSpacer}
+							data-open={isSidebarOpen ? "true" : "false"}
+						/>
+						<div className={styles.radarCanvas}>
+							<div className={styles.relative} ref={containerRef}>
+								<svg
+									ref={zoom.containerRef}
+									role="img"
+									aria-label="Interactive tech radar chart"
+									width={width}
+									height={height}
+									style={{
+										cursor: zoom.isDragging ? "grabbing" : "grab",
+										touchAction: "none",
+									}}
+									onMouseLeave={handleBlipUnhover}
 								>
-									<feGaussianBlur stdDeviation="8" result="coloredBlur" />
-									<feMerge>
-										<feMergeNode in="coloredBlur" />
-										<feMergeNode in="SourceGraphic" />
-									</feMerge>
-								</filter>
-							</defs>
-							<RectClipPath id="zoom-clip" width={width} height={height} />
-							<rect width={width} height={height} rx={14} fill={bgColor} />
-							<g transform={transformString}>
-								<RadarChart />
-								<Labels />
-								<Group
-									top={centerY}
-									left={centerX}
-									className={styles.radarBlipLayer}
-									data-hovering={hoveredBlipId ? "true" : undefined}
-								>
-									<RadarRings />
-									{/* Global dimming overlay */}
-									{hoveredBlipId && (
-										<rect
-											x={-centerX}
-											y={-centerY}
-											width={width}
-											height={height}
-											fill="#000"
-											fillOpacity={0.45}
-											style={{ pointerEvents: "none" }}
-										/>
-									)}
-									{/* biome-ignore lint/a11y/noStaticElementInteractions: transparent SVG hit layer delegates drag, touch, and zoom gestures for the radar surface. */}
-									<rect
-										x={-centerX}
-										y={-centerY}
-										width={width}
-										height={height}
-										rx={14}
-										fill="transparent"
-										onTouchStart={zoom.dragStart}
-										onTouchMove={zoom.dragMove}
-										onTouchEnd={zoom.dragEnd}
-										onMouseDown={zoom.dragStart}
-										onMouseMove={zoom.dragMove}
-										onMouseUp={zoom.dragEnd}
-										onMouseLeave={() => {
-											if (zoom.isDragging) zoom.dragEnd();
-										}}
-										onDoubleClick={(event) => {
-											const point = localPoint(event) ?? { x: 0, y: 0 };
-											zoom.scale({ scaleX: 1.12, scaleY: 1.12, point });
-										}}
-									/>
-									{radarBlips.map((blip) => (
-										<RadarBlip
-											key={blip.id}
-											blip={blip}
-											isHovered={hoveredBlipId === blip.id}
-											onHover={handleBlipHover}
-											onUnhover={handleBlipUnhover}
-										/>
-									))}
-								</Group>
-							</g>
-							{miniMapstate.showMiniMap && (
-								<g
-									clipPath="url(#zoom-clip)"
-									transform={`
+									<defs>
+										<filter
+											id="radar-blip-outer-glow"
+											x="-50%"
+											y="-50%"
+											width="200%"
+											height="200%"
+										>
+											<feGaussianBlur stdDeviation="8" result="coloredBlur" />
+											<feMerge>
+												<feMergeNode in="coloredBlur" />
+												<feMergeNode in="SourceGraphic" />
+											</feMerge>
+										</filter>
+									</defs>
+									<RectClipPath id="zoom-clip" width={width} height={height} />
+									<rect width={width} height={height} rx={14} fill={bgColor} />
+									<g transform={transformString}>
+										<RadarChart />
+										<Labels />
+										<Group
+											top={centerY}
+											left={centerX}
+											className={styles.radarBlipLayer}
+											data-hovering={hoveredBlipId ? "true" : undefined}
+										>
+											<RadarRings />
+											{/* Global dimming overlay */}
+											{hoveredBlipId && (
+												<rect
+													x={-centerX}
+													y={-centerY}
+													width={width}
+													height={height}
+													fill="#000"
+													fillOpacity={0.45}
+													style={{ pointerEvents: "none" }}
+												/>
+											)}
+											{/* biome-ignore lint/a11y/noStaticElementInteractions: transparent SVG hit layer delegates drag, touch, and zoom gestures for the radar surface. */}
+											<rect
+												x={-centerX}
+												y={-centerY}
+												width={width}
+												height={height}
+												rx={14}
+												fill="transparent"
+												onTouchStart={zoom.dragStart}
+												onTouchMove={zoom.dragMove}
+												onTouchEnd={zoom.dragEnd}
+												onMouseDown={zoom.dragStart}
+												onMouseMove={zoom.dragMove}
+												onMouseUp={zoom.dragEnd}
+												onMouseLeave={() => {
+													if (zoom.isDragging) zoom.dragEnd();
+												}}
+												onDoubleClick={(event) => {
+													const point = localPoint(event) ?? { x: 0, y: 0 };
+													zoom.scale({ scaleX: 1.12, scaleY: 1.12, point });
+												}}
+											/>
+											{radarBlips.map((blip) => (
+												<RadarBlip
+													key={blip.id}
+													blip={blip}
+													isHovered={hoveredBlipId === blip.id}
+													onHover={handleBlipHover}
+													onUnhover={handleBlipUnhover}
+												/>
+											))}
+										</Group>
+									</g>
+									{miniMapstate.showMiniMap && (
+										<g
+											clipPath="url(#zoom-clip)"
+											transform={`
                     scale(0.25)    
                     translate(${width * 4 - width - 60},
                     ${height * 4 - height - 60})
                   `}
-								>
-									<rect width={width} height={height} fill="#1a1a1a" />
-									<RadarChart />
-									<Labels />
-									<Group top={centerY} left={centerX}>
-										<RadarRings />
-										{miniMapBlips.map((blip) => (
-											<MiniMapBlip key={blip.id} blip={blip} />
-										))}
-									</Group>
-									<rect
+										>
+											<rect width={width} height={height} fill="#1a1a1a" />
+											<RadarChart />
+											<Labels />
+											<Group top={centerY} left={centerX}>
+												<RadarRings />
+												{miniMapBlips.map((blip) => (
+													<MiniMapBlip key={blip.id} blip={blip} />
+												))}
+											</Group>
+											<rect
+												width={width}
+												height={height}
+												fill="white"
+												fillOpacity={0.2}
+												stroke="white"
+												strokeWidth={4}
+												transform={zoom.toStringInvert()}
+											/>
+										</g>
+									)}
+								</svg>
+								{tooltip && (
+									<TooltipInPortal
+										key={`tooltip-${tooltip.blip.id}`}
+										top={tooltip.top}
+										left={tooltip.left}
+										offsetLeft={0}
+										offsetTop={0}
+										unstyled
+										applyPositionStyle
+									>
+										<RadarBlipTooltip blip={tooltip.blip} />
+									</TooltipInPortal>
+								)}
+								<div className={styles.leftControlsContainer}>
+									<LegendTwo />
+								</div>
+								<RadarControls zoom={zoom} />
+								<MiniMapControls />
+								{showRadarLoadingState && (
+									<RadarLoadingState
 										width={width}
 										height={height}
-										fill="white"
-										fillOpacity={0.2}
-										stroke="white"
-										strokeWidth={4}
-										transform={zoom.toStringInvert()}
+										centerX={centerX}
+										centerY={centerY}
+										state={isRadarPreparing ? "loading" : "ready"}
 									/>
-								</g>
-							)}
-						</svg>
-						{tooltip && (
-							<TooltipInPortal
-								key={`tooltip-${tooltip.blip.id}`}
-								top={tooltip.top}
-								left={tooltip.left}
-								offsetLeft={0}
-								offsetTop={0}
-								unstyled
-								applyPositionStyle
-							>
-								<RadarBlipTooltip blip={tooltip.blip} />
-							</TooltipInPortal>
-						)}
-						<RadarControls zoom={zoom} />
-						<MiniMapControls />
-						{showRadarLoadingState && (
-							<RadarLoadingState
-								width={width}
-								height={height}
-								centerX={centerX}
-								centerY={centerY}
-								state={isRadarPreparing ? "loading" : "ready"}
-							/>
-						)}
+								)}
+							</div>
+						</div>
+						<MessageDrawer blips={tableBlips} />
 					</div>
 				);
 			}}

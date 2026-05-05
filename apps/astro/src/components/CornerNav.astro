@@ -2,7 +2,6 @@
 import { Image } from "astro:assets";
 import ArtboardIcon from "~assets/svg/artboard.svg";
 import BinaryIcon from "~assets/svg/binary.svg";
-import EditionIcon from "~assets/svg/edition.svg";
 import PyramidIcon from "~assets/svg/pyramid.svg";
 import ToolIcon from "~assets/svg/tool.svg";
 import { quadrantColorsSolid } from "~utils/quadrantColors";
@@ -18,12 +17,6 @@ type CornerNavLink = {
 };
 
 const navLinks: CornerNavLink[] = [
-	{
-		href: withBasePath("/edition/1"),
-		label: "Edition",
-		iconSrc: EditionIcon,
-		ariaLabel: "Go to edition",
-	},
 	{
 		href: withBasePath("/quadrants/platforms"),
 		label: "Platforms",

@@ -93,6 +93,31 @@ export const radarIcon = style({
 	// zIndex: 1000,
 });
 
+export const topNavArea = style({
+	position: "fixed",
+	top: "1rem",
+	right: "0.5rem",
+	display: "flex",
+	alignItems: "center",
+	justifyContent: "flex-end",
+	gap: "0.75rem",
+	maxWidth: "calc(100vw - 4.5rem)",
+	zIndex: 200,
+	"@media": {
+		"screen and (max-width: 960px)": {
+			flexWrap: "wrap",
+			alignItems: "stretch",
+		},
+	},
+});
+
+export const topNavControlsSlot = style({
+	display: "flex",
+	alignItems: "center",
+	justifyContent: "flex-end",
+	minWidth: 0,
+});
+
 // Global styles for body
 globalStyle("body", {
 	margin: 0,
