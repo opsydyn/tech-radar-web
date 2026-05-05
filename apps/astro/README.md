@@ -1,68 +1,79 @@
-# Tech Radar v2
+# Astro Tech Radar App
 
-`Tech Racar V2` tech radar v2 built using Astro, focusing on modern web development practices and simplicity.
+This is the static Astro application for the Tech Radar.
 
-## Features
+It renders MDX content collections as a GitHub Pages-friendly static site with React islands for the interactive radar, search, sidebar, and table drawer.
 
-- **Astro**: Utilizes Astro for efficient and fast static site generation.
-- **TailwindCSS**: Leverages TailwindCSS for rapid and responsive UI development.
-- **Vanilla Extract**: Implements Zero-runtime Stylesheets-in-TypeScript for a powerful CSS-in-JS experience.
-- **React**: Uses React for building interactive user interfaces.
-- **NanoStores**: Simple and effective state management for React.
-- **ViTest**: Efficient testing framework for Vite projects.
-- **CLI Tool**: Includes a custom CLI tool to create Architectural Decision Records (ADRs) as MDX files.
+## Stack
 
-## Getting Started
+- Astro 6
+- React 19
+- TypeScript
+- Vanilla Extract
+- Visx
+- Nanostores
+- Fuse.js
+- Base UI
+- Pixelarticons
+- Vitest
 
-### Setup
+## Development
 
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/mcu-poc/tech-radar-v2.git
-   cd astro-apollo-starter
-   ```
-
-2. Install the dependencies:
-
-   ```bash
-   pnpm install
-   ```
-
-### Available Scripts
-
-- `pnpm run dev` or `pnpm run start`: Starts the app in development mode.
-- `pnpm run build`: Builds the app for production.
-- `pnpm run preview`: Serves a preview of the built production app.
-- `pnpm run test`: Executes tests using ViTest.
-- `pnpm run create:adr`: Creates a new ADR file in the `src/pages/adrs` directory.
-
-### Creating an ADR
-
-To create a new ADR file:
+From the repository root:
 
 ```bash
-pnpm run create:adr ADR_FILE_NAME
+make astro-dev
 ```
 
-Replace `ADR_FILE_NAME` with the desired name for your ADR file. This command will create an MDX file in the `src/pages/adrs` directory with the current timestamp and predefined ADR headings.
+From this app directory:
 
-## Project Structure
+```bash
+bun run dev
+```
 
-- `src/`: Contains the source code for the project.
-- `src/pages/`: Astro pages, including the ADRs created by the CLI tool.
-- `src/components/`: React components used within the project.
+## Scripts
 
-## Dependencies
+```bash
+bun run dev        # Start Astro dev server
+bun run start      # Start Astro dev server without --host
+bun run build      # Run astro check and astro build
+bun run preview    # Preview the static build
+bun run test       # Run Vitest once
+bun run test:watch # Run Vitest in watch mode
+bun run astro      # Run the Astro CLI
+```
 
-This project uses various packages for development and runtime:
+## Content
 
-- **Astro & Plugins**: `astro`, `@astrojs/mdx`, `@astrojs/react`, `@astrojs/tailwind`, `@astrojs/ts-plugin`.
-- **UI & Styling**: `tailwindcss`, `@vanilla-extract/css`, `@vanilla-extract/recipes`, `@vanilla-extract/sprinkles`, `@vanilla-extract/vite-plugin`.
-- **React & Types**: `react`, `react-dom`, `@types/react`, `@types/react-dom`.
-- **State Management**: `@nanostores/react`, `@nanostores/logger`, `@nanostores/persistent`.
-- **Testing & Other Utilities**: `vitest`, `chalk`, `effect`, `@visx/*`.
+Content is defined with Astro content collections in `src/content`.
 
-## Development Tools
+```text
+src/content/
+├── blip/      # Technology blip MDX documents
+└── edition/   # Tech radar edition MDX documents
+```
 
-- **Linting & Formatting**: `eslint`, `@typescript-eslint/parser`, `eslint-plugin-astro`, `eslint-plugin-jsx-a11y`, `prettier`, `prettier-plugin-astro`.
+The current implementation uses blip `move` metadata plus edition dates to determine which blips appear in each edition. The planned simplification is edition-owned snapshots, where each edition explicitly owns the blips and rings it contains.
+
+## Key folders
+
+```text
+src/components/   # Astro and React components
+src/hooks/        # React hooks
+src/layouts/      # Astro layouts
+src/pages/        # Static Astro routes
+src/stores/       # Nanostores state
+src/styles/       # Vanilla Extract styles
+src/types/        # Shared TypeScript types
+src/utils/        # Build-time and domain utilities
+```
+
+## Build output
+
+Production builds are written to:
+
+```text
+dist/
+```
+
+GitHub Pages deploys this directory from the root workflow at `.github/workflows/deploy.yml`.

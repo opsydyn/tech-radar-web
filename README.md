@@ -1,162 +1,252 @@
-<div align="center">
-  <img src="./radar-logo.png" alt="Tech Radar Logo" width="800">
-</div>
+# Tech Radar
 
-# Tech Radar v2
+![Tech Radar Logo](./radar-logo.png)
 
-## Overview
+A static, Astro-powered technology radar for publishing edition-based technology guidance to GitHub Pages.
 
-Tech Radar v2 is a replacement for the current tech radar
+The project has been simplified around a crisp static-site workflow: content lives in Astro content collections, the radar renders as a React/Visx island, and the site is built and deployed as static assets.
 
-## Project Structure
+## Current scope
 
-### Main Project
+This repository currently focuses on:
 
-- **Name**: tech-radar-v2
-- **Version**: 0.0.1
-- **Type**: module
+- an Astro 6 web app in `apps/astro`
+- MDX content for blips and editions
+- React 19 islands for interactive radar UI
+- Visx-powered radar visualization
+- Vanilla Extract styles
+- fuzzy search with Fuse.js
+- GitHub Pages deployment
+- Moon task orchestration
+- Bun package management
 
-### Monorepo Structure
+Out of scope for the simplified version:
 
-- **Package Manager**: pnpm@9.15.0
-- **Monorepo Tool**: Moon
-- **Workspaces**:
-  - Apps: `apps/*`
-  - Packages: `packages/*`
+- legacy sidecar generators
+- terminal UI tooling
+- database-backed APIs
+- server-side API endpoints for blips
+- document freshness API endpoints
+- full-stack intelligence services
 
-### Available Commands
+## Repository structure
 
-#### Using Make
-
-```bash
-# General commands
-make help          # Show all available commands
-make check         # Run Moon checks across all projects
-make run          # Run Moon tasks (usage: make run task=<taskname> project=<project>)
-make ci           # Run Moon CI tasks
-
-# Testing
-make test         # Run tests once
-make test-watch   # Run tests in watch mode
-
-# Project-specific commands
-make astro task=<taskname>    # Run tasks for astro project
-make rust task=<taskname>     # Run tasks for rust project
-make ratatui task=<taskname>  # Run tasks for ratatui project
-
-# Other utilities
-make prettier     # Format code with Prettier
-make commit       # Create a commit using Commitizen
-make cargo-build  # Build the Rust ADR generator
-make cargo-run    # Run the Rust ADR generator
-make sherif       # Run sherif
+```text
+.
+├── apps/
+│   └── astro/              # Static Astro tech radar application
+├── packages/
+│   ├── biome-config/       # Shared Biome configuration package
+│   └── tsconfig/           # Shared TypeScript configuration package
+├── tooling/                # Workspace tooling packages/scripts
+├── .github/workflows/      # GitHub Actions workflows
+├── .make/                  # Make target definitions
+├── Makefile                # Developer command shortcuts
+├── package.json            # Root Bun workspace configuration
+└── README.md
 ```
 
-#### API Testing Commands
+## Application structure
 
-The project includes comprehensive API testing capabilities via make commands:
+The main app lives in `apps/astro`.
 
-```bash
-# Core API Testing
-make api-help                    # Show all API testing commands
-make api-blips                   # Get all blips from the API
-make api-blip ID=37             # Get specific blip by ID
-make api-quadrant QUADRANT=tools # Get blips for specific quadrant
-make api-rels                   # Get API relationship documentation
+Important paths:
 
-# Document Freshness Testing
-make api-freshness-docs         # Get freshness API documentation
-make api-freshness-get IDENTIFIER=react DOC_TYPE=auto    # Test via GET
-make api-freshness-post IDENTIFIER=docker DOC_TYPE=blip  # Test via POST
-make api-freshness-examples     # Run comprehensive test examples
-
-# Testing & Validation
-make api-test-all              # Test all API endpoints
-make api-validate              # Validate all endpoints are responding
-make api-benchmark             # Benchmark API response times
-
-# Utilities
-make api-headers ENDPOINT=blips           # Show response headers
-make api-save ENDPOINT=blips FILE=out.json # Save response to file
-make api-peek ENDPOINT=blips LIMIT=30     # Preview first N lines
-make install-jq                           # Install jq for better JSON formatting
+```text
+apps/astro/
+├── src/
+│   ├── components/         # Astro and React components
+│   ├── content/            # Astro content collections
+│   │   ├── blip/           # Technology blip MDX documents
+│   │   └── edition/        # Edition MDX documents
+│   ├── hooks/              # React hooks
+│   ├── layouts/            # Astro layouts
+│   ├── pages/              # Static routes
+│   ├── stores/             # Nanostores state
+│   ├── styles/             # Vanilla Extract styles
+│   ├── types/              # Shared TypeScript domain types
+│   └── utils/              # Build-time/content utilities
+├── astro.config.mts
+├── content.config.ts
+└── package.json
 ```
 
-#### API Testing Examples
+## Tech stack
+
+- **Runtime/package manager**: Bun `1.3.11`
+- **Node.js**: `22.12.0`
+- **Monorepo tasks**: Moon
+- **Framework**: Astro `6`
+- **UI islands**: React `19`
+- **Visualization**: Visx
+- **Styling**: Vanilla Extract
+- **State**: Nanostores
+- **Search**: Fuse.js
+- **Icons**: Pixelarticons
+- **Validation/content schema**: Astro content collections with Zod
+- **Tests**: Vitest
+- **Deployment**: GitHub Pages
+
+## Prerequisites
+
+Install:
+
+- Node.js `22.12.0`
+- Bun `1.3.11`
+
+Then install dependencies:
 
 ```bash
-# Test document freshness for different scenarios
-make api-freshness-get IDENTIFIER=React.js DOC_TYPE=blip
-make api-freshness-get IDENTIFIER=astro DOC_TYPE=adr
-make api-freshness-get IDENTIFIER=docker  # Auto-detects type
-
-# Test with better JSON formatting (after installing jq)
-make install-jq
-make api-blips FORMAT=jq
-
-# Save API responses for analysis
-make api-save ENDPOINT=blips FILE=all-blips.json FORMAT=jq
-make api-save ENDPOINT=rels FILE=api-relationships.json
-
-# Validate all endpoints are working
-make api-validate
-
-# Run comprehensive test suite
-make api-test-all
+bun install
 ```
 
-#### Using npm/pnpm scripts
+## Development
+
+Start the Astro development server:
 
 ```bash
-pnpm moon:check   # Run Moon checks
-pnpm moon:run     # Run Moon tasks
-pnpm moon:ci      # Run Moon CI tasks
-pnpm test         # Run tests
-pnpm test:watch   # Run tests in watch mode
-pnpm prettier     # Format code
-pnpm commit       # Create a commit
+make astro-dev
 ```
 
-### API Documentation
+Or run the Astro app directly:
 
-The project provides several REST API endpoints:
+```bash
+cd apps/astro
+bun run dev
+```
 
-#### Core Endpoints
-- `GET /api/blips.api` - Get all technology blips
-- `GET /api/blip/{id}.api` - Get specific blip by ID
-- `GET /api/quadrant/{quadrant}.api` - Get blips for specific quadrant
-- `GET /api/rels.api` - Get API relationship documentation
+## Common commands
 
-#### Document Freshness API
-- `GET /api/notifications/freshness-test.api` - API documentation
-- `GET /api/notifications/freshness-test.api?identifier={name}&type={blip|adr|auto}` - Test document freshness via query parameters
-- `POST /api/notifications/freshness-test.api` - Test document freshness via JSON body
+### Make shortcuts
 
-The freshness API helps track when documents need review based on their age:
-- **Fresh**: ≤ 30 days old
-- **Aging**: 31-90 days old
-- **Stale**: 91-180 days old
-- **Critical**: > 180 days old (requires urgent review)
+```bash
+make help          # Show available Make targets
+make astro-dev     # Start the Astro dev server
+make astro-build   # Build the Astro site through Moon
+make check         # Run Moon checks
+make ci            # Run Moon CI tasks
+make test          # Run Vitest once
+make test-watch    # Run Vitest in watch mode
+make biome         # Format the workspace with Biome
+make commit        # Create a Commitizen commit
+make sherif        # Run dependency/workspace checks with sherif
+make code-owners   # Sync CODEOWNERS from Moon metadata
+```
 
-### Project Components
+### Bun scripts
 
-#### Astro App
-- Main web application built with Astro
-- Dependencies: `@astrojs/react`, `react`, `vanilla extract`, `visx`
+```bash
+bun run moon:check
+bun run moon:ci
+bun run test
+bun run test:watch
+bun run prettier
+bun run sherif
+```
 
-#### Rust ADR Generator
-- Package Name: rust_adr_gen
-- Version: 0.1.0
-- Edition: 2021
-- Dependencies: chrono, colored, indoc, dialoguer, clap
+### Astro app scripts
 
-#### Ratatui ADR Generator
-- Terminal UI version of the ADR generator
+From `apps/astro`:
 
-## Setup and Installation
+```bash
+bun run dev        # Start Astro dev server
+bun run build      # Run astro check and astro build
+bun run preview    # Preview the static build
+bun run test       # Run Astro app tests
+```
 
-## Usage
+## Content model
 
-## Contributing
+The radar is content-driven.
+
+### Blips
+
+Blips live in:
+
+```text
+apps/astro/src/content/blip/
+```
+
+Each blip is an MDX file with frontmatter such as:
+
+```yaml
+---
+id: "54"
+name: "Azure"
+ring: "Adopt"
+quadrant: "Platforms"
+tags: ["Cloud"]
+authors: ["Author"]
+hasAdr: false
+description: "Cloud platform services from Microsoft."
+created: "2023-01-02"
+move:
+  - ["stay", "2025-04-09"]
+---
+```
+
+### Editions
+
+Editions live in:
+
+```text
+apps/astro/src/content/edition/
+```
+
+Each edition is an MDX document with metadata such as:
+
+```yaml
+---
+id: "6"
+number: 6
+title: "Tech Radar Edition 6 - May 2026"
+content: "Edition summary"
+date: "2026-05-05"
+---
+```
+
+The current implementation filters blips into editions using each blip's `move` dates and the selected edition date. A planned simplification is to move toward edition-owned blip snapshots, where each edition folder explicitly declares the blips and rings for that edition.
+
+## Deployment
+
+The site deploys to GitHub Pages with `.github/workflows/deploy.yml`.
+
+On pushes to `main`, the workflow:
+
+1. installs dependencies with Bun
+2. builds the Astro site from `apps/astro`
+3. uploads `apps/astro/dist`
+4. deploys the static artifact to GitHub Pages
+
+## Testing and validation
+
+Recommended pre-commit checks:
+
+```bash
+make check
+make test
+```
+
+For focused Astro development, run from `apps/astro`:
+
+```bash
+bun run build
+bun run test
+```
+
+## Project direction
+
+The current direction is a static-only tech radar:
+
+- content-first
+- edition-oriented
+- fast GitHub Pages deployment
+- minimal runtime complexity
+- no database or server API dependency
+- no sidecar tooling
+
+Future work should continue to simplify the domain model, especially edition movement. The preferred direction is:
+
+> A blip's ring and presence are edition-owned facts. Movement is derived by comparing adjacent edition snapshots.
 
 [![Built with Astro](https://astro.badg.es/v2/built-with-astro/small.svg)](https://astro.build)
