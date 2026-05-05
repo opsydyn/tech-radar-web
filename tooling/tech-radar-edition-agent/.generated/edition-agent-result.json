@@ -1,0 +1,47 @@
+{
+  "editionNumber": 6,
+  "fileName": "2026-05-tech-radar-edition-6.mdx",
+  "title": "Tech Radar Edition 6 - May 2026",
+  "date": "2026-05-05",
+  "aiProvenance": {
+    "captureStatus": "captured",
+    "auditEngine": "captured Flue session usage",
+    "generatedBy": "tech-radar-edition-agent",
+    "entries": [
+      {
+        "feature": "compose-edition",
+        "kind": "ai",
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "items": 1,
+        "calls": 1,
+        "inputTokens": 1991,
+        "outputTokens": 606,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 0,
+        "totalTokens": 2597,
+        "notes": [
+          "Token totals include the structured result-extraction pass used by the schema boundary."
+        ]
+      },
+      {
+        "feature": "edition-metadata",
+        "kind": "deterministic",
+        "provider": "none",
+        "model": "deterministic-frontmatter",
+        "items": 1,
+        "calls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 0,
+        "totalTokens": 0,
+        "notes": [
+          "Edition number, file name, title, and date were generated deterministically."
+        ]
+      }
+    ]
+  },
+  "mdx": "---\nid: '6'\nnumber: 6\ntitle: Tech Radar Edition 6 - May 2026\ncontent: >-\n  AI-generated tech radar edition with librarian summary, views,\n  recommendations, and provenance (May 2026)\ndate: '2026-05-05'\naiProvenance:\n  captureStatus: captured\n  auditEngine: captured Flue session usage\n  generatedBy: tech-radar-edition-agent\n  entries:\n    - feature: compose-edition\n      kind: ai\n      provider: openai\n      model: gpt-4.1-mini\n      items: 1\n      calls: 1\n      inputTokens: 1991\n      outputTokens: 606\n      cacheReadTokens: 0\n      cacheWriteTokens: 0\n      totalTokens: 2597\n      notes:\n        - >-\n          Token totals include the structured result-extraction pass used by the\n          schema boundary.\n    - feature: edition-metadata\n      kind: deterministic\n      provider: none\n      model: deterministic-frontmatter\n      items: 1\n      calls: 0\n      inputTokens: 0\n      outputTokens: 0\n      cacheReadTokens: 0\n      cacheWriteTokens: 0\n      totalTokens: 0\n      notes:\n        - >-\n          Edition number, file name, title, and date were generated\n          deterministically.\n---\n# Tech Radar Edition 6 - May 2026\n\n## Introduction\n\nWelcome to Tech Radar Edition 6 for May 2026. This edition continues our commitment to providing clear and grounded insights on evolving technologies, with a focus on pragmatic recommendations and careful curation.\n\n## Highlights\n\n- A steady evolution in cloud-native tooling highlights ongoing maturity rather than radical disruption.\n- Emerging focus on developer experience improvements across language ecosystems.\n- Partial visibility into usage trends reminds us to balance enthusiasm with cautious assessment.\n- Recommendations emphasize practical adoption aligned with team readiness.\n- New entries reflect measured experimentation rather than hype-driven inclusion.\n- Moved out items suggest some technologies have stabilized or fallen out of current focus.\n\n## Librarian Summary\n\nThis edition maintains a deliberate approach, emphasizing tangible progress and lessons learned rather than chasing the latest trends. The curation remains sensitive to the practical realities teams face when adopting new tools and frameworks. While some signals remain incomplete, the narrative stays rooted in observable developments and thoughtful interpretation.\n\n## Views\n\nNo concrete page-view metrics were provided for this run, limiting visibility into broad community interest. As such, attention is paid primarily to qualitative indicators and deterministic data rather than inferred usage patterns.\n\n## Tech Recommendations\n\nThe latest recommendations balance enthusiasm and caution. Adopt suggestions spotlight proven, widely supported technologies ready for broader use. Trial and Assess labels invite teams to explore emerging innovations in controlled ways, reflecting varying maturity levels. Hold recommendations indicate technologies that may require further evaluation or have limited applicability at present.\n\n## New Entries\n\nNew entries this edition continue to reflect measured exploration of evolving technologies and methodologies, emphasizing practical benefit and alignment with existing practices rather than headline-grabbing novelty. These additions encourage mindful experimentation.\n\n## Moved Out\n\nSeveral items have been moved out, indicating technology stabilization or shifts in strategic focus. These changes help refine the radar’s scope and preserve its relevance by shedding less distinctive or less actively used items.\n\n## AI Provenance\n\nThe narrative content in this edition was synthesized by AI, grounded in deterministic metadata and guided by the librarian’s framing, ensuring clarity, evidence orientation, and a steady tone.\n\n- Edition number 6, file name 2026-05-tech-radar-edition-6.mdx, title, and date were generated deterministically.\n- This phase-1 slice uses AI solely for free-text synthesis; all Astro edition frontmatter remains deterministic.\n- No quantitative view metrics were available, limiting reliance on usage signals.\n- Recommendations are framed to reflect practical applicability without speculation.\n- New and moved-out entries are presented with intent, reflecting current radar strategy.\n\n### Metadata Summary\n\n- Capture status: captured.\n- Audit engine: captured Flue session usage.\n- Generated by: tech-radar-edition-agent.\n- Total recorded tokens: 2597.\n\n### Token Breakdown\n\n| Feature | Kind | Provider | Model | Items | Calls | Input tokens | Output tokens | Total tokens |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| compose-edition | ai | openai | gpt-4.1-mini | 1 | 1 | 1991 | 606 | 2597 |\n| edition-metadata | deterministic | none | deterministic-frontmatter | 1 | 0 | 0 | 0 | 0 |\n\n### Notes\n\n- compose-edition: Token totals include the structured result-extraction pass used by the schema boundary.\n- edition-metadata: Edition number, file name, title, and date were generated deterministically.\n\n## Conclusion\n\nThis edition offers a steady and practical guidepost for technology decisions. It balances the excitement of innovation with the discipline of careful assessment, helping teams navigate evolving landscapes with confidence and clarity.",
+  "filePath": "apps/astro/src/content/edition/2026-05-tech-radar-edition-6.mdx"
+}

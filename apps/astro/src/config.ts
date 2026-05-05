@@ -94,6 +94,28 @@ const BlipSchema = z
 		}
 	});
 
+const AiProvenanceEntrySchema = z.object({
+	feature: z.string(),
+	kind: z.enum(["ai", "deterministic"]),
+	provider: z.string(),
+	model: z.string(),
+	items: z.number().int().nonnegative(),
+	calls: z.number().int().nonnegative(),
+	inputTokens: z.number().int().nonnegative(),
+	outputTokens: z.number().int().nonnegative(),
+	cacheReadTokens: z.number().int().nonnegative(),
+	cacheWriteTokens: z.number().int().nonnegative(),
+	totalTokens: z.number().int().nonnegative(),
+	notes: z.array(z.string()),
+});
+
+const AiProvenanceSchema = z.object({
+	captureStatus: z.enum(["captured", "missing"]),
+	auditEngine: z.string(),
+	generatedBy: z.string(),
+	entries: z.array(AiProvenanceEntrySchema),
+});
+
 // 📅 Edition represents a tech radar snapshot at a point in time
 const EditionSchema = z.object({
 	id: z.string(), // "1", "2", "3"...
@@ -101,6 +123,7 @@ const EditionSchema = z.object({
 	title: z.string(), // "Q4 2023 Tech Radar"
 	content: z.string(), // Markdown content
 	date: z.coerce.date(), // Publication date - used to match blip movements
+	aiProvenance: AiProvenanceSchema.optional(),
 });
 
 const blipCollection = defineCollection({

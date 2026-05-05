@@ -1,0 +1,21 @@
+{
+  "name": "@tech-radar/edition-agent",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate:edition": "bun run src/generateEditionFile.ts",
+    "typecheck": "tsc --noEmit",
+    "flue:dev": "flue dev --target node --env ../../.env",
+    "flue:run": "flue run edition --target node --id local-edition --payload '{}'"
+  },
+  "dependencies": {
+    "@flue/sdk": "^0.3.6",
+    "effect": "4.0.0-beta.60",
+    "gray-matter": "^4.0.3",
+    "valibot": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "typescript": "^6.0.3"
+  }
+}
