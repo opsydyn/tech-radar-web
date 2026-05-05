@@ -30,7 +30,11 @@ export const themeBtn = style({
 		background: "rgba(255,255,255,0.08)",
 	},
 	":focus": {
-		outline: "2px solid #05d9e8",
+		outline: "none",
+	},
+	":focus-visible": {
+		outline: "1px solid rgba(255, 255, 255, 0.22)",
+		outlineOffset: "1px",
 	},
 });
 

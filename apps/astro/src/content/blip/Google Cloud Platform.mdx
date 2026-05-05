@@ -4,8 +4,13 @@ name: "Google Cloud Platform"
 ring: "Adopt"
 quadrant: "Platforms"
 tags: ["be"]
-authors: ["Author"]
-hasAdr: false
+authors: ["Alan Currie"]
+hasAdr: true
+adr:
+  status: "Superseded"
+  author: "Alan Currie"
+  reviewers: ["Alan Currie"]
+  tags: ["Cloud", "Backend"]
 description: {{description}}
 created: "2023-01-02"
 move: [
@@ -16,9 +21,16 @@ move: [
 ]
 ---
 
-# "Google Cloud Platform"
-**Ring**: "Adopt"
-**Quadrant**: "Platforms"
-**New**: true
-**Description**: {{description}}
-**has ADR**: false
+## Context
+
+Google Cloud Platform remains relevant to historical workloads and comparative platform decisions, but the simplified radar needs to distinguish current recommendations from legacy or superseded platform choices.
+
+## Decision
+
+Mark Google Cloud Platform as superseded for this radar context while retaining it as a visible platform snapshot fixture and historical reference.
+
+## Consequences
+
+- The radar can show platform movement without implying every historical platform remains a default choice.
+- Existing GCP knowledge remains discoverable for migration and comparison work.
+- New platform decisions should document why GCP is preferred if it is selected again.

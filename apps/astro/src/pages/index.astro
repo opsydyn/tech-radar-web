@@ -8,6 +8,7 @@ import Layout from "~layouts/Layout.astro";
 import * as styles from "~styles/pages/index.css";
 import type { Blip } from "~types/radar-types";
 import { createEdition } from "~utils/editionHelpers";
+import { buildRadarEditionViewsFromCollections } from "~utils/editionSnapshotAdapter";
 
 GlobalStyles;
 
@@ -30,22 +31,51 @@ const blips: Blip[] = blipCollection.map(({ data }: { data: Blip }) => {
 	};
 });
 
-// 🆕 Fetch editions and transform to domain model
+// Legacy editions still support the current move-date model while the
+// edition-owned snapshot model is rolled in incrementally.
 const editionCollection = await getCollection("edition");
-const editions = editionCollection
+const legacyEditions = editionCollection
 	.map(({ data }) => {
-		const result = createEdition(data.number, data.title, data.date);
+		const result = createEdition(data.number, data.title, data.date, data.id);
 		return result.isOk ? result.value : null;
 	})
 	.filter((e): e is NonNullable<typeof e> => e !== null)
 	.sort((a, b) => b.number - a.number); // Most recent first
+
+const editionSnapshotCollection = await getCollection("editionSnapshot");
+const editionBlipSnapshotCollection = await getCollection(
+	"editionBlipSnapshot",
+);
+const snapshotEditionViews = buildRadarEditionViewsFromCollections({
+	canonicalBlips: blips,
+	editionEntries: editionSnapshotCollection,
+	snapshotEntries: editionBlipSnapshotCollection,
+});
+const snapshotEditions = snapshotEditionViews
+	.map(({ edition }) => {
+		const result = createEdition(
+			edition.number,
+			edition.title,
+			edition.date,
+			edition.id,
+		);
+		return result.isOk ? result.value : null;
+	})
+	.filter((e): e is NonNullable<typeof e> => e !== null);
+const hasSnapshotEditions = snapshotEditionViews.length > 0;
+const editions = hasSnapshotEditions ? snapshotEditions : legacyEditions;
 ---
 
 <Layout>
 	<RadarTopNavControls slot="topNavControls" client:load />
 	<div slot="center" class:list={[styles.flexContainer]}>
 		<div class:list={[styles.chartSection]}>
-			<Radar blips={blips} editions={editions} client:load />
+			<Radar
+				blips={blips}
+				editions={editions}
+				editionViews={hasSnapshotEditions ? snapshotEditionViews : undefined}
+				client:load
+			/>
 		</div>
 	</div>
 </Layout>

@@ -12,6 +12,11 @@ import { animationEnabled } from "~stores/animation-store";
 import type { Edition } from "~utils/editionHelpers";
 import { withBasePath } from "~utils/sitePaths";
 import * as styles from "./RadarSidebar.css";
+import {
+	type RadarAdrFilter,
+	radarAdrFilter,
+	setRadarAdrFilter,
+} from "./radarSearchStore";
 
 type RadarSidebarProps = {
 	editions: Edition[];
@@ -55,12 +60,19 @@ const quadrantLinks: readonly QuadrantLink[] = [
 	},
 ] as const;
 
+const adrFilterOptions: readonly { label: string; value: RadarAdrFilter }[] = [
+	{ label: "All", value: "all" },
+	{ label: "Has ADR", value: "has-adr" },
+	{ label: "No ADR", value: "no-adr" },
+] as const;
+
 export const RadarSidebar = ({
 	editions,
 	isOpen,
 	onOpenChange,
 }: RadarSidebarProps) => {
 	const isRadarEnabled = useStore(animationEnabled);
+	const adrFilter = useStore(radarAdrFilter);
 
 	useEffect(() => {
 		const htmlElement = document.documentElement;
@@ -92,7 +104,6 @@ export const RadarSidebar = ({
 					className={styles.collapsedTriggerIcon}
 					aria-hidden="true"
 				/>
-				<span>Controls</span>
 			</button>
 
 			<Drawer.Root
@@ -129,6 +140,25 @@ export const RadarSidebar = ({
 									>
 										<div className={styles.sectionHeading}>Edition</div>
 										<EditionSwitcher editions={editions} />
+										<label className={styles.sidebarFilterField}>
+											<span className={styles.sidebarFilterLabel}>ADR</span>
+											<select
+												className={styles.sidebarFilterSelect}
+												value={adrFilter}
+												onChange={(event) =>
+													setRadarAdrFilter(
+														event.target.value as RadarAdrFilter,
+													)
+												}
+												aria-label="Filter blips by ADR availability"
+											>
+												{adrFilterOptions.map((option) => (
+													<option key={option.value} value={option.value}>
+														{option.label}
+													</option>
+												))}
+											</select>
+										</label>
 									</section>
 
 									<section className={styles.section}>

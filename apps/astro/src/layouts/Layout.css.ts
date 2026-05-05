@@ -100,7 +100,7 @@ export const topNavArea = style({
 	display: "flex",
 	alignItems: "center",
 	justifyContent: "flex-end",
-	gap: "0.75rem",
+	gap: "1.65rem",
 	maxWidth: "calc(100vw - 4.5rem)",
 	zIndex: 200,
 	"@media": {
@@ -116,6 +116,7 @@ export const topNavControlsSlot = style({
 	alignItems: "center",
 	justifyContent: "flex-end",
 	minWidth: 0,
+	marginRight: "0.3rem",
 });
 
 // Global styles for body

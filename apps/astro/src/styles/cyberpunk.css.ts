@@ -1,5 +1,8 @@
-import { createGlobalTheme, globalStyle } from "@vanilla-extract/css";
-import { keyframes } from "@vanilla-extract/css";
+import {
+	createGlobalTheme,
+	globalStyle,
+	keyframes,
+} from "@vanilla-extract/css";
 
 export const vars = createGlobalTheme(":root", {
 	colors: {
@@ -32,13 +35,6 @@ export const vars = createGlobalTheme(":root", {
 		tablet: "screen and (min-width: 601px) and (max-width: 900px)",
 		desktop: "screen and (min-width: 901px)",
 	},
-});
-
-const glitch = keyframes({
-	"0%": { textShadow: vars.effects.glowBlue },
-	"33%": { textShadow: vars.effects.glowPink },
-	"66%": { textShadow: vars.effects.glowPurple },
-	"100%": { textShadow: vars.effects.glowBlue },
 });
 
 const scanline = keyframes({
@@ -110,7 +106,7 @@ globalStyle("input, textarea, select", {
 globalStyle("input:focus, textarea:focus, select:focus", {
 	borderColor: vars.colors.neonPink,
 	outline: "none",
-	boxShadow: vars.effects.glowBlue,
+	boxShadow: "none",
 });
 
 // Enable animations when the animations-enabled class is present

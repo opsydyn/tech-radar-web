@@ -13,7 +13,9 @@ import { atom } from "nanostores";
 import { useEffect, useMemo } from "react";
 import type { Edition } from "~utils/editionHelpers";
 import {
+	findEditionByIdentity,
 	formatEditionLabel,
+	getEditionIdentity,
 	getLatestEdition,
 	sortEditionsByDate,
 } from "~utils/editionHelpers";
@@ -53,8 +55,7 @@ export const EditionSwitcher = ({ editions }: EditionSwitcherProps) => {
 	}, [editions, selected, sortedEditions.length]);
 
 	const handleChange = (value: string) => {
-		const editionNumber = Number.parseInt(value, 10);
-		const edition = editions.find((e) => e.number === editionNumber);
+		const edition = findEditionByIdentity(editions, value);
 		if (edition) {
 			selectedEdition.set(edition);
 		}
@@ -62,7 +63,9 @@ export const EditionSwitcher = ({ editions }: EditionSwitcherProps) => {
 
 	// Get current selection value for dropdown
 	const currentValue =
-		selected?.number.toString() ?? sortedEditions[0]?.number.toString() ?? "";
+		(selected ? getEditionIdentity(selected) : undefined) ??
+		(sortedEditions[0] ? getEditionIdentity(sortedEditions[0]) : undefined) ??
+		"";
 
 	return (
 		<div className={styles.container}>
@@ -74,7 +77,10 @@ export const EditionSwitcher = ({ editions }: EditionSwitcherProps) => {
 				aria-label="Select tech radar edition"
 			>
 				{sortedEditions.map((edition) => (
-					<option key={edition.number} value={edition.number}>
+					<option
+						key={getEditionIdentity(edition)}
+						value={getEditionIdentity(edition)}
+					>
 						{formatEditionLabel(edition)}
 					</option>
 				))}

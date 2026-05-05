@@ -1,6 +1,7 @@
 import Fuse, { type FuseResultMatch } from "fuse.js";
 import type { ChangeEvent } from "react";
 import { useDeferredValue, useMemo, useState } from "react";
+import type { RadarAdrFilter } from "~components/radar/radarSearchStore";
 import type { Blip } from "~types/radar-types";
 
 type HighlightRange = readonly [number, number];
@@ -16,6 +17,18 @@ export type BlipSearchSuggestion = {
 	readonly highlights: Readonly<
 		Record<SuggestionHighlightKey, readonly HighlightRange[]>
 	>;
+};
+
+export const filterBlipsByAdr = (
+	blips: readonly Blip[],
+	adrFilter: RadarAdrFilter,
+): readonly Blip[] => {
+	if (adrFilter === "all") {
+		return blips;
+	}
+
+	const shouldHaveAdr = adrFilter === "has-adr";
+	return blips.filter((blip) => blip.hasAdr === shouldHaveAdr);
 };
 
 // Options for Fuse.js search

@@ -27,17 +27,19 @@ import { RadarRings } from "~components/radar/RadarRings";
 import { RadarSidebar } from "~components/radar/RadarSidebar";
 import {
 	clearRadarSearchableBlips,
+	radarAdrFilter,
 	radarSearchTerm,
 	setRadarSearchableBlips,
 } from "~components/radar/radarSearchStore";
 import type { Blip as TableBlip } from "~components/table/types";
 import UseBlipPositions from "~hooks/UseBlipPositions";
-import { useBlipSearchResults } from "~hooks/useBlipSearch";
+import { filterBlipsByAdr, useBlipSearchResults } from "~hooks/useBlipSearch";
 import { miniMapState, radarConfig } from "~stores/radar-store";
 import { theme } from "~stores/theme-store";
 import type { Blip, BlipWithPosition } from "~types/radar-types";
 import type { Edition } from "~utils/editionHelpers";
-import { getBlipsForEdition } from "~utils/editionHelpers";
+import { getBlipsForEdition, getEditionIdentity } from "~utils/editionHelpers";
+import type { RadarEditionViewWithMetadata } from "~utils/editionSnapshotAdapter";
 
 import * as styles from "./Radar.css";
 import {
@@ -298,11 +300,18 @@ const usePersistentRadarSidebar = () => {
 	return { isOpen, handleOpenChange };
 };
 
-const Radar = ({ blips, editions }: { blips: Blip[]; editions: Edition[] }) => {
+type RadarProps = {
+	blips: Blip[];
+	editions: Edition[];
+	editionViews?: readonly RadarEditionViewWithMetadata[];
+};
+
+const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 	const { width, height, centerX, centerY } = useStore(radarConfig);
 	const { containerRef, TooltipInPortal } = useTooltipInPortal();
 	const miniMapstate = useStore(miniMapState);
 	const currentTheme = useStore(theme);
+	const activeAdrFilter = useStore(radarAdrFilter);
 	const activeSearchTerm = useStore(radarSearchTerm);
 	const [bgColor, setBgColor] = useState<string>("#000000");
 	const [tooltip, setTooltip] = useState<RadarTooltipState | null>(null);
@@ -318,20 +327,39 @@ const Radar = ({ blips, editions }: { blips: Blip[]; editions: Edition[] }) => {
 	// A blip can appear in multiple editions, so we always filter by current edition
 	const currentEdition = useStore(selectedEdition);
 
+	const snapshotEditionBlips = useMemo(
+		() =>
+			currentEdition && editionViews
+				? (editionViews.find(
+						({ edition }) =>
+							edition.id === getEditionIdentity(currentEdition) ||
+							edition.number === currentEdition.number,
+					)?.blips ?? [])
+				: null,
+		[currentEdition, editionViews],
+	);
+
 	// Get blips for current edition (or empty array if no edition selected yet)
 	const editionBlips = useMemo(
-		() => (currentEdition ? getBlipsForEdition(blips, currentEdition) : []),
-		[blips, currentEdition],
+		() =>
+			snapshotEditionBlips ??
+			(currentEdition ? getBlipsForEdition(blips, currentEdition) : []),
+		[blips, currentEdition, snapshotEditionBlips],
+	);
+
+	const adrFilteredEditionBlips = useMemo(
+		() => filterBlipsByAdr(editionBlips, activeAdrFilter),
+		[activeAdrFilter, editionBlips],
 	);
 
 	useEffect(() => {
-		setRadarSearchableBlips(editionBlips);
-	}, [editionBlips]);
+		setRadarSearchableBlips(adrFilteredEditionBlips);
+	}, [adrFilteredEditionBlips]);
 
 	useEffect(() => clearRadarSearchableBlips, []);
 
 	const { filteredBlips } = useBlipSearchResults(
-		editionBlips,
+		adrFilteredEditionBlips,
 		activeSearchTerm,
 	);
 	const tableBlips = useMemo<TableBlip[]>(
@@ -354,7 +382,7 @@ const Radar = ({ blips, editions }: { blips: Blip[]; editions: Edition[] }) => {
 	const radarBlips = UseBlipPositions(filteredBlips);
 
 	// Minimap also uses edition-filtered blips (not all blips)
-	const miniMapBlips = UseBlipPositions(editionBlips);
+	const miniMapBlips = UseBlipPositions(adrFilteredEditionBlips);
 	const constrainRadarTransform = useMemo(
 		() => createRadarTransformConstraint(width, height),
 		[width, height],

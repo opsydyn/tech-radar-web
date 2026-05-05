@@ -11,19 +11,16 @@ export const collapsedTrigger = style({
 	left: "16px",
 	display: "inline-flex",
 	alignItems: "center",
-	gap: "10px",
+	justifyContent: "center",
 	transition: "transform 180ms ease, opacity 180ms ease, box-shadow 180ms ease",
-	backdropFilter: "blur(14px)",
-	border: "1px solid rgba(255, 255, 255, 0.18)",
+	backdropFilter: "blur(10px)",
+	border: "1px solid rgba(255, 255, 255, 0.12)",
 	borderRadius: "999px",
-	boxShadow: "0 12px 28px rgba(0, 0, 0, 0.24)",
+	boxShadow: "0 8px 18px rgba(0, 0, 0, 0.18)",
 	cursor: "pointer",
-	padding: "10px 14px",
-	textTransform: "uppercase",
-	letterSpacing: "0.08em",
-	fontFamily: "'IBM Plex Mono', monospace",
-	fontSize: "0.75rem",
-	fontWeight: 700,
+	padding: 0,
+	width: "42px",
+	height: "42px",
 	selectors: {
 		'&[data-open="true"]': {
 			transform: "translateX(-10px)",
@@ -32,19 +29,19 @@ export const collapsedTrigger = style({
 		},
 		"&:hover": {
 			transform: "translateY(-1px)",
-			boxShadow: "0 16px 34px rgba(0, 0, 0, 0.32)",
+			boxShadow: "0 10px 22px rgba(0, 0, 0, 0.22)",
 		},
 		'[data-theme="dark"] &': {
-			background: "rgba(17, 18, 24, 0.88)",
+			background: "rgba(17, 18, 24, 0.76)",
 			color: "#f8fafc",
 		},
 		'[data-theme="machine"] &': {
-			background: "rgba(17, 18, 24, 0.88)",
+			background: "rgba(17, 18, 24, 0.76)",
 			color: "#f8fafc",
 		},
 		'[data-theme="light"] &': {
-			border: "1px solid rgba(17, 24, 39, 0.12)",
-			background: "rgba(248, 250, 252, 0.94)",
+			border: "1px solid rgba(17, 24, 39, 0.1)",
+			background: "rgba(248, 250, 252, 0.88)",
 			color: "#111827",
 		},
 	},
@@ -203,6 +200,64 @@ export const content = style({
 export const section = style({
 	display: "grid",
 	gap: "8px",
+});
+
+export const sidebarFilterField = style({
+	display: "grid",
+	gap: "0.4rem",
+	marginTop: "0.25rem",
+});
+
+export const sidebarFilterLabel = style({
+	color: "rgba(255, 255, 255, 0.68)",
+	fontFamily: "'IBM Plex Mono', monospace",
+	fontSize: "0.68rem",
+	fontWeight: 700,
+	letterSpacing: "0.08em",
+	textTransform: "uppercase",
+	selectors: {
+		'[data-theme="light"] &': {
+			color: "rgba(0, 0, 0, 0.58)",
+		},
+	},
+});
+
+export const sidebarFilterSelect = style({
+	width: "100%",
+	minHeight: "2.875rem",
+	padding: "0.75rem 2.5rem 0.75rem 0.9rem",
+	fontFamily: "'IBM Plex Mono', monospace",
+	fontSize: "0.92rem",
+	fontWeight: 700,
+	border: "1px solid rgba(255, 255, 255, 0.14)",
+	borderRadius: "0.9rem",
+	backgroundColor: "rgba(3, 7, 18, 0.78)",
+	color: "rgba(255, 255, 255, 0.96)",
+	cursor: "pointer",
+	transition:
+		"border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease",
+	outline: "none",
+	appearance: "none",
+	backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.8)' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+	backgroundRepeat: "no-repeat",
+	backgroundPosition: "right 0.9rem center",
+	selectors: {
+		"&:hover": {
+			borderColor: "rgba(255, 255, 255, 0.24)",
+			backgroundColor: "rgba(3, 7, 18, 0.92)",
+		},
+		"&:focus": {
+			outline: "none",
+			borderColor: "rgba(125, 110, 238, 0.75)",
+			boxShadow: "0 0 0 3px rgba(125, 110, 238, 0.18)",
+		},
+		'[data-theme="light"] &': {
+			border: "1px solid rgba(17, 24, 39, 0.12)",
+			backgroundColor: "rgba(255, 255, 255, 0.92)",
+			color: "#111827",
+			backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(17,24,39,0.72)' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+		},
+	},
 });
 
 export const radarSection = style([

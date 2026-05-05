@@ -14,6 +14,7 @@ type EditionNumber = number & { readonly __brand: "EditionNumber" };
 type EditionDate = Date & { readonly __brand: "EditionDate" };
 
 export type Edition = {
+	id?: string;
 	number: EditionNumber;
 	title: string;
 	date: EditionDate;
@@ -35,6 +36,7 @@ export const createEdition = (
 	number: number,
 	title: string,
 	date: Date,
+	id?: string,
 ): Result<Edition, ValidationError> => {
 	if (number < 1) {
 		return err({
@@ -52,7 +54,16 @@ export const createEdition = (
 		});
 	}
 
+	if (id !== undefined && !id.trim()) {
+		return err({
+			type: "ValidationError",
+			field: "id",
+			message: "Edition id cannot be empty when provided",
+		});
+	}
+
 	return ok({
+		...(id ? { id } : {}),
 		number: number as EditionNumber,
 		title,
 		date: date as EditionDate,
@@ -111,9 +122,27 @@ export const getLatestEdition = (editions: Edition[]): Edition | null => {
 	return sorted[0] ?? null;
 };
 
+export const getEditionIdentity = (edition: Edition): string =>
+	edition.id ?? edition.number.toString();
+
+export const findEditionByIdentity = (
+	editions: readonly Edition[],
+	identity: string,
+): Edition | undefined =>
+	editions.find((edition) => getEditionIdentity(edition) === identity);
+
 /**
  * Format edition for display
  */
 export const formatEditionLabel = (edition: Edition): string => {
+	const titleAlreadyIncludesEditionNumber = new RegExp(
+		`\\bEdition\\s+${edition.number}\\b`,
+		"i",
+	).test(edition.title);
+
+	if (titleAlreadyIncludesEditionNumber) {
+		return edition.title;
+	}
+
 	return `Edition ${edition.number}: ${edition.title}`;
 };

@@ -33,6 +33,7 @@ const RelationshipTypeEnum = z.enum([
 const MoveEnum = z.enum(["stay", "grow", "go"]);
 const Edition = z.coerce.date();
 const MoveTuple = z.tuple([MoveEnum, Edition]);
+const EditionBlipStatusEnum = z.enum(["active", "removed"]);
 const Tags = z.array(TagsEnum);
 const AdrStatusEnum = z.enum([
 	"Proposed",
@@ -133,6 +134,29 @@ const EditionSchema = z.object({
 
 export type EditionData = z.infer<typeof EditionSchema>;
 
+const EditionBlipSnapshotSchema = z
+	.object({
+		blip: z.string().min(1),
+		ring: RingEnum.optional(),
+		quadrant: QuadrantEnum.optional(),
+		status: EditionBlipStatusEnum.default("active"),
+		notes: z.string().optional(),
+	})
+	.superRefine((snapshot, ctx) => {
+		const activeSnapshotMissingRing =
+			snapshot.status === "active" && snapshot.ring === undefined;
+
+		if (activeSnapshotMissingRing) {
+			ctx.addIssue({
+				code: "custom",
+				message: "Active edition blip snapshots must include a ring.",
+				path: ["ring"],
+			});
+		}
+	});
+
+export type EditionBlipSnapshotData = z.infer<typeof EditionBlipSnapshotSchema>;
+
 const blipCollection = defineCollection({
 	loader: glob({
 		base: "./src/content/blip",
@@ -149,7 +173,25 @@ const editionCollection = defineCollection({
 	schema: EditionSchema,
 });
 
+const editionSnapshotCollection = defineCollection({
+	loader: glob({
+		base: "./src/content/editions",
+		pattern: "*/index.{md,mdx}",
+	}),
+	schema: EditionSchema,
+});
+
+const editionBlipSnapshotCollection = defineCollection({
+	loader: glob({
+		base: "./src/content/editions",
+		pattern: "*/blips/*.{md,mdx}",
+	}),
+	schema: EditionBlipSnapshotSchema,
+});
+
 export const collections = {
 	blip: blipCollection,
 	edition: editionCollection,
+	editionSnapshot: editionSnapshotCollection,
+	editionBlipSnapshot: editionBlipSnapshotCollection,
 };

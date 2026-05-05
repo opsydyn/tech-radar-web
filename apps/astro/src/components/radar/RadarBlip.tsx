@@ -4,6 +4,7 @@ import type { MouseEvent } from "react";
 import { memo } from "react";
 import type { BlipWithPosition, MoveTuple, MoveType } from "~types/radar-types";
 import { getBlipPath } from "~utils/blipRouting";
+import type { DerivedMovement } from "~utils/editionSnapshots";
 
 import * as styles from "./Radar.css";
 
@@ -25,6 +26,26 @@ function getLatestMove(move?: MoveTuple[]): MoveType | undefined {
 	if (latestMove === undefined) return;
 	return latestMove[0];
 }
+
+const movementToLegacyMove = (movement: DerivedMovement): MoveType => {
+	const movementMap = {
+		new: "go",
+		"moved-in": "go",
+		"moved-out": "grow",
+		reintroduced: "go",
+		removed: "grow",
+		unchanged: "stay",
+	} as const satisfies Record<DerivedMovement, MoveType>;
+
+	return movementMap[movement];
+};
+
+const getDisplayMove = (
+	blip: BlipWithPosition & { readonly movement?: DerivedMovement },
+): MoveType =>
+	blip.movement
+		? movementToLegacyMove(blip.movement)
+		: (getLatestMove(blip.move) ?? "stay");
 
 type RadarBlipProps = {
 	blip: BlipWithPosition;
@@ -115,7 +136,7 @@ export const RadarBlip = memo(function RadarBlip({
 				filter={isHovered ? "url(#radar-blip-outer-glow)" : undefined}
 			/>
 
-			{blipMoveSvgMap[getLatestMove(blip.move) ?? "stay"](x, y, blipColor)}
+			{blipMoveSvgMap[getDisplayMove(blip)](x, y, blipColor)}
 
 			<Text
 				x={x}
