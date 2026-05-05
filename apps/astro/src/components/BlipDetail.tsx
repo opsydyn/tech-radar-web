@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
+import * as styles from "~components/BlipDetail.css";
 import type { Blip } from "~types/radar-types";
 import { getBlipPath } from "~utils/blipRouting";
 import { formatDate, normalizeDateValue } from "~utils/dateFormatter";
@@ -14,141 +15,48 @@ const getDescription = (desc: unknown) =>
 const formatMoveDate = (dateValue: Blip["move"][number][1]): string =>
 	formatDate(dateValue);
 
+const movementClassByType = {
+	go: styles.movementGo,
+	grow: styles.movementGrow,
+	stay: styles.movementStay,
+} as const;
+
 export const BlipDetail = ({ blip, quadrantColor }: BlipDetailProps) => {
-	const [isDarkTheme, setIsDarkTheme] = useState(false);
-
-	useEffect(() => {
-		const checkTheme = () => {
-			const theme = document.documentElement.getAttribute("data-theme");
-			setIsDarkTheme(theme === "dark");
-		};
-
-		checkTheme();
-
-		const observer = new MutationObserver((mutations) => {
-			for (const mutation of mutations) {
-				if (mutation.attributeName === "data-theme") {
-					checkTheme();
-				}
-			}
-		});
-
-		observer.observe(document.documentElement, { attributes: true });
-
-		return () => observer.disconnect();
-	}, []);
-
-	const colors = {
-		cardBg: isDarkTheme ? "#333333" : "#f0f0f0",
-		headingText: isDarkTheme ? "#ffffff" : "#000000",
-		bodyText: isDarkTheme ? "#e0e0e0" : "#000000",
-		linkText: isDarkTheme ? "#a0d8ff" : "#000000",
-		movementBg: isDarkTheme ? "#2a2a2a" : "#f0f0f0",
-	};
+	const quadrantStyle = {
+		"--quadrant-color": quadrantColor,
+		"--quadrant-color-shadow": `${quadrantColor}40`,
+	} as CSSProperties;
 
 	if (!blip) {
 		return (
-			<div
-				style={{
-					fontFamily: "'Space Grotesk', sans-serif",
-					fontSize: "1rem",
-					color: isDarkTheme ? "#aaaaaa" : "#aaaaaa",
-				}}
-			>
-				Select a blip to see details
-			</div>
+			<div className={styles.emptyState}>Select a blip to see details</div>
 		);
 	}
 
 	return (
-		<div
-			style={
-				{
-					"--quadrant-color": quadrantColor,
-					"--quadrant-color-solid": quadrantColor,
-					"--quadrant-color-dark": quadrantColor,
-				} as React.CSSProperties
-			}
-		>
-			<h1
-				style={{
-					fontFamily: "'Space Grotesk', sans-serif",
-					fontSize: "1.8rem",
-					fontWeight: 700,
-					color: colors.headingText,
-					marginBottom: "0.5rem",
-					paddingBottom: "0.5rem",
-					borderBottom: `3px solid ${quadrantColor}`,
-				}}
-			>
-				{blip.name}
-			</h1>
+		<div className={styles.root} style={quadrantStyle}>
+			<h1 className={styles.title}>{blip.name}</h1>
 
-			<div
-				style={{
-					fontFamily: "'IBM Plex Mono', monospace",
-					fontSize: "1rem",
-					color: colors.bodyText,
-					marginBottom: "1rem",
-					paddingLeft: "0.5rem",
-				}}
-			>
+			<div className={styles.description}>
 				{getDescription(blip.description)}
 			</div>
 
-			<div
-				style={{
-					fontFamily: "'IBM Plex Mono', monospace",
-					fontSize: "0.8rem",
-					color: colors.bodyText,
-				}}
-			>
+			<div className={styles.meta}>
 				<b>Ring:</b> {blip.ring}
 			</div>
 
-			<div
-				style={{
-					fontFamily: "'IBM Plex Mono', monospace",
-					fontSize: "0.8rem",
-					color: colors.bodyText,
-					marginBottom: "1.5rem",
-				}}
-			>
+			<div className={`${styles.meta} ${styles.metaWithSpacing}`}>
 				<b>Quadrant:</b> {blip.quadrant}
 			</div>
 
-			<p
-				style={{
-					fontFamily: "'IBM Plex Mono', monospace",
-					fontSize: "0.9rem",
-					lineHeight: "1.5",
-					color: colors.bodyText,
-					backgroundColor: colors.cardBg,
-					padding: "0.75rem",
-					borderRadius: "4px",
-					marginBottom: "1rem",
-					borderLeft: `4px solid ${quadrantColor}`,
-				}}
-			>
+			<p className={styles.card}>
 				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod,
 				nunc vel tincidunt lacinia, nunc nisl aliquam nunc, eget aliquam nunc
 				nisl eu nunc. Pellentesque habitant morbi tristique senectus et netus et
 				malesuada fames ac turpis egestas.
 			</p>
 
-			<p
-				style={{
-					fontFamily: "'IBM Plex Mono', monospace",
-					fontSize: "0.9rem",
-					lineHeight: "1.5",
-					color: colors.bodyText,
-					backgroundColor: colors.cardBg,
-					padding: "0.75rem",
-					borderRadius: "4px",
-					marginBottom: "1rem",
-					borderLeft: `4px solid ${quadrantColor}`,
-				}}
-			>
+			<p className={styles.card}>
 				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod,
 				nunc vel tincidunt lacinia, nunc nisl aliquam nunc, eget aliquam nunc
 				nisl eu nunc. Pellentesque habitant morbi tristique senectus et netus et
@@ -156,62 +64,20 @@ export const BlipDetail = ({ blip, quadrantColor }: BlipDetailProps) => {
 			</p>
 
 			{blip.move && blip.move.length > 0 && (
-				<div style={{ marginTop: "1.5rem", marginBottom: "1.5rem" }}>
-					<h3
-						style={{
-							fontFamily: "'Space Grotesk', sans-serif",
-							fontSize: "1.1rem",
-							fontWeight: 600,
-							color: colors.headingText,
-							backgroundColor: colors.movementBg,
-							padding: "0.5rem 0.75rem",
-							borderRadius: "4px",
-							marginBottom: "0.75rem",
-							boxShadow: `2px 0 0 0 ${quadrantColor}40`,
-						}}
-					>
-						Movement History
-					</h3>
-					<div
-						style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-					>
+				<div className={styles.movementSection}>
+					<h3 className={styles.movementHeading}>Movement History</h3>
+					<div className={styles.movementList}>
 						{blip.move.map(([type, date]) => (
 							<div
 								key={`${blip.id}-${type}-${normalizeDateValue(date)}`}
-								style={{
-									display: "flex",
-									alignItems: "center",
-									gap: "0.5rem",
-									fontFamily: "'IBM Plex Mono', monospace",
-									fontSize: "0.75rem",
-									backgroundColor: colors.cardBg,
-									padding: "0.5rem 0.75rem",
-									borderRadius: "4px",
-									marginBottom: "0.25rem",
-									borderLeft: `4px solid ${quadrantColor}`,
-									boxShadow: `2px 0 0 0 ${quadrantColor}40`,
-								}}
+								className={styles.movementItem}
 							>
 								<span
-									style={{
-										color:
-											type === "grow"
-												? isDarkTheme
-													? "#4CAF50"
-													: "#006400"
-												: type === "go"
-													? isDarkTheme
-														? "#FF5252"
-														: "#8B0000"
-													: isDarkTheme
-														? "#2196F3"
-														: "#000080",
-										fontWeight: "bold",
-									}}
+									className={`${styles.movementType} ${movementClassByType[type]}`}
 								>
 									{type.toUpperCase()}
 								</span>
-								<span style={{ color: colors.bodyText }}>
+								<span className={styles.movementDate}>
 									{formatMoveDate(date)}
 								</span>
 							</div>
@@ -220,18 +86,7 @@ export const BlipDetail = ({ blip, quadrantColor }: BlipDetailProps) => {
 				</div>
 			)}
 
-			<a
-				href={getBlipPath(blip)}
-				style={{
-					display: "inline-block",
-					fontFamily: "'IBM Plex Mono', monospace",
-					fontSize: "0.85rem",
-					fontWeight: 600,
-					color: colors.linkText,
-					textDecoration: "underline",
-					marginTop: "1rem",
-				}}
-			>
+			<a href={getBlipPath(blip)} className={styles.detailsLink}>
 				{blip.name} full details
 			</a>
 		</div>

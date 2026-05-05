@@ -1,9 +1,9 @@
 import type React from "react";
 import { useEffect, useState } from "react";
-import type { Blip } from "~types/radar-types";
 import { BlipDetail } from "~components/BlipDetail";
 import * as styles from "~components/BlipListIsland.css";
 import { useBlipSearch } from "~hooks/useBlipSearch";
+import type { Blip } from "~types/radar-types";
 import { withBasePath } from "~utils/sitePaths";
 
 type BlipListIslandProps = {
@@ -28,8 +28,9 @@ const BlipListIsland: React.FC<BlipListIslandProps> = ({
 	} = useBlipSearch(blips);
 
 	// State for selected blip
-	const [selected, setSelected] = useState<Blip | null>(null);
+	const [selected, setSelected] = useState<Blip | null>(() => blips[0] ?? null);
 	const homePath = withBasePath("/");
+	const resultsLabel = resultsCount === 1 ? "result" : "results";
 
 	// Update selected blip when filtered blips change
 	useEffect(() => {
@@ -40,13 +41,6 @@ const BlipListIsland: React.FC<BlipListIslandProps> = ({
 			setSelected(filteredBlips[0]);
 		}
 	}, [filteredBlips, selected]);
-
-	// Initialize selected blip on first render
-	useEffect(() => {
-		if (blips.length > 0 && !selected) {
-			setSelected(blips[0]);
-		}
-	}, [blips, selected]);
 
 	return (
 		<div
@@ -77,11 +71,12 @@ const BlipListIsland: React.FC<BlipListIslandProps> = ({
 					<div className={styles.searchFooter}>
 						{hasSearchTerm && (
 							<span className={styles.searchResultsCount}>
-								{resultsCount} result{resultsCount !== 1 ? "s" : ""}
+								{resultsCount} {resultsLabel}
 							</span>
 						)}
 						{hasSearchTerm && (
 							<button
+								type="button"
 								className={styles.searchClearButton}
 								onClick={clearSearch}
 								aria-label="Clear search"
@@ -114,19 +109,21 @@ const BlipListIsland: React.FC<BlipListIslandProps> = ({
 
 					{filteredBlips.length > 0 ? (
 						filteredBlips.map((blip) => (
-							<div
+							<button
+								type="button"
 								key={blip.name}
 								className={`${styles.blipItem} ${selected?.name === blip.name ? styles.selectedBlipItem : ""}`}
 								onClick={() => setSelected(blip)}
 							>
 								<h2 className={styles.blipName}>{blip.name}</h2>
 								<div className={styles.blipRing}>Ring: {blip.ring}</div>
-							</div>
+							</button>
 						))
 					) : (
 						<div>
 							<p>No blips match your search criteria.</p>
 							<button
+								type="button"
 								className={styles.searchClearButton}
 								onClick={clearSearch}
 							>
