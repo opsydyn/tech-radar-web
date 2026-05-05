@@ -24,7 +24,6 @@ import {
 } from "~components/radar/RadarBlip";
 import { RadarControls } from "~components/radar/RadarControls";
 import { RadarRings } from "~components/radar/RadarRings";
-import { RadarSidebar } from "~components/radar/RadarSidebar";
 import {
 	clearRadarSearchableBlips,
 	radarAdrFilter,
@@ -42,10 +41,7 @@ import { getBlipsForEdition, getEditionIdentity } from "~utils/editionHelpers";
 import type { RadarEditionViewWithMetadata } from "~utils/editionSnapshotAdapter";
 
 import * as styles from "./Radar.css";
-import {
-	setRadarSidebarOpenPreference,
-	subscribeRadarSidebarOpenPreference,
-} from "./radarSidebarState";
+import { subscribeRadarSidebarOpenPreference } from "./radarSidebarState";
 
 const initialTransform = {
 	scaleX: 1.27,
@@ -292,12 +288,7 @@ const usePersistentRadarSidebar = () => {
 
 	useEffect(() => subscribeRadarSidebarOpenPreference(setIsOpen), []);
 
-	const handleOpenChange = useCallback((nextOpen: boolean) => {
-		setIsOpen(nextOpen);
-		void setRadarSidebarOpenPreference(nextOpen);
-	}, []);
-
-	return { isOpen, handleOpenChange };
+	return { isOpen };
 };
 
 type RadarProps = {
@@ -315,8 +306,7 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 	const activeSearchTerm = useStore(radarSearchTerm);
 	const [bgColor, setBgColor] = useState<string>("#000000");
 	const [tooltip, setTooltip] = useState<RadarTooltipState | null>(null);
-	const { isOpen: isSidebarOpen, handleOpenChange: handleSidebarOpenChange } =
-		usePersistentRadarSidebar();
+	const { isOpen: isSidebarOpen } = usePersistentRadarSidebar();
 
 	// Handle theme state on client-side only to avoid hydration mismatch
 	useEffect(() => {
@@ -347,8 +337,8 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 		[blips, currentEdition, snapshotEditionBlips],
 	);
 
-	const adrFilteredEditionBlips = useMemo(
-		() => filterBlipsByAdr(editionBlips, activeAdrFilter),
+	const adrFilteredEditionBlips = useMemo<Blip[]>(
+		() => [...filterBlipsByAdr(editionBlips, activeAdrFilter)],
 		[activeAdrFilter, editionBlips],
 	);
 
@@ -443,14 +433,10 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 				const transformString = `matrix(${zoom.transformMatrix.scaleX},${zoom.transformMatrix.skewY},${zoom.transformMatrix.skewX},${zoom.transformMatrix.scaleY},${zoom.transformMatrix.translateX},${zoom.transformMatrix.translateY})`;
 				return (
 					<div className={styles.radarShell}>
-						<RadarSidebar
-							editions={editions}
-							isOpen={isSidebarOpen}
-							onOpenChange={handleSidebarOpenChange}
-						/>
 						<div
 							className={styles.sidebarSpacer}
 							data-open={isSidebarOpen ? "true" : "false"}
+							data-radar-sidebar-spacer=""
 						/>
 						<div className={styles.radarCanvas}>
 							<div className={styles.relative} ref={containerRef}>

@@ -3,6 +3,7 @@ import type { CollectionEntry } from "astro:content";
 import { getCollection } from "astro:content";
 import GlobalStyles from "~components/GlobalStyles.astro";
 import Radar from "~components/radar/Radar";
+import RadarSidebar from "~components/radar/RadarSidebar.astro";
 import { RadarTopNavControls } from "~components/radar/RadarTopNavControls";
 import Layout from "~layouts/Layout.astro";
 import * as styles from "~styles/pages/index.css";
@@ -69,6 +70,7 @@ const editions = hasSnapshotEditions ? snapshotEditions : legacyEditions;
 <Layout>
 	<RadarTopNavControls slot="topNavControls" client:load />
 	<div slot="center" class:list={[styles.flexContainer]}>
+		<RadarSidebar editions={editions} />
 		<div class:list={[styles.chartSection]}>
 			<Radar
 				blips={blips}

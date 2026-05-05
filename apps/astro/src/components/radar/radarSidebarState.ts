@@ -1,38 +1,63 @@
-import { Effect, Schema } from "effect";
-import { KeyValueStore } from "effect/unstable/persistence";
-import { Atom, AtomRegistry } from "effect/unstable/reactivity";
-
 const sidebarPreferenceKey = "tech-radar.sidebar-open";
+const sidebarPreferenceChangedEvent = "tech-radar:sidebar-open-changed";
 
-const sidebarStorageLayer =
-	typeof localStorage === "undefined"
-		? KeyValueStore.layerMemory
-		: KeyValueStore.layerStorage(() => localStorage);
+type SidebarPreferenceChangedEvent = CustomEvent<{ isOpen: boolean }>;
 
-const sidebarRuntime = Atom.runtime(sidebarStorageLayer);
-const sidebarRegistry = AtomRegistry.make();
+const hasBrowserStorage = () => typeof window !== "undefined";
 
-const provideSidebarRegistry = <A, E>(
-	effect: Effect.Effect<A, E, AtomRegistry.AtomRegistry>,
-) => Effect.provideService(effect, AtomRegistry.AtomRegistry, sidebarRegistry);
+export const getRadarSidebarOpenPreference = (): boolean => {
+	if (!hasBrowserStorage()) {
+		return true;
+	}
 
-const runSidebarEffect = <A, E>(
-	effect: Effect.Effect<A, E, AtomRegistry.AtomRegistry>,
-): Promise<A> => Effect.runPromise(provideSidebarRegistry(effect));
+	return window.localStorage.getItem(sidebarPreferenceKey) !== "false";
+};
 
-const radarSidebarOpenAtom = Atom.kvs({
-	runtime: sidebarRuntime,
-	key: sidebarPreferenceKey,
-	schema: Schema.Boolean,
-	defaultValue: () => true,
-});
+const dispatchSidebarPreferenceChanged = (isOpen: boolean) => {
+	window.dispatchEvent(
+		new CustomEvent(sidebarPreferenceChangedEvent, {
+			detail: { isOpen },
+		}) satisfies SidebarPreferenceChangedEvent,
+	);
+};
 
 export const subscribeRadarSidebarOpenPreference = (
 	listener: (isOpen: boolean) => void,
-): (() => void) =>
-	sidebarRegistry.subscribe(radarSidebarOpenAtom, listener, {
-		immediate: true,
-	});
+): (() => void) => {
+	if (!hasBrowserStorage()) {
+		return () => undefined;
+	}
 
-export const setRadarSidebarOpenPreference = (isOpen: boolean): Promise<void> =>
-	runSidebarEffect(Atom.set(radarSidebarOpenAtom, isOpen));
+	const handlePreferenceChanged = (event: Event) => {
+		listener((event as SidebarPreferenceChangedEvent).detail.isOpen);
+	};
+	const handleStorageChanged = (event: StorageEvent) => {
+		if (event.key === sidebarPreferenceKey) {
+			listener(event.newValue !== "false");
+		}
+	};
+
+	listener(getRadarSidebarOpenPreference());
+	window.addEventListener(
+		sidebarPreferenceChangedEvent,
+		handlePreferenceChanged,
+	);
+	window.addEventListener("storage", handleStorageChanged);
+
+	return () => {
+		window.removeEventListener(
+			sidebarPreferenceChangedEvent,
+			handlePreferenceChanged,
+		);
+		window.removeEventListener("storage", handleStorageChanged);
+	};
+};
+
+export const setRadarSidebarOpenPreference = (isOpen: boolean): void => {
+	if (!hasBrowserStorage()) {
+		return;
+	}
+
+	window.localStorage.setItem(sidebarPreferenceKey, String(isOpen));
+	dispatchSidebarPreferenceChanged(isOpen);
+};

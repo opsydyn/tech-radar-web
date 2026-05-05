@@ -1,0 +1,155 @@
+---
+import { Binary } from "pixelarticons/react/Binary";
+import { Cancel } from "pixelarticons/react/Cancel";
+import { ChevronRight2 } from "pixelarticons/react/ChevronRight2";
+import { Server } from "pixelarticons/react/Server";
+import { Sparkles } from "pixelarticons/react/Sparkles";
+import { ToolCase } from "pixelarticons/react/ToolCase";
+import type { Edition } from "~utils/editionHelpers";
+import { withBasePath } from "~utils/sitePaths";
+import * as styles from "./RadarSidebar.css";
+import { RadarSidebarController } from "./RadarSidebarController";
+import { RadarSidebarControls } from "./RadarSidebarControls";
+import { RadarSidebarRadarToggle } from "./RadarSidebarRadarToggle";
+
+type Props = {
+	editions: Edition[];
+};
+
+const { editions } = Astro.props;
+const platformsHref = withBasePath("/quadrants/platforms");
+const languagesHref = withBasePath("/quadrants/languages-frameworks");
+const toolsHref = withBasePath("/quadrants/tools");
+const techniquesHref = withBasePath("/quadrants/techniques");
+---
+
+<button
+	type="button"
+	class={styles.collapsedTrigger}
+	data-open="true"
+	data-radar-sidebar-open-state
+	data-radar-sidebar-trigger
+	aria-label="Open radar controls"
+>
+	<ChevronRight2 className={styles.collapsedTriggerIcon} aria-hidden="true" />
+</button>
+
+<div class={styles.swipeArea} data-radar-sidebar-swipe-area></div>
+<div class={styles.viewport} data-open="true" data-radar-sidebar-open-state>
+	<aside
+		class={styles.popup}
+		data-open="true"
+		data-radar-sidebar-open-state
+		role="complementary"
+		aria-label="Radar controls"
+	>
+		<div class={styles.surface}>
+			<h2 class={styles.visuallyHidden}>Radar controls</h2>
+			<button
+				type="button"
+				class={styles.closeButton}
+				aria-label="Collapse radar controls"
+				data-base-ui-swipe-ignore=""
+				data-radar-sidebar-close
+			>
+				<Cancel className={styles.closeIcon} aria-hidden="true" />
+			</button>
+			<div class={styles.content}>
+				<section class={styles.section} data-base-ui-swipe-ignore="">
+					<div class={styles.sectionHeading}>Edition</div>
+					<RadarSidebarControls editions={editions} client:load />
+				</section>
+
+				<section class={styles.section}>
+					<div class={styles.sectionHeading}>Quadrants</div>
+					<div class={styles.navList}>
+						<a
+							href={platformsHref}
+							class={`${styles.navCard} ${styles.navCardTone.platforms}`}
+						>
+							<span class={styles.navIconWrap}>
+								<Server className={styles.navIcon} aria-hidden="true" />
+							</span>
+							<span class={styles.navCopy}>
+								<span class={styles.navTitle}>Platforms</span>
+							</span>
+						</a>
+						<a
+							href={languagesHref}
+							class={`${styles.navCard} ${styles.navCardTone.languages}`}
+						>
+							<span class={styles.navIconWrap}>
+								<Binary className={styles.navIcon} aria-hidden="true" />
+							</span>
+							<span class={styles.navCopy}>
+								<span class={styles.navTitle}>Languages</span>
+							</span>
+						</a>
+						<a
+							href={toolsHref}
+							class={`${styles.navCard} ${styles.navCardTone.tools}`}
+						>
+							<span class={styles.navIconWrap}>
+								<ToolCase className={styles.navIcon} aria-hidden="true" />
+							</span>
+							<span class={styles.navCopy}>
+								<span class={styles.navTitle}>Tools</span>
+							</span>
+						</a>
+						<a
+							href={techniquesHref}
+							class={`${styles.navCard} ${styles.navCardTone.techniques}`}
+						>
+							<span class={styles.navIconWrap}>
+								<Sparkles className={styles.navIcon} aria-hidden="true" />
+							</span>
+							<span class={styles.navCopy}>
+								<span class={styles.navTitle}>Techniques</span>
+							</span>
+						</a>
+					</div>
+				</section>
+
+				<section class={styles.radarSection} data-base-ui-swipe-ignore="">
+					<div class={styles.sectionHeading}>Radar</div>
+					<RadarSidebarRadarToggle client:load />
+				</section>
+			</div>
+		</div>
+	</aside>
+</div>
+
+<RadarSidebarController client:load />
+
+<script is:inline>
+	(() => {
+		const isOpen = window.localStorage.getItem("tech-radar.sidebar-open") !== "false";
+		const openState = String(isOpen);
+		const applyOpenState = () => {
+			document
+				.querySelectorAll(
+					"[data-radar-sidebar-open-state], [data-radar-sidebar-spacer]",
+				)
+				.forEach((element) => {
+					element.setAttribute("data-open", openState);
+				});
+		};
+
+		applyOpenState();
+
+		const observer = new MutationObserver(() => {
+			applyOpenState();
+
+			if (document.querySelector("[data-radar-sidebar-spacer]")) {
+				observer.disconnect();
+			}
+		});
+
+		observer.observe(document.documentElement, {
+			childList: true,
+			subtree: true,
+		});
+
+		window.setTimeout(() => observer.disconnect(), 1000);
+	})();
+</script>

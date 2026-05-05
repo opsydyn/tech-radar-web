@@ -59,6 +59,7 @@ export const swipeArea = style({
 	top: "92px",
 	bottom: "24px",
 	left: 0,
+	cursor: "pointer",
 	width: "14px",
 });
 
@@ -71,6 +72,11 @@ export const viewport = style({
 	justifyContent: "flex-start",
 	pointerEvents: "none",
 	padding: `76px 0 24px ${sidebarLeftInset}`,
+	selectors: {
+		'&[data-open="false"]': {
+			pointerEvents: "none",
+		},
+	},
 });
 
 export const popup = style({
@@ -87,6 +93,11 @@ export const popup = style({
 	selectors: {
 		"&[data-swiping]": {
 			userSelect: "none",
+		},
+		'&[data-open="false"]': {
+			transform: "translateX(calc(-100% - 24px))",
+			opacity: 0,
+			pointerEvents: "none",
 		},
 		"&[data-starting-style], &[data-ending-style]": {
 			transform: "translateX(calc(-100% - 24px))",
@@ -112,7 +123,7 @@ export const surface = style({
 	position: "relative",
 	display: "flex",
 	flexDirection: "column",
-	padding: "18px 12px 18px",
+	padding: "34px 12px 18px",
 	height: "100%",
 });
 
@@ -126,8 +137,8 @@ export const description = style({
 export const closeButton = style({
 	position: "absolute",
 	zIndex: 2,
-	top: "12px",
-	right: "12px",
+	top: "10px",
+	right: "16px",
 	display: "inline-flex",
 	flexShrink: 0,
 	alignItems: "center",
@@ -143,8 +154,8 @@ export const closeButton = style({
 	pointerEvents: "auto",
 	touchAction: "manipulation",
 	padding: 0,
-	width: "36px",
-	height: "36px",
+	width: "34px",
+	height: "34px",
 	color: "#f8fafc",
 	WebkitTapHighlightColor: "transparent",
 	selectors: {
@@ -191,7 +202,7 @@ export const content = style({
 	flex: 1,
 	flexDirection: "column",
 	gap: "14px",
-	paddingBottom: "max(20px, env(safe-area-inset-bottom, 0px))",
+	paddingBottom: "max(30px, env(safe-area-inset-bottom, 0px))",
 	minHeight: 0,
 	overflowY: "auto",
 	overscrollBehavior: "contain",
@@ -212,8 +223,8 @@ export const sidebarFilterLabel = style({
 	color: "rgba(255, 255, 255, 0.68)",
 	fontFamily: "'IBM Plex Mono', monospace",
 	fontSize: "0.68rem",
-	fontWeight: 700,
 	letterSpacing: "0.08em",
+	fontWeight: 700,
 	textTransform: "uppercase",
 	selectors: {
 		'[data-theme="light"] &': {
@@ -224,8 +235,8 @@ export const sidebarFilterLabel = style({
 
 export const sidebarFilterSelect = style({
 	width: "100%",
-	minHeight: "2.875rem",
 	padding: "0.75rem 2.5rem 0.75rem 0.9rem",
+	minHeight: "2.875rem",
 	fontFamily: "'IBM Plex Mono', monospace",
 	fontSize: "0.92rem",
 	fontWeight: 700,
@@ -253,9 +264,9 @@ export const sidebarFilterSelect = style({
 		},
 		'[data-theme="light"] &': {
 			border: "1px solid rgba(17, 24, 39, 0.12)",
+			backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(17,24,39,0.72)' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
 			backgroundColor: "rgba(255, 255, 255, 0.92)",
 			color: "#111827",
-			backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(17,24,39,0.72)' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
 		},
 	},
 });
@@ -265,8 +276,8 @@ export const radarSection = style([
 	{
 		alignItems: "center",
 		marginTop: "auto",
-		paddingTop: "10px",
-		paddingBottom: "2px",
+		paddingTop: "12px",
+		paddingBottom: "16px",
 	},
 ]);
 
