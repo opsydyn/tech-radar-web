@@ -1,8 +1,12 @@
 import Fuse, { type FuseResultMatch } from "fuse.js";
 import type { ChangeEvent } from "react";
 import { useDeferredValue, useMemo, useState } from "react";
-import type { RadarAdrFilter } from "~components/radar/radarSearchStore";
 import type { Blip } from "~types/radar-types";
+import {
+	allRadarTagsValue,
+	type RadarAdrFilter,
+	type RadarTagFilter,
+} from "../components/radar/radarSearchStore";
 
 type HighlightRange = readonly [number, number];
 type SuggestionHighlightKey = "description" | "name" | "quadrant" | "ring";
@@ -29,6 +33,49 @@ export const filterBlipsByAdr = (
 
 	const shouldHaveAdr = adrFilter === "has-adr";
 	return blips.filter((blip) => blip.hasAdr === shouldHaveAdr);
+};
+
+const compareTagValues = (left: string, right: string) =>
+	left.localeCompare(right, undefined, { sensitivity: "base" });
+
+export const getAvailableRadarTags = (
+	blips: readonly Blip[],
+): readonly string[] => {
+	const uniqueTags = new Map<string, string>();
+
+	for (const blip of blips) {
+		for (const tag of blip.tags) {
+			const normalizedTag = tag.trim();
+
+			if (!normalizedTag) {
+				continue;
+			}
+
+			const normalizedKey = normalizedTag.toLowerCase();
+
+			if (!uniqueTags.has(normalizedKey)) {
+				uniqueTags.set(normalizedKey, normalizedTag);
+			}
+		}
+	}
+
+	return [...uniqueTags.values()].sort(compareTagValues);
+};
+
+export const filterBlipsByTag = (
+	blips: readonly Blip[],
+	tagFilter: RadarTagFilter,
+): readonly Blip[] => {
+	if (tagFilter === allRadarTagsValue) {
+		return blips;
+	}
+
+	return blips.filter((blip) =>
+		blip.tags.some(
+			(tag) =>
+				tag.localeCompare(tagFilter, undefined, { sensitivity: "base" }) === 0,
+		),
+	);
 };
 
 // Options for Fuse.js search

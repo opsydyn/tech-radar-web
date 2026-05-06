@@ -1,5 +1,9 @@
 import { createVar, globalStyle, style } from "@vanilla-extract/css";
-import { darkThemeVars, lightThemeVars } from "../styles/theme.css";
+import {
+	darkThemeVars,
+	hardEdgeRadius,
+	lightThemeVars,
+} from "../styles/theme.css";
 
 // Create CSS variables for dynamic quadrant colors
 export const quadrantColor = createVar();
@@ -32,9 +36,17 @@ globalStyle(`html[data-theme="dark"] .${container}`, {
 export const headerContainer = style({
 	display: "flex",
 	justifyContent: "space-between",
-	alignItems: "flex-end",
+	alignItems: "flex-start",
 	margin: "1rem 2rem 1.5rem 2rem",
 	position: "relative",
+	gap: "1.5rem",
+	"@media": {
+		"screen and (max-width: 980px)": {
+			flexDirection: "column",
+			alignItems: "stretch",
+			margin: "1rem 1.25rem 1.5rem",
+		},
+	},
 });
 
 // Main heading styles
@@ -55,11 +67,71 @@ globalStyle(`html[data-theme="dark"] .${mainHeading}`, {
 	color: darkThemeVars.color.text,
 });
 
+export const quadrantIntro = style({
+	display: "grid",
+	gap: "0.85rem",
+	maxWidth: "62rem",
+	paddingTop: "0.1rem",
+	flex: 1,
+});
+
+export const quadrantIntroLead = style({
+	margin: 0,
+	fontFamily: "'Space Grotesk', sans-serif",
+	fontSize: "1.1rem",
+	fontWeight: 600,
+	lineHeight: 1.35,
+	color: lightThemeVars.color.text,
+});
+
+globalStyle(`html[data-theme="dark"] .${quadrantIntroLead}`, {
+	color: darkThemeVars.color.text,
+});
+
+export const quadrantIntroList = style({
+	margin: 0,
+	paddingLeft: "1.15rem",
+	display: "grid",
+	gap: "0.7rem",
+});
+
+export const quadrantIntroItem = style({
+	fontFamily: "'IBM Plex Mono', monospace",
+	fontSize: "0.85rem",
+	lineHeight: 1.7,
+	color: lightThemeVars.color.secondary,
+	paddingLeft: "0.2rem",
+	transition: "color 0.2s ease",
+});
+
+globalStyle(`html[data-theme="dark"] .${quadrantIntroItem}`, {
+	color: darkThemeVars.color.secondary,
+});
+
+export const quadrantIntroItemActive = style({
+	color: lightThemeVars.color.text,
+	selectors: {
+		"&::marker": {
+			color: quadrantColor,
+		},
+	},
+});
+
+globalStyle(`html[data-theme="dark"] .${quadrantIntroItemActive}`, {
+	color: darkThemeVars.color.text,
+});
+
+export const quadrantIntroItemTitle = style({
+	color: quadrantColor,
+	fontWeight: 700,
+});
+
 // Search container styles
 export const searchContainer = style({
 	display: "flex",
 	flexDirection: "column",
 	marginBottom: "0.5rem",
+	flexShrink: 0,
 });
 
 // Search footer styles
@@ -78,11 +150,12 @@ export const searchInput = style({
 	fontSize: "0.9rem",
 	padding: "0.5rem 0.75rem",
 	border: `2px solid ${quadrantColor}40`,
-	borderRadius: "4px",
+	borderRadius: hardEdgeRadius,
 	backgroundColor: "#f0f0f0",
 	color: "#333",
 	width: "200px",
-	transition: "all 0.2s ease",
+	transition:
+		"background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease",
 	":focus": {
 		outline: "none",
 		borderColor: quadrantColor,
@@ -126,31 +199,6 @@ globalStyle(`html[data-theme="dark"] .${searchResultsCount}`, {
 	color: darkThemeVars.color.secondary,
 });
 
-// Home link styles
-export const homeLink = style({
-	position: "absolute",
-	top: "1rem",
-	left: "2rem",
-	color: lightThemeVars.color.text,
-	fontWeight: "bold",
-	textDecoration: "none",
-	fontSize: "1.1rem",
-	display: "flex",
-	alignItems: "center",
-	gap: "0.5rem",
-	transition: "color 0.3s ease",
-});
-
-// Dark theme styles for home link
-globalStyle(`html[data-theme="dark"] .${homeLink}`, {
-	color: darkThemeVars.color.text,
-});
-
-// Arrow icon styles
-export const arrowIcon = style({
-	color: quadrantColor,
-});
-
 // Content container styles
 export const contentContainer = style({
 	display: "flex",
@@ -165,6 +213,7 @@ export const scrollPanel = style({
 	height: "calc(80vh - 5rem)",
 	overflowY: "auto",
 	overflowX: "hidden",
+	scrollbarGutter: "stable",
 	backgroundColor: lightThemeVars.color.background,
 	transition: "background-color 0.3s ease",
 	selectors: {
@@ -174,7 +223,7 @@ export const scrollPanel = style({
 		},
 		"&::-webkit-scrollbar-thumb": {
 			background: `color-mix(in srgb, ${quadrantColor} 18%, transparent)`,
-			borderRadius: "6px",
+			borderRadius: hardEdgeRadius,
 			transition: "background 0.2s",
 		},
 		"&::-webkit-scrollbar-thumb:hover": {
@@ -215,23 +264,43 @@ export const blipItem = style({
 	WebkitAppearance: "none",
 	appearance: "none",
 	background: "transparent",
-	border: "none",
+	border: "1px solid transparent",
+	borderLeft: "3px solid transparent",
+	borderRadius: hardEdgeRadius,
 	color: "inherit",
 	cursor: "pointer",
 	display: "block",
 	marginBottom: "1.5rem",
 	fontWeight: 400,
-	padding: 0,
+	padding: "0.65rem 0.85rem",
 	textAlign: "left",
-	transition: "all 0.2s ease-in-out",
+	transition:
+		"background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease",
 	width: "100%",
+	selectors: {
+		"&:hover": {
+			background: "color-mix(in srgb, var(--quadrant-color) 7%, transparent)",
+			borderColor: "color-mix(in srgb, var(--quadrant-color) 18%, transparent)",
+			borderLeftColor: "var(--quadrant-color)",
+			boxShadow:
+				"inset 0 0 0 1px color-mix(in srgb, var(--quadrant-color) 10%, transparent)",
+		},
+		"&:focus-visible": {
+			outline: "2px solid var(--quadrant-color)",
+			outlineOffset: "2px",
+			background: "color-mix(in srgb, var(--quadrant-color) 8%, transparent)",
+		},
+	},
 });
 
 // Selected blip item styles
 export const selectedBlipItem = style({
 	fontWeight: 700,
-	borderLeft: `3px solid ${quadrantColor}`,
-	paddingLeft: "0.5rem",
+	borderColor: "color-mix(in srgb, var(--quadrant-color) 24%, transparent)",
+	borderLeftColor: quadrantColor,
+	backgroundColor: "color-mix(in srgb, var(--quadrant-color) 10%, transparent)",
+	boxShadow:
+		"inset 0 0 0 1px color-mix(in srgb, var(--quadrant-color) 12%, transparent)",
 });
 
 // Blip name styles
@@ -266,9 +335,16 @@ globalStyle(`html[data-theme="dark"] .${blipRing}`, {
 // Detail panel styles
 export const detailPanel = style({
 	flex: 1,
+	minHeight: "calc(80vh - 5rem)",
+	alignSelf: "flex-start",
 	padding: "2rem",
 	backgroundColor: lightThemeVars.color.background,
 	transition: "background-color 0.3s ease",
+	"@media": {
+		"screen and (max-width: 980px)": {
+			alignSelf: "stretch",
+		},
+	},
 });
 
 // Dark theme styles for detail panel

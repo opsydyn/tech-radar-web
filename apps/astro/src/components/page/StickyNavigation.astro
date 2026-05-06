@@ -1,4 +1,5 @@
 ---
+// biome-ignore lint/correctness/noUnusedImports: Astro template markup below uses the imported styles.
 import * as styles from "~styles/pages/blip.css";
 import { withBaseHref } from "~utils/sitePaths";
 
@@ -9,12 +10,16 @@ interface Props {
 	quadrantLinks?: boolean;
 }
 
+// biome-ignore lint/correctness/noUnusedVariables: Astro template markup below consumes these props.
 const { backLink, backText, tabs, quadrantLinks = false } = Astro.props;
+// biome-ignore lint/correctness/noUnusedVariables: Astro template markup below uses this resolved href.
 const resolvedBackLink = withBaseHref(backLink);
+// biome-ignore lint/correctness/noUnusedVariables: Astro template markup below uses these resolved tabs.
 const resolvedTabs = tabs.map((tab) => ({
 	...tab,
 	href: withBaseHref(tab.href),
 }));
+// biome-ignore lint/correctness/noUnusedVariables: Astro template markup below uses these quadrant links.
 const quadrantTabLinks = [
 	{ href: withBaseHref("/quadrants/techniques"), label: "Techniques" },
 	{ href: withBaseHref("/quadrants/platforms"), label: "Platforms" },
@@ -125,5 +130,15 @@ const quadrantTabLinks = [
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     background: #111;
     width: 100%;
+  }
+
+  html[data-theme="light"] .sticky {
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  html[data-theme="machine"] .sticky {
+    background: #111;
+    border-bottom: 1px solid rgba(158, 255, 166, 0.16);
   }
 </style>

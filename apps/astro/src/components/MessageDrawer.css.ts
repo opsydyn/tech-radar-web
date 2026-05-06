@@ -1,6 +1,16 @@
 import { globalStyle, style } from "@vanilla-extract/css";
 import { colors } from "../styles/colors";
-import { darkThemeVars, lightThemeVars } from "../styles/theme.css";
+import {
+	motionDurationMedium,
+	motionSurfaceTransition,
+	motionTransformSurfaceTransition,
+	motionTransformTransition,
+} from "../styles/motion.css";
+import {
+	darkThemeVars,
+	hardEdgeRadius,
+	lightThemeVars,
+} from "../styles/theme.css";
 import { zIndex } from "../styles/zIndex";
 
 const drawerBleed = "3rem";
@@ -24,7 +34,7 @@ export const trigger = style({
 		"&:focus-visible": {
 			outline: `2px solid ${colors.cyan[400]}`,
 			outlineOffset: "4px",
-			borderRadius: "999px",
+			borderRadius: hardEdgeRadius,
 		},
 	},
 });
@@ -32,10 +42,10 @@ export const trigger = style({
 export const triggerBar = style({
 	width: "3.25rem",
 	height: "0.3125rem",
-	borderRadius: "999px",
+	borderRadius: hardEdgeRadius,
 	backgroundColor: "rgba(255, 255, 255, 0.55)",
 	boxShadow: "0 0 12px rgba(0, 0, 0, 0.35)",
-	transition: "background-color 160ms ease, transform 160ms ease",
+	transition: motionTransformSurfaceTransition,
 });
 
 globalStyle(`${trigger}:hover ${triggerBar}`, {
@@ -64,13 +74,14 @@ export const popup = style({
 	flexDirection: "column",
 	width: "100%",
 	maxWidth: "100vw",
-	height: "min(calc(80vh + 3rem), 28rem)",
-	maxHeight: `calc(80vh + ${drawerBleed})`,
+	height: "fit-content",
+	minHeight: "24rem",
+	maxHeight: `calc(92vh + ${drawerBleed})`,
 	marginBottom: `calc(-1 * ${drawerBleed})`,
 	padding: "1rem 1rem 1.5rem",
 	paddingBottom: `calc(1.5rem + env(safe-area-inset-bottom, 0px) + ${drawerBleed})`,
-	borderTopLeftRadius: "1rem",
-	borderTopRightRadius: "1rem",
+	borderTopLeftRadius: hardEdgeRadius,
+	borderTopRightRadius: hardEdgeRadius,
 	outline: `1px solid ${lightThemeVars.color.border}`,
 	borderTop: `3px solid ${colors.primary[500]}`,
 	backgroundColor: "rgba(0, 0, 0, 0.94)",
@@ -81,7 +92,7 @@ export const popup = style({
 	overscrollBehavior: "contain",
 	willChange: "transform",
 	transform: "translateY(var(--drawer-swipe-movement-y))",
-	transition: "transform 450ms cubic-bezier(0.32, 0.72, 0, 1)",
+	transition: motionTransformTransition,
 });
 
 globalStyle(`html[data-theme="dark"] .${popup}`, {
@@ -93,7 +104,7 @@ globalStyle(`${popup}[data-starting-style], ${popup}[data-ending-style]`, {
 });
 
 globalStyle(`${popup}[data-ending-style]`, {
-	transitionDuration: "calc(var(--drawer-swipe-strength) * 400ms)",
+	transitionDuration: `calc(var(--drawer-swipe-strength) * ${motionDurationMedium})`,
 });
 
 globalStyle(`${popup}[data-swiping]`, {
@@ -113,7 +124,7 @@ export const handle = style({
 	width: "3rem",
 	height: "0.25rem",
 	margin: "0 auto 1rem",
-	borderRadius: "999px",
+	borderRadius: hardEdgeRadius,
 	backgroundColor: "rgba(255, 255, 255, 0.45)",
 	flexShrink: 0,
 });
@@ -134,7 +145,7 @@ export const closeButton = style({
 	justifyContent: "center",
 	minHeight: "2rem",
 	padding: "0.375rem 0.75rem",
-	borderRadius: "0.5rem",
+	borderRadius: hardEdgeRadius,
 	border: "1px solid rgba(255, 255, 255, 0.18)",
 	backgroundColor: "rgba(255, 255, 255, 0.06)",
 	color: colors.white,
@@ -143,7 +154,7 @@ export const closeButton = style({
 	textTransform: "uppercase",
 	letterSpacing: "0.08em",
 	cursor: "pointer",
-	transition: "background-color 160ms ease, border-color 160ms ease",
+	transition: motionSurfaceTransition,
 	selectors: {
 		"&:hover": {
 			backgroundColor: "rgba(255, 255, 255, 0.12)",
@@ -160,7 +171,7 @@ export const scrollRegion = style({
 	flex: 1,
 	minHeight: 0,
 	overflow: "auto",
-	paddingTop: "1rem",
+	paddingTop: "0.5rem",
 	touchAction: "auto",
 });
 
@@ -178,7 +189,7 @@ globalStyle(`${scrollRegion}::-webkit-scrollbar`, {
 
 globalStyle(`${scrollRegion}::-webkit-scrollbar-thumb`, {
 	background: "rgba(255, 255, 255, 0.18)",
-	borderRadius: "6px",
+	borderRadius: hardEdgeRadius,
 });
 
 globalStyle(`${scrollRegion}::-webkit-scrollbar-thumb:hover`, {

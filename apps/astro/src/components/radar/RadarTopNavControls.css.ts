@@ -1,4 +1,5 @@
 import { style } from "@vanilla-extract/css";
+import { hardEdgeRadius } from "../../styles/theme.css";
 
 export const controls = style({
 	display: "flex",
@@ -40,7 +41,7 @@ export const searchField = style({
 	alignItems: "center",
 	gap: "0.5rem",
 	padding: "0.45rem 0.6rem",
-	borderRadius: "8px",
+	borderRadius: hardEdgeRadius,
 	...topNavControlSurface,
 	width: "100%",
 	selectors: {
@@ -65,7 +66,7 @@ export const filterField = style({
 	alignItems: "center",
 	gap: "0.5rem",
 	padding: "0.45rem 0.6rem",
-	borderRadius: "8px",
+	borderRadius: hardEdgeRadius,
 	minWidth: "9.5rem",
 	...topNavControlSurface,
 	selectors: {
@@ -169,7 +170,7 @@ export const clearButton = style({
 	appearance: "none",
 	border: "none",
 	background: "rgba(255, 255, 255, 0.08)",
-	borderRadius: "4px",
+	borderRadius: hardEdgeRadius,
 	color: "rgba(255, 255, 255, 0.82)",
 	cursor: "pointer",
 	fontFamily: "'IBM Plex Mono', monospace",
@@ -201,7 +202,7 @@ export const suggestionsPanel = style({
 	display: "grid",
 	gap: "0.28rem",
 	padding: "0.4rem",
-	borderRadius: "10px",
+	borderRadius: hardEdgeRadius,
 	border: "1px solid rgba(255, 255, 255, 0.14)",
 	background: "rgba(14, 17, 24, 0.96)",
 	boxShadow: "0 12px 30px rgba(0, 0, 0, 0.34)",
@@ -217,7 +218,7 @@ export const suggestionsPanel = style({
 
 export const suggestionItem = style({
 	width: "100%",
-	borderRadius: "8px",
+	borderRadius: hardEdgeRadius,
 	background: "transparent",
 	display: "grid",
 	gridTemplateColumns: "minmax(0, 1fr) auto",
@@ -246,7 +247,7 @@ export const suggestionAction = style({
 	display: "grid",
 	alignContent: "center",
 	gap: "0.2rem",
-	borderRadius: "8px",
+	borderRadius: hardEdgeRadius,
 });
 
 export const suggestionTitle = style({
@@ -293,7 +294,7 @@ export const suggestionLink = style({
 	gap: "0.28rem",
 	marginRight: "0.35rem",
 	padding: "0.42rem 0.5rem",
-	borderRadius: "6px",
+	borderRadius: hardEdgeRadius,
 	color: "rgba(255, 255, 255, 0.66)",
 	fontFamily: "'IBM Plex Mono', monospace",
 	fontSize: "0.66rem",
@@ -330,7 +331,7 @@ export const suggestionLinkIcon = style({
 
 export const suggestionHighlight = style({
 	background: "rgba(125, 110, 238, 0.18)",
-	borderRadius: "3px",
+	borderRadius: hardEdgeRadius,
 	color: "inherit",
 	padding: "0 0.08rem",
 	selectors: {

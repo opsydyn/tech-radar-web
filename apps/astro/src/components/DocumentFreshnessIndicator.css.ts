@@ -1,5 +1,6 @@
 import { style, styleVariants } from "@vanilla-extract/css";
 import { Match } from "effect";
+import { hardEdgeRadius } from "../styles/theme.css";
 
 // Base styles
 export const container = style({
@@ -13,7 +14,7 @@ export const badge = style({
 	display: "inline-flex",
 	alignItems: "center",
 	gap: "0.5rem",
-	borderRadius: "0.5rem",
+	borderRadius: hardEdgeRadius,
 	fontFamily: "'IBM Plex Mono', monospace",
 	fontWeight: 500,
 	whiteSpace: "nowrap",
@@ -109,12 +110,24 @@ export const recommendation = style({
 	padding: "0.75rem 1rem",
 	backgroundColor: "rgba(59, 130, 246, 0.05)",
 	border: "1px solid rgba(59, 130, 246, 0.2)",
-	borderRadius: "0.5rem",
+	borderRadius: hardEdgeRadius,
 	fontFamily: "'IBM Plex Mono', monospace",
 	fontSize: "0.8rem",
 	color: "rgba(255, 255, 255, 0.85)",
 	width: "fit-content",
 	lineHeight: 1.4,
+	selectors: {
+		'[data-theme="light"] &': {
+			backgroundColor: "rgba(37, 99, 235, 0.08)",
+			border: "1px solid rgba(37, 99, 235, 0.2)",
+			color: "#1e3a8a",
+		},
+		'[data-theme="machine"] &': {
+			backgroundColor: "rgba(158, 255, 166, 0.08)",
+			border: "1px solid rgba(158, 255, 166, 0.22)",
+			color: "#9effa6",
+		},
+	},
 });
 
 export const recommendationIcon = style({

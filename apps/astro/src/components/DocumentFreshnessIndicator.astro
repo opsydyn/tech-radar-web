@@ -1,17 +1,15 @@
 ---
 import { Match } from "effect";
-import {
-	type DocumentFreshnessLevel,
-	calculateDocumentFreshness,
-} from "../utils/documentFreshness";
-import type { DateValue } from "../utils/dateFormatter";
-import * as styles from "./DocumentFreshnessIndicator.css";
-
 import AgingIcon from "~assets/svg/freshness-aging.svg";
 import CriticalIcon from "~assets/svg/freshness-critical.svg";
 import FreshIcon from "~assets/svg/freshness-fresh.svg";
 import InvalidIcon from "~assets/svg/freshness-invalid.svg";
 import StaleIcon from "~assets/svg/freshness-stale.svg";
+import type { DateValue } from "../utils/dateFormatter";
+// biome-ignore format: keep this import on one line to avoid Astro frontmatter formatting churn.
+import { calculateDocumentFreshness, type DocumentFreshnessLevel } from "../utils/documentFreshness";
+// biome-ignore lint/correctness/noUnusedImports: styles are referenced in the Astro template markup below.
+import * as styles from "./DocumentFreshnessIndicator.css";
 
 type Props = {
 	dateValue: DateValue;
@@ -19,6 +17,7 @@ type Props = {
 	size?: "small" | "medium" | "large";
 };
 
+// biome-ignore lint/correctness/noUnusedVariables: values are consumed in the Astro template below.
 const { dateValue, showRecommendation = true, size = "medium" } = Astro.props;
 
 // Calculate freshness on the server
@@ -33,8 +32,10 @@ const ICON_COMPONENTS: Record<DocumentFreshnessLevel, typeof FreshIcon> = {
 	invalid: InvalidIcon,
 };
 
+// biome-ignore lint/correctness/noUnusedVariables: value is rendered in the Astro template below.
 const IconComponent = ICON_COMPONENTS[freshness.level];
 
+// biome-ignore lint/correctness/noUnusedVariables: value is consumed by the Astro conditional rendering below.
 const shouldShowRecommendation = Match.value({
 	showRecommendation,
 	actionable: freshness.actionable,

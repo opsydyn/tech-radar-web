@@ -25,14 +25,24 @@ import {
 import { RadarControls } from "~components/radar/RadarControls";
 import { RadarRings } from "~components/radar/RadarRings";
 import {
+	allRadarTagsValue,
 	clearRadarSearchableBlips,
+	clearRadarTagFilterSourceBlips,
 	radarAdrFilter,
 	radarSearchTerm,
+	radarTagFilter,
 	setRadarSearchableBlips,
+	setRadarTagFilter,
+	setRadarTagFilterSourceBlips,
 } from "~components/radar/radarSearchStore";
 import type { Blip as TableBlip } from "~components/table/types";
 import UseBlipPositions from "~hooks/UseBlipPositions";
-import { filterBlipsByAdr, useBlipSearchResults } from "~hooks/useBlipSearch";
+import {
+	filterBlipsByAdr,
+	filterBlipsByTag,
+	getAvailableRadarTags,
+	useBlipSearchResults,
+} from "~hooks/useBlipSearch";
 import { miniMapState, radarConfig } from "~stores/radar-store";
 import { theme } from "~stores/theme-store";
 import type { Blip, BlipWithPosition } from "~types/radar-types";
@@ -157,6 +167,26 @@ const skeletonBlips: readonly SkeletonBlip[] = [
 	{ id: "s12", x: 514, y: 612, radius: 6, delay: 2160, duration: 2250 },
 ];
 
+const radarGridPalettes = {
+	dark: {
+		major: "rgba(255, 255, 255, 0.105)",
+		minor: "rgba(255, 255, 255, 0.05)",
+	},
+	light: {
+		major: "rgba(15, 23, 42, 0.09)",
+		minor: "rgba(15, 23, 42, 0.04)",
+	},
+	machine: {
+		major: "rgba(158, 255, 166, 0.085)",
+		minor: "rgba(158, 255, 166, 0.042)",
+	},
+} as const;
+
+const radarGridDimensions = {
+	minor: 16,
+	major: 64,
+} as const;
+
 const getSkeletonBlipStyle = (blip: SkeletonBlip): CSSProperties => ({
 	animationDelay: `${blip.delay}ms`,
 	animationDuration: `${blip.duration}ms`,
@@ -218,7 +248,7 @@ const RadarLoadingState = ({
 			focusable="false"
 		>
 			<title>Loading radar</title>
-			<rect width={width} height={height} rx={14} fill="rgba(0, 0, 0, 0.86)" />
+			<rect width={width} height={height} rx={0} fill="rgba(0, 0, 0, 0.86)" />
 			<g className={styles.radarLoadingGrid}>
 				{[100, 200, 300, 400].map((radius) => (
 					<circle
@@ -304,9 +334,13 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 	const currentTheme = useStore(theme);
 	const activeAdrFilter = useStore(radarAdrFilter);
 	const activeSearchTerm = useStore(radarSearchTerm);
+	const activeTagFilter = useStore(radarTagFilter);
 	const [bgColor, setBgColor] = useState<string>("#000000");
 	const [tooltip, setTooltip] = useState<RadarTooltipState | null>(null);
 	const { isOpen: isSidebarOpen } = usePersistentRadarSidebar();
+	const radarGridPalette =
+		radarGridPalettes[currentTheme as keyof typeof radarGridPalettes] ??
+		radarGridPalettes.dark;
 
 	// Handle theme state on client-side only to avoid hydration mismatch
 	useEffect(() => {
@@ -342,14 +376,41 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 		[activeAdrFilter, editionBlips],
 	);
 
+	const tagFilteredEditionBlips = useMemo<Blip[]>(
+		() => [...filterBlipsByTag(adrFilteredEditionBlips, activeTagFilter)],
+		[activeTagFilter, adrFilteredEditionBlips],
+	);
+
 	useEffect(() => {
-		setRadarSearchableBlips(adrFilteredEditionBlips);
+		setRadarTagFilterSourceBlips(adrFilteredEditionBlips);
 	}, [adrFilteredEditionBlips]);
 
-	useEffect(() => clearRadarSearchableBlips, []);
+	useEffect(() => {
+		if (activeTagFilter === allRadarTagsValue) {
+			return;
+		}
+
+		if (
+			!getAvailableRadarTags(adrFilteredEditionBlips).includes(activeTagFilter)
+		) {
+			setRadarTagFilter(allRadarTagsValue);
+		}
+	}, [activeTagFilter, adrFilteredEditionBlips]);
+
+	useEffect(() => {
+		setRadarSearchableBlips(tagFilteredEditionBlips);
+	}, [tagFilteredEditionBlips]);
+
+	useEffect(
+		() => () => {
+			clearRadarSearchableBlips();
+			clearRadarTagFilterSourceBlips();
+		},
+		[],
+	);
 
 	const { filteredBlips } = useBlipSearchResults(
-		adrFilteredEditionBlips,
+		tagFilteredEditionBlips,
 		activeSearchTerm,
 	);
 	const tableBlips = useMemo<TableBlip[]>(
@@ -453,6 +514,37 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 									onMouseLeave={handleBlipUnhover}
 								>
 									<defs>
+										<pattern
+											id="radar-grid-minor"
+											width={radarGridDimensions.minor}
+											height={radarGridDimensions.minor}
+											patternUnits="userSpaceOnUse"
+										>
+											<path
+												d={`M ${radarGridDimensions.minor} 0 L 0 0 0 ${radarGridDimensions.minor}`}
+												fill="none"
+												stroke={radarGridPalette.minor}
+												strokeWidth="1"
+											/>
+										</pattern>
+										<pattern
+											id="radar-grid-major"
+											width={radarGridDimensions.major}
+											height={radarGridDimensions.major}
+											patternUnits="userSpaceOnUse"
+										>
+											<rect
+												width={radarGridDimensions.major}
+												height={radarGridDimensions.major}
+												fill="url(#radar-grid-minor)"
+											/>
+											<path
+												d={`M ${radarGridDimensions.major} 0 L 0 0 0 ${radarGridDimensions.major}`}
+												fill="none"
+												stroke={radarGridPalette.major}
+												strokeWidth="1.1"
+											/>
+										</pattern>
 										<filter
 											id="radar-blip-outer-glow"
 											x="-50%"
@@ -468,7 +560,13 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 										</filter>
 									</defs>
 									<RectClipPath id="zoom-clip" width={width} height={height} />
-									<rect width={width} height={height} rx={14} fill={bgColor} />
+									<rect width={width} height={height} rx={0} fill={bgColor} />
+									<rect
+										width={width}
+										height={height}
+										rx={0}
+										fill="url(#radar-grid-major)"
+									/>
 									<g transform={transformString}>
 										<RadarChart />
 										<Labels />
@@ -497,7 +595,7 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 												y={-centerY}
 												width={width}
 												height={height}
-												rx={14}
+												rx={0}
 												fill="transparent"
 												onTouchStart={zoom.dragStart}
 												onTouchMove={zoom.dragMove}
@@ -533,7 +631,12 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
                     ${height * 4 - height - 60})
                   `}
 										>
-											<rect width={width} height={height} fill="#1a1a1a" />
+											<rect width={width} height={height} fill={bgColor} />
+											<rect
+												width={width}
+												height={height}
+												fill="url(#radar-grid-major)"
+											/>
 											<RadarChart />
 											<Labels />
 											<Group top={centerY} left={centerX}>

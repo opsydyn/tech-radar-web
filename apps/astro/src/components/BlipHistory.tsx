@@ -4,6 +4,7 @@ import { LegendOrdinal } from "@visx/legend";
 import { scaleBand, scaleOrdinal, scaleTime } from "@visx/scale";
 import { Text } from "@visx/text";
 import { useEffect, useMemo, useState } from "react";
+import { hardEdgeRadius } from "../styles/theme.css";
 import type { MoveTuple, MoveType } from "../types/radar-types";
 import { formatShortDate, normalizeDateValue } from "../utils/dateFormatter";
 
@@ -143,7 +144,7 @@ const BlipHistory = ({
 					alignItems: "center",
 					justifyContent: "center",
 					background: themeStyles.background,
-					borderRadius: "14px",
+					borderRadius: hardEdgeRadius,
 					color: themeStyles.emptyText,
 				}}
 			>
@@ -202,7 +203,7 @@ const BlipHistory = ({
 					width={width}
 					height={height}
 					fill={themeStyles.background}
-					rx={14}
+					rx={0}
 				/>
 				<Group left={margin.left} top={margin.top}>
 					{moveRows.map((moveType) => {

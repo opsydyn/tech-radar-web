@@ -1,6 +1,7 @@
 import { globalStyle, style } from "@vanilla-extract/css";
 import { colors } from "../colors";
-import { darkThemeVars, lightThemeVars } from "../theme.css";
+import { motionColorTransition, motionSurfaceTransition } from "../motion.css";
+import { darkThemeVars, hardEdgeRadius, lightThemeVars } from "../theme.css";
 
 // Container for the quadrant page
 export const quadrantContainer = style({
@@ -48,7 +49,7 @@ export const homeLink = style({
 	fontSize: "0.875rem",
 	fontWeight: "500",
 	letterSpacing: "0.01em",
-	transition: "color 0.2s ease",
+	transition: motionColorTransition,
 	display: "flex",
 	alignItems: "center",
 	gap: "0.5rem",
@@ -91,12 +92,12 @@ export const quadrantNav = style({
 export const quadrantNavItem = style({
 	fontFamily: "'IBM Plex Mono', monospace !important",
 	padding: "0.75rem 1.25rem",
-	borderRadius: "6px",
+	borderRadius: hardEdgeRadius,
 	textDecoration: "none !important",
 	fontSize: "0.875rem",
 	fontWeight: "500",
 	letterSpacing: "0.01em",
-	transition: "all 0.2s ease",
+	transition: motionSurfaceTransition,
 	border: "2px solid transparent",
 	backgroundColor: "transparent",
 	color: lightThemeVars.color.text,
@@ -112,8 +113,7 @@ export const quadrantNavItem = style({
 		},
 	},
 	":hover": {
-		transform: "translateY(-1px)",
-		boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+		boxShadow: "inset 0 0 0 1px currentColor",
 	},
 	":focus": {
 		outlineColor: lightThemeVars.color.primary,
@@ -184,7 +184,6 @@ export const quadrantNavItemActive = style({
 	fontWeight: "600",
 	boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
 	":hover": {
-		transform: "none",
 		boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
 	},
 });

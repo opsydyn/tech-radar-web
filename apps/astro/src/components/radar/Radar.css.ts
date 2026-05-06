@@ -8,10 +8,11 @@ import {
 } from "@vanilla-extract/css";
 import { recipe } from "@vanilla-extract/recipes";
 import { createSprinkles, defineProperties } from "@vanilla-extract/sprinkles";
+import { hardEdgeRadius } from "../../styles/theme.css";
 import {
-	sidebarDesktopWidth,
 	sidebarLeftInset,
 	sidebarRadarGap,
+	sidebarSpacerTransition,
 } from "./RadarSidebar.css";
 // import { animationEnabled } from "~stores/animation-store";
 // import { colors, typography } from "~styles/theme.css";
@@ -285,7 +286,7 @@ export const rightSearchContainer = style({
 	maxWidth: "95%",
 	boxSizing: "border-box",
 	padding: "4px 8px",
-	borderRadius: "4px",
+	borderRadius: hardEdgeRadius,
 	marginRight: "10px", // Additional margin for better spacing
 	transition: "all 0.3s ease",
 	selectors: {
@@ -343,7 +344,7 @@ export const radarShell = style({
 export const sidebarSpacer = style({
 	width: 0,
 	flexShrink: 0,
-	transition: "width 220ms ease",
+	transition: sidebarSpacerTransition,
 	selectors: {
 		'&[data-open="true"]': {
 			width: `calc(8.75rem + ${sidebarLeftInset} + ${sidebarRadarGap})`,
@@ -405,7 +406,7 @@ export const radarLoadingSvg = style({
 	height: "1000px",
 	maxWidth: "100%",
 	maxHeight: "100%",
-	borderRadius: "14px",
+	borderRadius: hardEdgeRadius,
 	overflow: "hidden",
 });
 
@@ -471,7 +472,7 @@ export const searchContainer = style({
 	flexDirection: "column",
 	width: "100%", // Full width of parent container
 	padding: "10px",
-	borderRadius: "8px",
+	borderRadius: hardEdgeRadius,
 	transition: "all 0.3s ease",
 	selectors: {
 		'[data-theme="dark"] &': {
@@ -495,7 +496,7 @@ export const searchInput = style({
 	fontFamily: "'IBM Plex Mono', monospace",
 	fontSize: "0.9rem",
 	padding: "0.25rem 0.5rem", // More compact padding
-	borderRadius: "4px",
+	borderRadius: hardEdgeRadius,
 	width: "100%",
 	height: "26px", // Match the height of the zoom buttons
 	boxSizing: "border-box", // Ensure padding is included in width calculation
@@ -570,7 +571,7 @@ export const searchClearButton = style({
 	display: "flex",
 	alignItems: "center",
 	justifyContent: "center",
-	borderRadius: "4px",
+	borderRadius: hardEdgeRadius,
 	minWidth: "40px",
 	maxWidth: "60px",
 	whiteSpace: "nowrap",
@@ -636,13 +637,23 @@ export const blipTooltip = style({
 	background: "rgba(8, 10, 14, 0.94)",
 	border: "1px solid var(--radar-blip-color)",
 	borderLeft: "8px solid var(--radar-blip-color)",
-	borderRadius: "10px",
+	borderRadius: hardEdgeRadius,
 	boxShadow:
-		"0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 36px rgba(0, 0, 0, 0.42), 0 0 28px var(--radar-blip-color)",
+		"0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 36px rgba(0, 0, 0, 0.42)",
 	color: "#f8fafc",
 	fontFamily: "'IBM Plex Mono', monospace",
 	padding: "0.85rem 1rem",
 	pointerEvents: "none",
+	selectors: {
+		'[data-theme="light"] &': {
+			background: "rgba(255, 255, 255, 0.98)",
+			border: "1px solid rgba(15, 23, 42, 0.14)",
+			borderLeft: "8px solid var(--radar-blip-color)",
+			boxShadow:
+				"0 0 0 1px rgba(15, 23, 42, 0.04), 0 16px 32px rgba(15, 23, 42, 0.14)",
+			color: "rgba(17, 24, 39, 0.94)",
+		},
+	},
 });
 
 export const blipTooltipHeader = style({
@@ -654,12 +665,17 @@ export const blipTooltipHeader = style({
 
 export const blipTooltipBadge = style({
 	background: "var(--radar-blip-color)",
-	borderRadius: "999px",
+	borderRadius: hardEdgeRadius,
 	color: "#020617",
 	fontSize: "0.78rem",
 	fontWeight: 800,
 	lineHeight: 1,
 	padding: "0.35rem 0.5rem",
+	selectors: {
+		'[data-theme="light"] &': {
+			boxShadow: "inset 0 0 0 1px rgba(15, 23, 42, 0.08)",
+		},
+	},
 });
 
 export const blipTooltipTitle = style({
@@ -667,6 +683,11 @@ export const blipTooltipTitle = style({
 	fontSize: "1.1rem",
 	letterSpacing: "0.01em",
 	lineHeight: 1.1,
+	selectors: {
+		'[data-theme="light"] &': {
+			color: "rgba(17, 24, 39, 0.96)",
+		},
+	},
 });
 
 export const blipTooltipDetails = style({
@@ -676,6 +697,11 @@ export const blipTooltipDetails = style({
 
 export const blipTooltipLabel = style({
 	color: "#94a3b8",
+	selectors: {
+		'[data-theme="light"] &': {
+			color: "rgba(71, 85, 105, 0.92)",
+		},
+	},
 });
 
 export const radarBlipLayer = style({});
@@ -698,7 +724,7 @@ export const themeIndicator = style({
 	padding: "8px 10px",
 	backgroundColor: "rgba(0, 0, 0, 0.7)",
 	border: "1px solid rgba(255, 255, 255, 0.2)",
-	borderRadius: "4px",
+	borderRadius: hardEdgeRadius,
 	fontFamily: "'IBM Plex Mono', monospace",
 	fontSize: "0.85rem",
 	fontWeight: "500",
@@ -740,7 +766,7 @@ export const legendBoxStyle = style({
 	padding: "10px 10px",
 	float: "left",
 	border: "1px solid rgba(255, 255, 255, 0.3)",
-	borderRadius: "8px",
+	borderRadius: hardEdgeRadius,
 	margin: "5px 5px",
 });
 

@@ -34,6 +34,14 @@ export const darkThemeVars = createGlobalTheme(":root", {
 	},
 });
 
+export const shapeVars = createGlobalTheme(":root", {
+	radius: {
+		hardEdge: "0px",
+	},
+});
+
+export const hardEdgeRadius = shapeVars.radius.hardEdge;
+
 export const baseStyle = style({
 	// Common base styles
 });
@@ -136,7 +144,7 @@ globalStyle(
 	"body::-webkit-scrollbar-thumb, [data-scrollable]::-webkit-scrollbar-thumb",
 	{
 		background: "rgba(127,255,212,0.18)",
-		borderRadius: "6px",
+		borderRadius: hardEdgeRadius,
 		transition: "background 0.2s",
 	},
 );

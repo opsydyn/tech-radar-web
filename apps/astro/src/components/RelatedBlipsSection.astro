@@ -3,6 +3,7 @@ export const prerender = true;
 
 import type { RelatedBlipWithData, RelationshipType } from "../types/radar-types";
 import * as styles from "~styles/pages/blip.css";
+import { hardEdgeRadius } from "~styles/theme.css";
 import RelationshipTypesTooltip from "./RelationshipTypesTooltip.tsx";
 import { getBlipPath } from "../utils/blipRouting";
 
@@ -60,7 +61,7 @@ const relationshipTypes = Object.keys(groupedBlips) as RelationshipType[];
     ---
 
 {relatedBlips.length === 0 ? (
-    <div style="text-align: center; padding: 4rem 2rem; color: #666; font-family: 'IBM Plex Mono', monospace;">
+    <div class={styles.relatedBlipsEmptyState}>
         No related technologies defined yet.
     </div>
 ) : (
@@ -71,8 +72,8 @@ const relationshipTypes = Object.keys(groupedBlips) as RelationshipType[];
             </h2>
             <RelationshipTypesTooltip client:only="react" />
         </div>
-        <p style="text-align: center; margin-bottom: 3rem; color: #ccc; font-family: 'IBM Plex Mono', monospace; font-size: 0.9rem; max-width: 600px; margin: 0 auto 3rem auto;">
-            Technologies related to <strong style="color: #fff;">{currentBlipName}</strong> and their relationships.
+        <p class={styles.relatedBlipsIntro}>
+            Technologies related to <strong class={styles.relatedBlipsIntroStrong}>{currentBlipName}</strong> and their relationships.
         </p>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; align-items: start;">
@@ -90,7 +91,7 @@ const relationshipTypes = Object.keys(groupedBlips) as RelationshipType[];
                             <h3 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 1.125rem; font-weight: 600;">
                                 {relationshipLabels[type]}
                             </h3>
-                            <span style={`background-color: ${color}; color: #000; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; font-family: 'IBM Plex Mono', monospace;`}>
+                            <span style={`background-color: ${color}; color: #000; padding: 0.25rem 0.75rem; border-radius: ${hardEdgeRadius}; font-size: 0.75rem; font-weight: 600; font-family: 'IBM Plex Mono', monospace;`}>
                                 {blips.length}
                             </span>
                         </div>
@@ -112,14 +113,14 @@ const relationshipTypes = Object.keys(groupedBlips) as RelationshipType[];
                                     </p>
 
                                     {(blip.reason || blip.context) && (
-                                        <div style="margin-top: 0.75rem; font-size: 0.8rem; color: #aaa; line-height: 1.4;">
+                                        <div class={styles.relatedBlipContext}>
                                             {blip.reason && (
-                                                <div style="margin-bottom: 0.5rem;">
+                                                <div class={styles.relatedBlipContextItem}>
                                                     <strong>Why:</strong> {blip.reason}
                                                 </div>
                                             )}
                                             {blip.context && (
-                                                <div>
+                                                <div class={styles.relatedBlipContextItem}>
                                                     <strong>Context:</strong> {blip.context}
                                                 </div>
                                             )}

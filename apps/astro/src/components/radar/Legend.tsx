@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useStore } from "@nanostores/react";
 import { LegendItem, LegendLabel, LegendOrdinal } from "@visx/legend";
 import { scaleOrdinal } from "@visx/scale";
-import { LegendMoveState } from "./LegendMoveState";
-import { useStore } from "@nanostores/react";
+import { type MouseEvent, type ReactNode, useEffect, useState } from "react";
+import { getEffectiveTheme, theme } from "~stores/theme-store";
+import { hardEdgeRadius } from "~styles/theme.css";
 import { withBasePath } from "~utils/sitePaths";
-import { theme, getEffectiveTheme } from "~stores/theme-store";
+import { LegendMoveState } from "./LegendMoveState";
 
 // Quadrant data with links and colors
 const quadrantData = [
@@ -51,22 +52,21 @@ const clipPaths = [
 ];
 
 const legendGlyphSize = 16;
-const events = false;
-
 function LegendBase({
 	title,
 	children,
 }: {
 	title: string;
-	children: React.ReactNode;
+	children: ReactNode;
 }) {
 	const currentTheme = useStore(theme);
 	const [isDarkTheme, setIsDarkTheme] = useState(true);
 
 	// Update theme state based on current theme
 	useEffect(() => {
-		const effectiveTheme = getEffectiveTheme();
-		setIsDarkTheme(effectiveTheme === "dark" || effectiveTheme === "machine");
+		const effectiveTheme =
+			currentTheme === "machine" ? getEffectiveTheme() : currentTheme;
+		setIsDarkTheme(effectiveTheme !== "light");
 	}, [currentTheme]);
 
 	return (
@@ -84,7 +84,7 @@ function LegendBase({
               padding: 10px;
               width: 100%;
               box-sizing: border-box;
-              border-radius: 8px;
+			  border-radius: ${hardEdgeRadius};
               margin: 5px;
               transition: all 0.3s ease;
           }
@@ -115,12 +115,9 @@ export const LegendTwo = () => {
 	const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
 	useEffect(() => {
-		const effectiveTheme = getEffectiveTheme();
-		setTextColor(
-			effectiveTheme === "dark" || effectiveTheme === "machine"
-				? "#efefef"
-				: "#333333",
-		);
+		const effectiveTheme =
+			currentTheme === "machine" ? getEffectiveTheme() : currentTheme;
+		setTextColor(effectiveTheme === "light" ? "#333333" : "#efefef");
 	}, [currentTheme]);
 
 	// Find the quadrant data by ID
@@ -128,7 +125,7 @@ export const LegendTwo = () => {
 		return quadrantData.find((q) => q.id === id) || quadrantData[0];
 	};
 
-	const handleMouseMove = (e: React.MouseEvent, tooltip: string) => {
+	const handleMouseMove = (e: MouseEvent, tooltip: string) => {
 		setTooltipContent(tooltip);
 		setTooltipPosition({ x: e.clientX + 10, y: e.clientY + 10 });
 	};
@@ -142,11 +139,11 @@ export const LegendTwo = () => {
 			<LegendBase title="Quadrants">
 				<LegendOrdinal scale={ordinalColor2Scale}>
 					{(labels) =>
-						labels.map((label, i) => {
+						labels.map((label) => {
 							const quadrant = getQuadrantByLabelId(label.text);
 							return (
 								<LegendItem
-									key={`legend-${i}`}
+									key={quadrant.id}
 									style={{
 										color: textColor,
 										fontFamily: "IBM Plex Mono, monospace",
@@ -164,6 +161,7 @@ export const LegendTwo = () => {
 										height={legendGlyphSize}
 										style={{ margin: "2px 0" }}
 									>
+										<title>{quadrant.tooltip}</title>
 										<defs>
 											<clipPath id="clipTopRight">
 												<path d="M 16,16 L 16,0 A 16,16 0 0 1 32,16 Z" />{" "}
@@ -181,9 +179,9 @@ export const LegendTwo = () => {
 												<path d="M 16,16 L 32,16 A 16,16 0 0 1 16,32 Z" />
 											</clipPath>
 										</defs>
-										{clipPaths.map((clipPathId, index) => (
+										{clipPaths.map((clipPathId) => (
 											<circle
-												key={index}
+												key={clipPathId}
 												fill={label.value}
 												r={legendGlyphSize}
 												cx={legendGlyphSize / 2}
@@ -220,7 +218,7 @@ export const LegendTwo = () => {
 						backgroundColor: "rgba(0, 0, 0, 0.8)",
 						color: "#fff",
 						padding: "5px 10px",
-						borderRadius: "4px",
+						borderRadius: hardEdgeRadius,
 						fontSize: "12px",
 						zIndex: 1000,
 						pointerEvents: "none",

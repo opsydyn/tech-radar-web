@@ -1,4 +1,5 @@
 import { style } from "@vanilla-extract/css";
+import { hardEdgeRadius } from "../styles/theme.css";
 
 export const navIcon = style({
 	width: "18px",
@@ -24,7 +25,7 @@ export const cornerNavWrapper = style({
 	gap: "8px",
 	zIndex: 10,
 	backgroundColor: "rgba(15, 15, 25, 0.95)",
-	borderRadius: "12px",
+	borderRadius: hardEdgeRadius,
 	padding: "12px 10px",
 	boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
 	backdropFilter: "blur(12px)",
@@ -33,7 +34,7 @@ export const cornerNavWrapper = style({
 
 export const cornerNavLink = style({
 	padding: "6px 10px",
-	borderRadius: "8px",
+	borderRadius: hardEdgeRadius,
 	color: "#ffffff",
 	fontWeight: "600",
 	textDecoration: "none",

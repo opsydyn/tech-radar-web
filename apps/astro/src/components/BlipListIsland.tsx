@@ -4,13 +4,39 @@ import { BlipDetail } from "~components/BlipDetail";
 import * as styles from "~components/BlipListIsland.css";
 import { useBlipSearch } from "~hooks/useBlipSearch";
 import type { Blip } from "~types/radar-types";
-import { withBasePath } from "~utils/sitePaths";
 
 type BlipListIslandProps = {
 	blips: Blip[];
 	quadrant: string;
 	quadrantColor: string;
 };
+
+const quadrantDefinitions = [
+	{
+		key: "techniques",
+		title: "Techniques",
+		description:
+			"These include elements of a software development process, such as experience design; and ways of structuring software, such as microservices.",
+	},
+	{
+		key: "platforms",
+		title: "Platforms",
+		description:
+			"Things that we build software on top of such as mobile technologies like Android, virtual platforms like the JVM, or generic kinds of platforms like hybrid clouds.",
+	},
+	{
+		key: "tools",
+		title: "Tools",
+		description:
+			"These can be components, such as databases, software development tools, such as versions' control systems; or more generic categories of tools, such as the notion of polyglot persistence.",
+	},
+	{
+		key: "languages-frameworks",
+		title: "Languages and Frameworks",
+		description:
+			"These include programming languages like Java and Python but today primarily focus on frameworks like Gradle, Jetpack, and React.js.",
+	},
+] as const;
 
 const BlipListIsland: React.FC<BlipListIslandProps> = ({
 	blips,
@@ -29,8 +55,8 @@ const BlipListIsland: React.FC<BlipListIslandProps> = ({
 
 	// State for selected blip
 	const [selected, setSelected] = useState<Blip | null>(() => blips[0] ?? null);
-	const homePath = withBasePath("/");
 	const resultsLabel = resultsCount === 1 ? "result" : "results";
+	const normalizedQuadrant = quadrant.toLowerCase();
 
 	// Update selected blip when filtered blips change
 	useEffect(() => {
@@ -55,8 +81,24 @@ const BlipListIsland: React.FC<BlipListIslandProps> = ({
 		>
 			{/* Header container with heading and search */}
 			<div className={styles.headerContainer}>
-				{/* Main heading */}
-				<h1 className={styles.mainHeading}>{quadrant}</h1>
+				<div className={styles.quadrantIntro}>
+					<p className={styles.quadrantIntroLead}>
+						The quadrants are a categorization of the type of blips:
+					</p>
+					<ul className={styles.quadrantIntroList}>
+						{quadrantDefinitions.map((definition) => (
+							<li
+								key={definition.key}
+								className={`${styles.quadrantIntroItem} ${definition.key === normalizedQuadrant ? styles.quadrantIntroItemActive : ""}`}
+							>
+								<strong className={styles.quadrantIntroItemTitle}>
+									{definition.title}.
+								</strong>{" "}
+								<span>{definition.description}</span>
+							</li>
+						))}
+					</ul>
+				</div>
 
 				{/* Search container */}
 				<div className={styles.searchContainer}>
@@ -87,14 +129,6 @@ const BlipListIsland: React.FC<BlipListIslandProps> = ({
 					</div>
 				</div>
 			</div>
-
-			{/* Home link - positioned absolutely for layout */}
-			<a href={homePath} className={styles.homeLink}>
-				<span aria-hidden="true" className={styles.arrowIcon}>
-					⬅
-				</span>{" "}
-				Home
-			</a>
 
 			{/* Main content container */}
 			<div className={styles.contentContainer}>

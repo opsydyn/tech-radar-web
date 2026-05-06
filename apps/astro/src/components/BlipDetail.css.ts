@@ -1,13 +1,45 @@
 import { globalStyle, style } from "@vanilla-extract/css";
-import { darkThemeVars, lightThemeVars } from "../styles/theme.css";
+import {
+	darkThemeVars,
+	hardEdgeRadius,
+	lightThemeVars,
+} from "../styles/theme.css";
 
 export const root = style({
 	color: lightThemeVars.color.text,
+	backgroundColor: "color-mix(in srgb, var(--quadrant-color) 4%, transparent)",
+	border:
+		"1px solid color-mix(in srgb, var(--quadrant-color) 12%, transparent)",
+	borderLeft: "4px solid var(--quadrant-color)",
+	borderRadius: hardEdgeRadius,
+	boxShadow:
+		"inset 0 0 0 1px color-mix(in srgb, var(--quadrant-color) 8%, transparent)",
+	minHeight: "100%",
+	padding: "1.5rem",
 	transition: "none",
+	"@media": {
+		"screen and (min-width: 981px)": {
+			position: "sticky",
+			top: "1.5rem",
+		},
+	},
 });
 
 globalStyle(`html[data-theme="dark"] .${root}`, {
 	color: darkThemeVars.color.text,
+	backgroundColor:
+		"color-mix(in srgb, var(--quadrant-color) 6%, rgba(10, 12, 18, 0.92))",
+	borderColor: "color-mix(in srgb, var(--quadrant-color) 18%, transparent)",
+});
+
+export const eyebrow = style({
+	margin: "0 0 0.75rem",
+	fontFamily: "'IBM Plex Mono', monospace",
+	fontSize: "0.72rem",
+	fontWeight: 700,
+	letterSpacing: "0.14em",
+	textTransform: "uppercase",
+	color: "var(--quadrant-color)",
 });
 
 export const emptyState = style({
@@ -66,7 +98,7 @@ export const card = style({
 	color: "#000000",
 	backgroundColor: "#f0f0f0",
 	padding: "0.75rem",
-	borderRadius: "4px",
+	borderRadius: hardEdgeRadius,
 	marginBottom: "1rem",
 	borderLeft: "4px solid var(--quadrant-color)",
 	transition: "none",
@@ -89,7 +121,7 @@ export const movementHeading = style({
 	color: lightThemeVars.color.text,
 	backgroundColor: "#f0f0f0",
 	padding: "0.5rem 0.75rem",
-	borderRadius: "4px",
+	borderRadius: hardEdgeRadius,
 	marginBottom: "0.75rem",
 	boxShadow: "2px 0 0 0 var(--quadrant-color-shadow)",
 	transition: "none",
@@ -114,7 +146,7 @@ export const movementItem = style({
 	fontSize: "0.75rem",
 	backgroundColor: "#f0f0f0",
 	padding: "0.5rem 0.75rem",
-	borderRadius: "4px",
+	borderRadius: hardEdgeRadius,
 	marginBottom: "0.25rem",
 	borderLeft: "4px solid var(--quadrant-color)",
 	boxShadow: "2px 0 0 0 var(--quadrant-color-shadow)",
@@ -163,16 +195,44 @@ globalStyle(`html[data-theme="dark"] .${movementDate}`, {
 });
 
 export const detailsLink = style({
-	display: "inline-block",
+	display: "inline-flex",
+	alignItems: "center",
+	gap: "0.5rem",
 	fontFamily: "'IBM Plex Mono', monospace",
 	fontSize: "0.85rem",
 	fontWeight: 600,
-	color: "#000000",
-	textDecoration: "underline",
+	color: lightThemeVars.color.text,
+	textDecoration: "none",
 	marginTop: "1rem",
-	transition: "none",
+	padding: "0.65rem 0.85rem",
+	border:
+		"1px solid color-mix(in srgb, var(--quadrant-color) 24%, transparent)",
+	borderLeft: "4px solid var(--quadrant-color)",
+	backgroundColor: "color-mix(in srgb, var(--quadrant-color) 10%, transparent)",
+	borderRadius: hardEdgeRadius,
+	transition:
+		"background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease",
+	selectors: {
+		"&:hover, &:focus-visible": {
+			backgroundColor:
+				"color-mix(in srgb, var(--quadrant-color) 16%, transparent)",
+			borderColor: "color-mix(in srgb, var(--quadrant-color) 34%, transparent)",
+			boxShadow:
+				"inset 0 0 0 1px color-mix(in srgb, var(--quadrant-color) 12%, transparent)",
+			outline: "none",
+		},
+	},
 });
 
 globalStyle(`html[data-theme="dark"] .${detailsLink}`, {
-	color: "#a0d8ff",
+	color: darkThemeVars.color.text,
+});
+
+export const detailsLinkText = style({
+	textDecoration: "underline",
+	textUnderlineOffset: "0.18em",
+});
+
+export const detailsLinkIcon = style({
+	flexShrink: 0,
 });

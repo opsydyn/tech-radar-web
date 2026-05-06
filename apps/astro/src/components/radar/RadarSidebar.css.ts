@@ -1,8 +1,25 @@
 import { style, styleVariants } from "@vanilla-extract/css";
+import {
+	motionDurationMedium,
+	motionSurfaceTransition,
+	motionTransformOpacityTransition,
+	motionTransformSurfaceTransition,
+	motionWidthTransition,
+} from "../../styles/motion.css";
+import { hardEdgeRadius } from "../../styles/theme.css";
 
 export const sidebarDesktopWidth = "13.75rem";
 export const sidebarLeftInset = "8px";
 export const sidebarRadarGap = "2px";
+export const sidebarTransitionDuration = motionDurationMedium;
+export const sidebarChromeTransition = motionTransformOpacityTransition.replace(
+	`, opacity ${motionDurationMedium} ease`,
+	`, opacity ${motionDurationMedium} ease, box-shadow ${motionDurationMedium} ease`,
+);
+export const sidebarPanelTransition = motionTransformOpacityTransition;
+export const sidebarSpacerTransition = motionWidthTransition;
+export const sidebarInteractiveTransition = motionTransformSurfaceTransition;
+export const sidebarFieldTransition = motionSurfaceTransition;
 
 export const collapsedTrigger = style({
 	position: "fixed",
@@ -12,10 +29,10 @@ export const collapsedTrigger = style({
 	display: "inline-flex",
 	alignItems: "center",
 	justifyContent: "center",
-	transition: "transform 180ms ease, opacity 180ms ease, box-shadow 180ms ease",
+	transition: sidebarChromeTransition,
 	backdropFilter: "blur(10px)",
 	border: "1px solid rgba(255, 255, 255, 0.12)",
-	borderRadius: "999px",
+	borderRadius: hardEdgeRadius,
 	boxShadow: "0 8px 18px rgba(0, 0, 0, 0.18)",
 	cursor: "pointer",
 	padding: 0,
@@ -81,10 +98,9 @@ export const viewport = style({
 
 export const popup = style({
 	transform: "translateX(var(--drawer-swipe-movement-x))",
-	transition:
-		"transform 260ms cubic-bezier(0.32, 0.72, 0, 1), opacity 220ms ease",
+	transition: sidebarPanelTransition,
 	outline: "1px solid rgba(255, 255, 255, 0.12)",
-	borderRadius: "18px",
+	borderRadius: hardEdgeRadius,
 	boxShadow: "0 18px 48px rgba(0, 0, 0, 0.32)",
 	pointerEvents: "auto",
 	width: `min(${sidebarDesktopWidth}, calc(100vw - 12px))`,
@@ -143,11 +159,10 @@ export const closeButton = style({
 	flexShrink: 0,
 	alignItems: "center",
 	justifyContent: "center",
-	transition:
-		"transform 160ms ease, background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease",
+	transition: sidebarInteractiveTransition,
 	opacity: 1,
 	border: "1px solid rgba(226, 232, 240, 0.64)",
-	borderRadius: "999px",
+	borderRadius: hardEdgeRadius,
 	boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.26), 0 8px 18px rgba(0, 0, 0, 0.34)",
 	background: "rgba(15, 23, 42, 0.96)",
 	cursor: "pointer",
@@ -162,7 +177,7 @@ export const closeButton = style({
 		"&::before": {
 			position: "absolute",
 			inset: "-4px",
-			borderRadius: "999px",
+			borderRadius: hardEdgeRadius,
 			content: '""',
 		},
 		"&:hover": {
@@ -241,12 +256,11 @@ export const sidebarFilterSelect = style({
 	fontSize: "0.92rem",
 	fontWeight: 700,
 	border: "1px solid rgba(255, 255, 255, 0.14)",
-	borderRadius: "0.9rem",
+	borderRadius: hardEdgeRadius,
 	backgroundColor: "rgba(3, 7, 18, 0.78)",
 	color: "rgba(255, 255, 255, 0.96)",
 	cursor: "pointer",
-	transition:
-		"border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease",
+	transition: sidebarFieldTransition,
 	outline: "none",
 	appearance: "none",
 	backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.8)' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
@@ -306,10 +320,9 @@ export const searchIcon = style({
 });
 
 export const searchInput = style({
-	transition:
-		"border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease",
+	transition: sidebarFieldTransition,
 	border: "1px solid rgba(148, 163, 184, 0.24)",
-	borderRadius: "12px",
+	borderRadius: hardEdgeRadius,
 	background: "rgba(15, 23, 42, 0.24)",
 	padding: "10px 12px 10px 40px",
 	width: "100%",
@@ -362,7 +375,7 @@ export const clearButton = style({
 		"&:focus-visible": {
 			outline: "2px solid rgba(96, 165, 250, 0.8)",
 			outlineOffset: "2px",
-			borderRadius: "4px",
+			borderRadius: hardEdgeRadius,
 		},
 	},
 });
@@ -378,10 +391,9 @@ export const navCard = style({
 	gridTemplateColumns: "20px 1fr",
 	alignItems: "center",
 	gap: "9px",
-	transition:
-		"transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease",
+	transition: sidebarInteractiveTransition,
 	border: "1px solid rgba(255, 255, 255, 0.08)",
-	borderRadius: "0.85rem",
+	borderRadius: hardEdgeRadius,
 	padding: "0.78rem 0.8rem",
 	textDecoration: "none",
 	color: "#ffffff",
@@ -450,10 +462,9 @@ export const legendShell = style({
 });
 
 export const radarToggleButton = style({
-	transition:
-		"transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease",
+	transition: sidebarInteractiveTransition,
 	border: "1px solid rgba(255, 255, 255, 0.18)",
-	borderRadius: "10px",
+	borderRadius: hardEdgeRadius,
 	background: "rgba(55, 55, 55, 0.88)",
 	cursor: "pointer",
 	padding: "0.68rem 0.75rem",

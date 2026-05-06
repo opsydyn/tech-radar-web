@@ -6,7 +6,7 @@ import {
 	typographyLevel4,
 	typographyLevel5,
 } from "../modular-scale.css";
-import { darkThemeVars, lightThemeVars } from "../theme.css";
+import { darkThemeVars, hardEdgeRadius, lightThemeVars } from "../theme.css";
 import {
 	spacingLevel2,
 	spacingLevel3,
@@ -210,6 +210,15 @@ export const navBar = style([
 				width: "100%",
 			},
 		},
+		selectors: {
+			'html[data-theme="light"] &': {
+				background: "rgba(255, 255, 255, 0.96)",
+				borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
+			},
+			'html[data-theme="machine"] &': {
+				borderBottom: "1px solid rgba(158, 255, 166, 0.16)",
+			},
+		},
 	},
 ]);
 
@@ -224,6 +233,10 @@ export const navBack = style({
 			transition: "color 0.2s",
 			selectors: {
 				"&:hover": { color: "#fff", textDecoration: "underline" },
+				'html[data-theme="light"] &:hover': {
+					color: "rgba(17, 24, 39, 0.92)",
+					textDecoration: "underline",
+				},
 			},
 		},
 	},
@@ -247,12 +260,20 @@ export const navTab = style({
 			fontSize: "0.9rem",
 			fontWeight: 500,
 			padding: "0.25rem 0.5rem",
-			borderRadius: "4px",
+			borderRadius: hardEdgeRadius,
 			transition: "background 0.18s, color 0.18s",
 			selectors: {
+				'html[data-theme="light"] &': {
+					color: "rgba(17, 24, 39, 0.56)",
+				},
 				"&:hover": {
 					color: "#fff",
 					background: "#333",
+					textDecoration: "none",
+				},
+				'html[data-theme="light"] &:hover': {
+					color: "rgba(17, 24, 39, 0.92)",
+					background: "rgba(0, 0, 0, 0.06)",
 					textDecoration: "none",
 				},
 				"&:active": {
@@ -304,9 +325,15 @@ export const floatingNavItem = style({
 			background: "#111",
 			color: "#fff",
 			padding: "0.25rem 0.5rem",
-			borderRadius: "4px",
+			borderRadius: hardEdgeRadius,
 			fontSize: "0.8rem",
 			whiteSpace: "nowrap",
+		},
+		'html[data-theme="light"] &:hover::before': {
+			background: "rgba(255, 255, 255, 0.98)",
+			color: "rgba(17, 24, 39, 0.92)",
+			boxShadow: "0 8px 20px rgba(15, 23, 42, 0.12)",
+			border: "1px solid rgba(17, 24, 39, 0.1)",
 		},
 		"&.active": {
 			transform: "scale(1.2)",
@@ -317,7 +344,7 @@ export const floatingNavItem = style({
 export const floatingNavDot = style({
 	width: "12px",
 	height: "12px",
-	borderRadius: "50%",
+	borderRadius: hardEdgeRadius,
 	background: "#555",
 	transition: "all 0.2s ease",
 	border: "2px solid #333",
@@ -355,8 +382,15 @@ export const detailsDate = style([
 	{
 		background: "#222",
 		padding: "0.6rem 1rem",
-		borderRadius: "4px",
+		borderRadius: hardEdgeRadius,
 		border: "1px solid #333",
+		selectors: {
+			'html[data-theme="light"] &': {
+				background: "rgba(17, 24, 39, 0.06)",
+				border: "1px solid rgba(17, 24, 39, 0.12)",
+				color: "rgba(17, 24, 39, 0.72)",
+			},
+		},
 	},
 ]);
 
@@ -374,7 +408,7 @@ export const detailsRing = style([
 export const detailsContent = style({
 	backgroundColor: lightThemeVars.color.background,
 	padding: "1.5rem",
-	borderRadius: "8px",
+	borderRadius: hardEdgeRadius,
 	boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
 	marginBottom: rhythm3,
 	transition: "background-color 0.3s ease, box-shadow 0.3s ease",
@@ -419,6 +453,12 @@ export const relatedBlipsSection = style([
 				color: "var(--quadrant-color-solid)",
 			},
 		},
+		selectors: {
+			'html[data-theme="light"] &': {
+				background: "rgba(17, 24, 39, 0.04)",
+				color: lightThemeVars.color.text,
+			},
+		},
 	},
 ]);
 
@@ -450,7 +490,7 @@ export const relatedBlipCard = style([
 	spacingLevel2,
 	{
 		background: "#333333",
-		borderRadius: "8px",
+		borderRadius: hardEdgeRadius,
 		padding: "1.5rem",
 		border: "1px solid #444444",
 		transition: "transform 0.2s, border-color 0.2s, background-color 0.3s ease",
@@ -459,6 +499,11 @@ export const relatedBlipCard = style([
 				transform: "translateY(-4px)",
 				borderColor: "var(--quadrant-color-solid)",
 				textDecoration: "none",
+			},
+			'html[data-theme="light"] &': {
+				background: "rgba(255, 255, 255, 0.96)",
+				border: "1px solid rgba(17, 24, 39, 0.12)",
+				boxShadow: "0 10px 24px rgba(15, 23, 42, 0.08)",
 			},
 		},
 		textDecoration: "none",
@@ -481,6 +526,11 @@ export const relatedBlipTitle = style([
 		fontWeight: "500",
 		color: "#fff",
 		margin: "0 0 0.5rem 0",
+		selectors: {
+			'html[data-theme="light"] &': {
+				color: "rgba(17, 24, 39, 0.96)",
+			},
+		},
 	},
 ]);
 
@@ -502,8 +552,69 @@ export const relatedBlipMetaUnderlined = style([
 		textDecorationSkipInk: "auto",
 		paddingBottom: "2px",
 		marginTop: "auto",
+		selectors: {
+			'html[data-theme="light"] &': {
+				color: "rgba(17, 24, 39, 0.62)",
+			},
+		},
 	},
 ]);
+
+export const relatedBlipsIntro = style({
+	textAlign: "center",
+	margin: "0 auto 3rem",
+	maxWidth: "600px",
+	color: "#ccc",
+	fontFamily: "'IBM Plex Mono', monospace",
+	fontSize: "0.9rem",
+	lineHeight: 1.6,
+	selectors: {
+		'html[data-theme="light"] &': {
+			color: "rgba(17, 24, 39, 0.68)",
+		},
+	},
+});
+
+export const relatedBlipsIntroStrong = style({
+	color: "#fff",
+	selectors: {
+		'html[data-theme="light"] &': {
+			color: "rgba(17, 24, 39, 0.94)",
+		},
+	},
+});
+
+export const relatedBlipContext = style({
+	marginTop: "0.75rem",
+	fontSize: "0.8rem",
+	color: "#aaa",
+	lineHeight: 1.4,
+	selectors: {
+		'html[data-theme="light"] &': {
+			color: "rgba(17, 24, 39, 0.66)",
+		},
+	},
+});
+
+export const relatedBlipContextItem = style({
+	selectors: {
+		"&:not(:last-child)": {
+			marginBottom: "0.5rem",
+		},
+	},
+});
+
+export const relatedBlipsEmptyState = style({
+	textAlign: "center",
+	padding: "4rem 2rem",
+	color: "#666",
+	fontFamily: "'IBM Plex Mono', monospace",
+	selectors: {
+		'html[data-theme="light"] &': {
+			color: "rgba(17, 24, 39, 0.58)",
+		},
+	},
+});
 
 // --- HISTORY SECTION ---
 export const sectionTitle = style({
@@ -525,7 +636,7 @@ export const historyChart = style({
 	marginBottom: rhythm4,
 	width: "100%",
 	height: "auto",
-	borderRadius: "8px",
+	borderRadius: hardEdgeRadius,
 	overflow: "hidden",
 });
 
@@ -614,7 +725,7 @@ export const adrStatusBadge = style({
 	display: "inline-flex",
 	alignItems: "center",
 	padding: "0.2rem 0.5rem",
-	borderRadius: "999px",
+	borderRadius: hardEdgeRadius,
 	border: "1px solid var(--quadrant-color-solid)",
 	color: "var(--quadrant-color-solid)",
 	fontSize: "0.85rem",
@@ -622,6 +733,11 @@ export const adrStatusBadge = style({
 	textTransform: "uppercase",
 	letterSpacing: "0.04em",
 	backgroundColor: "rgba(255, 255, 255, 0.02)",
+	selectors: {
+		'html[data-theme="light"] &': {
+			backgroundColor: "rgba(99, 102, 241, 0.08)",
+		},
+	},
 });
 
 export const markdownContent = style({
@@ -683,8 +799,19 @@ globalStyle(`.${markdownContent} code`, {
 	fontFamily: "'IBM Plex Mono', monospace",
 	fontSize: "0.9em",
 	padding: "0.1rem 0.35rem",
-	borderRadius: "4px",
+	borderRadius: hardEdgeRadius,
 	backgroundColor: "rgba(255, 255, 255, 0.06)",
+});
+
+globalStyle(`html[data-theme="light"] .${markdownContent} code`, {
+	backgroundColor: "rgba(17, 24, 39, 0.08)",
+	color: "rgba(17, 24, 39, 0.9)",
+	border: "1px solid rgba(17, 24, 39, 0.08)",
+});
+
+globalStyle(`html[data-theme="dark"] .${markdownContent} code`, {
+	backgroundColor: "rgba(255, 255, 255, 0.06)",
+	color: "rgba(255, 255, 255, 0.92)",
 });
 
 // --- ADR LINK ---
@@ -707,6 +834,15 @@ export const adrLink = style([
 				borderColor: "var(--quadrant-color-solid)",
 				transform: "translateX(4px)",
 			},
+			'html[data-theme="light"] &': {
+				background: "rgba(17, 24, 39, 0.06)",
+				color: "rgba(17, 24, 39, 0.88)",
+			},
+			'html[data-theme="light"] &:hover': {
+				background: "rgba(17, 24, 39, 0.1)",
+				borderColor: "var(--quadrant-color-solid)",
+				transform: "translateX(4px)",
+			},
 		},
 	},
 ]);
@@ -725,6 +861,15 @@ export const adrPending = style([
 		textDecoration: "none",
 		borderLeft: "4px solid var(--quadrant-color-solid)",
 		cursor: "not-allowed",
+		selectors: {
+			'html[data-theme="light"] &': {
+				background: "rgba(17, 24, 39, 0.06)",
+				color: "rgba(17, 24, 39, 0.88)",
+				borderTop: "1px solid rgba(17, 24, 39, 0.08)",
+				borderRight: "1px solid rgba(17, 24, 39, 0.08)",
+				borderBottom: "1px solid rgba(17, 24, 39, 0.08)",
+			},
+		},
 	},
 ]);
 

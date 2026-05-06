@@ -1,7 +1,9 @@
 ---
+// biome-ignore lint/correctness/noUnusedImports: styles are referenced in the Astro template markup below.
 import * as styles from "./ThemeSwitcher.css";
 
 // Define client-side script for theme switching
+// biome-ignore lint/correctness/noUnusedVariables: the string is injected into the inline Astro script below.
 const themeScript = `
   function setTheme(theme) {
     const event = new CustomEvent('theme-change', { detail: { theme } });

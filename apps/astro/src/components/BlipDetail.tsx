@@ -1,3 +1,4 @@
+import { CornerUpRight } from "pixelarticons/react/CornerUpRight";
 import type { CSSProperties } from "react";
 import * as styles from "~components/BlipDetail.css";
 import type { Blip } from "~types/radar-types";
@@ -21,6 +22,12 @@ const movementClassByType = {
 	stay: styles.movementStay,
 } as const;
 
+const detailsIconProps = {
+	"aria-hidden": true,
+	height: 16,
+	width: 16,
+} as const;
+
 export const BlipDetail = ({ blip, quadrantColor }: BlipDetailProps) => {
 	const quadrantStyle = {
 		"--quadrant-color": quadrantColor,
@@ -35,6 +42,7 @@ export const BlipDetail = ({ blip, quadrantColor }: BlipDetailProps) => {
 
 	return (
 		<div className={styles.root} style={quadrantStyle}>
+			<p className={styles.eyebrow}>Selected blip</p>
 			<h1 className={styles.title}>{blip.name}</h1>
 
 			<div className={styles.description}>
@@ -87,7 +95,11 @@ export const BlipDetail = ({ blip, quadrantColor }: BlipDetailProps) => {
 			)}
 
 			<a href={getBlipPath(blip)} className={styles.detailsLink}>
-				{blip.name} full details
+				<span className={styles.detailsLinkText}>View full details</span>
+				<CornerUpRight
+					{...detailsIconProps}
+					className={styles.detailsLinkIcon}
+				/>
 			</a>
 		</div>
 	);

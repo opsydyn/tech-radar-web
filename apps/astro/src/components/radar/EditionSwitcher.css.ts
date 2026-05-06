@@ -5,6 +5,7 @@
  */
 
 import { style } from "@vanilla-extract/css";
+import { hardEdgeRadius } from "../../styles/theme.css";
 
 export const container = style({
 	width: "100%",
@@ -18,7 +19,7 @@ export const select = style({
 	fontSize: "0.92rem",
 	fontWeight: 700,
 	border: "1px solid rgba(255, 255, 255, 0.14)",
-	borderRadius: "0.9rem",
+	borderRadius: hardEdgeRadius,
 	backgroundColor: "rgba(3, 7, 18, 0.78)",
 	color: "rgba(255, 255, 255, 0.96)",
 	cursor: "pointer",

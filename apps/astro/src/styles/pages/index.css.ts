@@ -1,5 +1,6 @@
 import { style } from "@vanilla-extract/css";
 import { vars } from "../cyberpunk.css";
+import { hardEdgeRadius } from "../theme.css";
 
 export const flexContainer = style({
 	display: "flex",
@@ -37,7 +38,7 @@ export const adrButton = style({
 	fontWeight: "bold",
 	fontSize: "1.2rem",
 	textDecoration: "none",
-	borderRadius: "8px",
+	borderRadius: hardEdgeRadius,
 	border: "2px solid #58d3ff",
 	boxShadow: "0 0 15px rgba(88, 211, 255, 0.5)",
 	transition: "all 0.3s ease",
