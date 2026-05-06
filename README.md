@@ -6,6 +6,15 @@ A static, Astro-powered technology radar for publishing edition-based technology
 
 The project has been simplified around a crisp static-site workflow: content lives in Astro content collections, the radar renders as a React/Visx island, and the site is built and deployed as static assets.
 
+## Documentation
+
+If you want the documentation front door first, start here:
+
+- [Documentation landing page](./docs/README.md)
+- [Flue documentation landing page](./docs/flue/README.md)
+
+The Flue docs use the [Diátaxis](https://diataxis.fr/) model, with separate tutorial, how-to, reference, and explanation pages.
+
 ## Current scope
 
 This repository currently focuses on:
@@ -16,6 +25,7 @@ This repository currently focuses on:
 - Visx-powered radar visualization
 - Vanilla Extract styles
 - fuzzy search with Fuse.js
+- a Flue-powered edition authoring agent in `tooling/tech-radar-edition-agent`
 - GitHub Pages deployment
 - Moon task orchestration
 - Bun package management
@@ -29,16 +39,39 @@ Out of scope for the simplified version:
 - document freshness API endpoints
 - full-stack intelligence services
 
+## Flue edition agent docs
+
+For the full Flue docs map, start at the Flue landing page:
+
+- [Flue documentation landing page](./docs/flue/README.md)
+
+Direct links to the Flue doc set:
+
+- [Tutorial: Run your first local edition draft](./docs/flue/tutorial-run-your-first-local-edition-draft.md)
+- [How to run the edition agent](./docs/flue/how-to-run-the-edition-agent.md)
+- [Flue reference](./docs/flue/reference.md)
+- [Why the repo uses Flue this way](./docs/flue/explanation.md)
+
+The Flue slice is intentionally narrow: it supports authoring reviewable edition
+drafts and provenance-aware narrative, while the published site remains static.
+
 ## Repository structure
 
 ```text
 .
 ├── apps/
 │   └── astro/              # Static Astro tech radar application
+├── docs/
+│   ├── README.md           # Docs landing page
+│   └── flue/               # Root-level Flue docs using Diátaxis
 ├── packages/
 │   ├── biome-config/       # Shared Biome configuration package
 │   └── tsconfig/           # Shared TypeScript configuration package
-├── tooling/                # Workspace tooling packages/scripts
+├── tooling/
+│   └── tech-radar-edition-agent/
+│       ├── .flue/          # Flue agents and roles
+│       ├── .agents/        # Flue skill markdown
+│       └── package.json    # Flue tooling package scripts/deps
 ├── .github/workflows/      # GitHub Actions workflows
 ├── .make/                  # Make target definitions
 ├── Makefile                # Developer command shortcuts
@@ -143,6 +176,22 @@ bun run test
 bun run test:watch
 bun run prettier
 bun run sherif
+```
+
+### Flue edition agent
+
+From `tooling/tech-radar-edition-agent`:
+
+```bash
+bun run flue:dev       # Start Flue local development mode with ../../.env
+bun run flue:run       # Run the edition agent once with the default local payload
+bun run typecheck      # Type-check the Flue tooling package
+```
+
+At the workspace root, the Flue CLI is available through the installed dev dependency:
+
+```bash
+flue run edition --target node --id local-edition --payload '{}'
 ```
 
 ### Astro app scripts
@@ -275,7 +324,8 @@ The current direction is a static-only tech radar:
 - fast GitHub Pages deployment
 - minimal runtime complexity
 - no database or server API dependency
-- no sidecar tooling
+- no runtime sidecar services
+- AI assistance limited to offline authoring/tooling where it produces reviewable artifacts
 
 Future work should continue to simplify the domain model, especially edition movement. The preferred direction is:
 
