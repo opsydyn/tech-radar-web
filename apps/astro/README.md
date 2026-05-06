@@ -49,11 +49,22 @@ Content is defined with Astro content collections in `src/content`.
 
 ```text
 src/content/
-├── blip/      # Technology blip MDX documents
-└── edition/   # Tech radar edition MDX documents
+├── blip/      # Canonical technology blip MDX documents
+├── edition/   # Legacy tech radar edition MDX documents
+└── editions/  # Edition-owned snapshot folders and blip state
 ```
 
-The current implementation uses blip `move` metadata plus edition dates to determine which blips appear in each edition. The planned simplification is edition-owned snapshots, where each edition explicitly owns the blips and rings it contains.
+Current behavior is hybrid:
+
+- the radar homepage prefers edition-owned snapshots from `src/content/editions/`
+- each edition snapshot owns the blips and rings it contains
+- movement is derived by comparing adjacent edition snapshots
+- the app still supports a legacy fallback using blip `move` metadata plus
+	`src/content/edition/` dates when snapshot editions are absent
+- some blip detail/history views still read legacy `ring` and `move` fields
+
+So edition alignment is underway and live in the main radar pipeline, but the
+full domain model has not been simplified end-to-end yet.
 
 ## Key folders
 

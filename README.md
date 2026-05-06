@@ -58,7 +58,8 @@ apps/astro/
 │   ├── components/         # Astro and React components
 │   ├── content/            # Astro content collections
 │   │   ├── blip/           # Technology blip MDX documents
-│   │   └── edition/        # Edition MDX documents
+│   │   ├── edition/        # Legacy edition MDX documents
+│   │   └── editions/       # Edition-owned snapshot folders and blip state
 │   ├── hooks/              # React hooks
 │   ├── layouts/            # Astro layouts
 │   ├── pages/              # Static routes
@@ -185,9 +186,13 @@ move:
 ---
 ```
 
+Today, `ring` and `move` still exist on canonical blips for compatibility with
+legacy edition rendering and blip detail/history views. They are no longer the
+only source of truth for the radar when edition snapshots are present.
+
 ### Editions
 
-Editions live in:
+Legacy editions live in:
 
 ```text
 apps/astro/src/content/edition/
@@ -205,7 +210,34 @@ date: "2026-05-05"
 ---
 ```
 
-The current implementation filters blips into editions using each blip's `move` dates and the selected edition date. A planned simplification is to move toward edition-owned blip snapshots, where each edition folder explicitly declares the blips and rings for that edition.
+Edition-owned snapshots live in:
+
+```text
+apps/astro/src/content/editions/
+├── 2025-09/
+│   ├── index.mdx
+│   └── blips/
+└── 2026-05/
+    ├── index.mdx
+    └── blips/
+```
+
+Each edition snapshot folder contains:
+
+- an `index.mdx` document for edition metadata
+- a `blips/` directory whose entries declare edition-owned ring/presence facts
+
+Current behavior:
+
+- the radar homepage prefers edition-owned snapshots from `src/content/editions/`
+- movement is derived by comparing adjacent edition snapshots
+- if no snapshot editions exist, the app still falls back to the legacy
+  `src/content/edition/` + blip `move` date model
+- some detail/history views still read legacy `ring` and `move` data from the
+  canonical blip model
+
+So the codebase is now **partially aligned** with the preferred edition model,
+but the migration is not fully complete yet.
 
 ## Deployment
 
@@ -248,5 +280,8 @@ The current direction is a static-only tech radar:
 Future work should continue to simplify the domain model, especially edition movement. The preferred direction is:
 
 > A blip's ring and presence are edition-owned facts. Movement is derived by comparing adjacent edition snapshots.
+
+That direction is already active in the radar edition pipeline, but not yet
+fully applied across every page and type in the app.
 
 [![Built with Astro](https://astro.badg.es/v2/built-with-astro/small.svg)](https://astro.build)
