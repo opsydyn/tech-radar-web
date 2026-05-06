@@ -20,6 +20,8 @@ import {
 	clearRadarSearchTerm,
 	radarSearchableBlips,
 	radarSearchTerm,
+	requestRadarBlipFocus,
+	requestRadarFirstMatchFocus,
 	setRadarSearchTerm,
 } from "./radarSearchStore";
 
@@ -84,14 +86,50 @@ export const RadarTopNavControls = () => {
 		[],
 	);
 
-	const selectSuggestion = useCallback((name: string) => {
+	const focusFirstMatchingBlip = useCallback(() => {
+		setActiveSuggestionIndex(-1);
+		setIsSearchFocused(false);
+		requestRadarFirstMatchFocus();
+	}, []);
+
+	const selectSuggestion = useCallback((name: string, blipId?: string) => {
 		setRadarSearchTerm(name);
 		setActiveSuggestionIndex(-1);
 		setIsSearchFocused(false);
+
+		if (blipId) {
+			requestRadarBlipFocus(blipId);
+			return;
+		}
+
+		requestRadarFirstMatchFocus();
 	}, []);
 
 	const handleSearchKeyDown = useCallback(
 		(event: KeyboardEvent<HTMLInputElement>) => {
+			if (event.key === "Enter" && hasSearchTerm) {
+				event.preventDefault();
+
+				if (shouldShowSuggestions && activeSuggestionIndex >= 0) {
+					const activeSuggestion = suggestions[activeSuggestionIndex]?.item;
+					selectSuggestion(
+						activeSuggestion?.name ?? searchTerm,
+						activeSuggestion?.id,
+					);
+					return;
+				}
+
+				if (shouldShowSuggestions && suggestions[0]?.item.id) {
+					requestRadarBlipFocus(suggestions[0].item.id);
+					setActiveSuggestionIndex(-1);
+					setIsSearchFocused(false);
+					return;
+				}
+
+				focusFirstMatchingBlip();
+				return;
+			}
+
 			if (!shouldShowSuggestions) {
 				if (event.key === "Escape") {
 					setActiveSuggestionIndex(-1);
@@ -117,14 +155,6 @@ export const RadarTopNavControls = () => {
 				return;
 			}
 
-			if (event.key === "Enter" && activeSuggestionIndex >= 0) {
-				event.preventDefault();
-				selectSuggestion(
-					suggestions[activeSuggestionIndex]?.item.name ?? searchTerm,
-				);
-				return;
-			}
-
 			if (event.key === "Escape") {
 				event.preventDefault();
 				setActiveSuggestionIndex(-1);
@@ -133,6 +163,8 @@ export const RadarTopNavControls = () => {
 		},
 		[
 			activeSuggestionIndex,
+			focusFirstMatchingBlip,
+			hasSearchTerm,
 			searchTerm,
 			selectSuggestion,
 			shouldShowSuggestions,
@@ -165,6 +197,7 @@ export const RadarTopNavControls = () => {
 						onKeyDown={handleSearchKeyDown}
 						role="combobox"
 						aria-autocomplete="list"
+						aria-describedby="radar-search-enter-hint"
 						aria-expanded={showSuggestions || showEmptyState}
 						aria-haspopup="listbox"
 						aria-label="Search radar blips"
@@ -175,6 +208,10 @@ export const RadarTopNavControls = () => {
 								: undefined
 						}
 					/>
+					<span id="radar-search-enter-hint" className={styles.searchHint}>
+						<kbd className={styles.searchHintKey}>Enter</kbd>{" "}
+						<span className={styles.searchHintText}>to fly</span>
+					</span>
 					{hasSearchTerm && (
 						<button
 							type="button"
@@ -220,7 +257,7 @@ export const RadarTopNavControls = () => {
 										onMouseDown={(event) => {
 											event.preventDefault();
 										}}
-										onClick={() => selectSuggestion(item.name)}
+										onClick={() => selectSuggestion(item.name, item.id)}
 									>
 										<span className={styles.suggestionTitle}>
 											{renderHighlightedText(item.name, highlights.name)}

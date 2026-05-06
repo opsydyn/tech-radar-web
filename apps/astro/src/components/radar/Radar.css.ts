@@ -384,6 +384,12 @@ const radarLoadingSweepAnimation = keyframes({
 	to: { strokeDashoffset: -244, opacity: 0.2 },
 });
 
+const radarBlipFocusPulse = keyframes({
+	"0%": { opacity: 0.95, transform: "scale(0.78)" },
+	"55%": { opacity: 0.5, transform: "scale(1.65)" },
+	"100%": { opacity: 0, transform: "scale(2.15)" },
+});
+
 export const radarLoadingOverlay = style({
 	position: "absolute",
 	inset: 0,
@@ -706,16 +712,41 @@ export const blipTooltipLabel = style({
 
 export const radarBlipLayer = style({});
 
+export const radarRelationshipOverlay = style({
+	opacity: 0.92,
+	pointerEvents: "none",
+});
+
+export const radarBlipFocusRing = style({
+	animation: `${radarBlipFocusPulse} 900ms ease-out 2`,
+	filter: "url(#radar-blip-outer-glow)",
+	transformBox: "fill-box",
+	transformOrigin: "center",
+	willChange: "opacity, transform",
+	"@media": {
+		"(prefers-reduced-motion: reduce)": {
+			animation: "none",
+		},
+	},
+});
+
 globalStyle(`${radarBlipLayer} a`, {
 	transition: "opacity 120ms ease-out",
 });
 
 globalStyle(`${radarBlipLayer}[data-hovering="true"] a`, {
-	opacity: 0.3,
+	opacity: 0.22,
 });
 
-globalStyle(`${radarBlipLayer}[data-hovering="true"] a[data-hovered="true"]`, {
-	opacity: 1,
+globalStyle(
+	`${radarBlipLayer}[data-hovering="true"] a[data-hovered="true"], ${radarBlipLayer}[data-hovering="true"] a[data-focused="true"], ${radarBlipLayer}[data-hovering="true"] a[data-relationship-source="true"]`,
+	{
+		opacity: 1,
+	},
+);
+
+globalStyle(`${radarBlipLayer}[data-hovering="true"] a[data-related="true"]`, {
+	opacity: 0.92,
 });
 
 // Theme indicator for displaying current theme state

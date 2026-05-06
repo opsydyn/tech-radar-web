@@ -52,6 +52,7 @@ const toEditionBlipSnapshot = ({
 	blipId: data.blip,
 	notes: data.notes,
 	quadrant: data.quadrant,
+	relatedBlips: data.relatedBlips,
 	ring: data.ring,
 	status: data.status,
 });

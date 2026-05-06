@@ -141,6 +141,7 @@ const EditionBlipSnapshotSchema = z
 		quadrant: QuadrantEnum.optional(),
 		status: EditionBlipStatusEnum.default("active"),
 		notes: z.string().optional(),
+		relatedBlips: z.array(RelatedBlipSchema).optional(),
 	})
 	.superRefine((snapshot, ctx) => {
 		const activeSnapshotMissingRing =

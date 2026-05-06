@@ -276,6 +276,10 @@ Each edition snapshot folder contains:
 - an `index.mdx` document for edition metadata
 - a `blips/` directory whose entries declare edition-owned ring/presence facts
 
+Edition snapshot blips can also carry edition-local `relatedBlips` metadata for
+the interactive radar. That keeps relationship hints aligned with the published
+edition instead of treating them as globally timeless facts.
+
 Current behavior:
 
 - the radar homepage prefers edition-owned snapshots from `src/content/editions/`
@@ -287,6 +291,40 @@ Current behavior:
 
 So the codebase is now **partially aligned** with the preferred edition model,
 but the migration is not fully complete yet.
+
+### Related blips roadmap
+
+The intended direction for `relatedBlips` is:
+
+- relationships shown on the radar should be **edition-owned facts** declared in
+  `src/content/editions/*/blips/*.mdx`
+- the published site should stay static; relationship inference happens during
+  authoring, not at runtime
+- humans remain the final reviewers of every relationship written to content
+
+Planned Flue-assisted workflow:
+
+1. Flue reads the candidate edition blips, their rings, quadrants, ADR signals,
+   notes, and any existing relationship graph.
+2. Flue proposes `relatedBlips` entries with:
+   - `blipId`
+   - `relationshipType`
+   - a short `reason`
+   - optional `context`
+   - whether the link should be `bidirectional`
+3. The proposal is written back as reviewable MDX changes inside the edition
+   snapshot, not as hidden runtime state.
+4. Editors review, trim, rewrite, or reject those suggestions before publish.
+
+Near-term roadmap:
+
+- seed a small set of high-value relationships in each edition snapshot
+- teach Flue to suggest relationship candidates from edition context
+- add consistency checks for missing reciprocal links and broken target IDs
+- generate lightweight review summaries so editors can audit why a relationship
+  was suggested
+- eventually let Flue refresh relationship drafts when a new edition is created
+  or copied forward
 
 ## Deployment
 

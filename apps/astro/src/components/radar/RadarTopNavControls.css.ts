@@ -138,10 +138,11 @@ export const searchInput = style({
 	background: "transparent",
 	border: "none",
 	color: "rgba(255, 255, 255, 0.94)",
+	flex: 1,
 	fontFamily: "'IBM Plex Mono', monospace",
 	fontSize: "0.875rem",
 	minWidth: 0,
-	width: "16rem",
+	width: "auto",
 	outline: "none",
 	selectors: {
 		"&:focus": {
@@ -164,6 +165,54 @@ export const searchInput = style({
 			width: "100%",
 		},
 	},
+});
+
+export const searchHint = style({
+	display: "inline-flex",
+	alignItems: "center",
+	gap: "0.32rem",
+	flexShrink: 0,
+	color: "rgba(255, 255, 255, 0.52)",
+	fontFamily: "'IBM Plex Mono', monospace",
+	fontSize: "0.66rem",
+	fontWeight: 700,
+	letterSpacing: "0.05em",
+	lineHeight: 1,
+	pointerEvents: "none",
+	textTransform: "uppercase",
+	selectors: {
+		'[data-theme="light"] &': {
+			color: "rgba(0, 0, 0, 0.46)",
+		},
+	},
+	"@media": {
+		"screen and (max-width: 560px)": {
+			display: "none",
+		},
+	},
+});
+
+export const searchHintKey = style({
+	background: "rgba(255, 255, 255, 0.1)",
+	border: "1px solid rgba(255, 255, 255, 0.18)",
+	borderRadius: hardEdgeRadius,
+	boxShadow: "inset 0 -1px 0 rgba(0, 0, 0, 0.22)",
+	color: "rgba(255, 255, 255, 0.82)",
+	font: "inherit",
+	letterSpacing: "0.02em",
+	padding: "0.18rem 0.36rem",
+	selectors: {
+		'[data-theme="light"] &': {
+			background: "rgba(0, 0, 0, 0.06)",
+			borderColor: "rgba(0, 0, 0, 0.12)",
+			boxShadow: "inset 0 -1px 0 rgba(0, 0, 0, 0.08)",
+			color: "rgba(0, 0, 0, 0.66)",
+		},
+	},
+});
+
+export const searchHintText = style({
+	whiteSpace: "nowrap",
 });
 
 export const clearButton = style({

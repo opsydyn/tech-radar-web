@@ -1,4 +1,4 @@
-import type { Blip } from "~types/radar-types";
+import type { Blip, RelatedBlip } from "~types/radar-types";
 
 type Ring = Blip["ring"];
 type Quadrant = Blip["quadrant"];
@@ -19,6 +19,7 @@ export type EditionBlipSnapshot = {
 	readonly quadrant?: Quadrant;
 	readonly status: EditionBlipStatus;
 	readonly notes?: string;
+	readonly relatedBlips?: RelatedBlip[];
 };
 
 export type ActiveEditionBlipSnapshot = EditionBlipSnapshot & {
@@ -159,6 +160,7 @@ export const buildRadarEditionView = ({
 				movement,
 				previousRing,
 				quadrant: currentSnapshot.quadrant ?? canonicalBlip.quadrant,
+				relatedBlips: currentSnapshot.relatedBlips,
 				ring: currentSnapshot.ring,
 			},
 		];

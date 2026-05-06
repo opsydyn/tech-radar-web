@@ -73,7 +73,6 @@ const editions = hasSnapshotEditions ? snapshotEditions : legacyEditions;
 		<RadarSidebar editions={editions} />
 		<div class:list={[styles.chartSection]}>
 			<Radar
-				blips={blips}
 				editions={editions}
 				editionViews={hasSnapshotEditions ? snapshotEditionViews : undefined}
 				client:load

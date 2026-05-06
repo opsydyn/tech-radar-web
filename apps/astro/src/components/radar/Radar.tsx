@@ -4,13 +4,17 @@ import { localPoint } from "@visx/event";
 import { Group } from "@visx/group";
 import { useTooltipInPortal } from "@visx/tooltip";
 import { Zoom } from "@visx/zoom";
-import type { PinchDelta, TransformMatrix } from "@visx/zoom/lib/types";
+import type {
+	PinchDelta,
+	ProvidedZoom,
+	TransformMatrix,
+} from "@visx/zoom/lib/types";
 import type {
 	CSSProperties,
 	MouseEvent,
 	WheelEvent as ReactWheelEvent,
 } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MessageDrawer from "~components/MessageDrawer";
 import { RadarChart } from "~components/radar/BaseChart";
 import { selectedEdition } from "~components/radar/EditionSwitcher";
@@ -21,6 +25,7 @@ import {
 	getRadarBlipColor,
 	MiniMapBlip,
 	RadarBlip,
+	type RadarBlipDetailLevel,
 } from "~components/radar/RadarBlip";
 import { RadarControls } from "~components/radar/RadarControls";
 import { RadarRings } from "~components/radar/RadarRings";
@@ -29,6 +34,7 @@ import {
 	clearRadarSearchableBlips,
 	clearRadarTagFilterSourceBlips,
 	radarAdrFilter,
+	radarFocusRequest,
 	radarSearchTerm,
 	radarTagFilter,
 	setRadarSearchableBlips,
@@ -45,9 +51,13 @@ import {
 } from "~hooks/useBlipSearch";
 import { miniMapState, radarConfig } from "~stores/radar-store";
 import { theme } from "~stores/theme-store";
-import type { Blip, BlipWithPosition } from "~types/radar-types";
+import type {
+	Blip,
+	BlipWithPosition,
+	RelationshipType,
+} from "~types/radar-types";
 import type { Edition } from "~utils/editionHelpers";
-import { getBlipsForEdition, getEditionIdentity } from "~utils/editionHelpers";
+import { getEditionIdentity } from "~utils/editionHelpers";
 import type { RadarEditionViewWithMetadata } from "~utils/editionSnapshotAdapter";
 
 import * as styles from "./Radar.css";
@@ -187,6 +197,57 @@ const radarGridDimensions = {
 	major: 64,
 } as const;
 
+const radarDetailZoomThresholds = {
+	label: 1.5,
+	detail: 2.05,
+} as const;
+
+const focusZoomScale = 2.12;
+const focusAnimationDurationMs = 360;
+const focusedBlipPulseDurationMs = 1400;
+const relationshipLabelCharacterWidth = 6.5;
+const relationshipLabelHorizontalPadding = 14;
+
+const emptyRelatedBlipIds = new Set<string>();
+
+const relationshipTypeLabels = {
+	alternative: "Alternative",
+	complement: "Complements",
+	migration: "Migration",
+	prerequisite: "Prerequisite",
+	evolution: "Evolution",
+	comparison: "Compare",
+	ecosystem: "Ecosystem",
+} as const satisfies Record<RelationshipType, string>;
+
+const relationshipTypeColors = {
+	alternative: "rgba(251, 191, 36, 0.92)",
+	complement: "rgba(94, 234, 212, 0.92)",
+	migration: "rgba(248, 113, 113, 0.92)",
+	prerequisite: "rgba(147, 197, 253, 0.92)",
+	evolution: "rgba(192, 132, 252, 0.92)",
+	comparison: "rgba(244, 114, 182, 0.92)",
+	ecosystem: "rgba(134, 239, 172, 0.92)",
+} as const satisfies Record<RelationshipType, string>;
+
+const radarDetailLevelLabelScale = {
+	compact: 1,
+	label: 1 / radarDetailZoomThresholds.label,
+	detail: 1 / radarDetailZoomThresholds.detail,
+} as const satisfies Record<RadarBlipDetailLevel, number>;
+
+const getRadarBlipDetailLevel = (zoomScale: number): RadarBlipDetailLevel => {
+	if (zoomScale >= radarDetailZoomThresholds.detail) {
+		return "detail";
+	}
+
+	if (zoomScale >= radarDetailZoomThresholds.label) {
+		return "label";
+	}
+
+	return "compact";
+};
+
 const getSkeletonBlipStyle = (blip: SkeletonBlip): CSSProperties => ({
 	animationDelay: `${blip.delay}ms`,
 	animationDuration: `${blip.duration}ms`,
@@ -196,6 +257,219 @@ const createTooltipPosition = (event: MouseEvent<Element>) => ({
 	left: event.clientX + 12,
 	top: event.clientY - 18,
 });
+
+type RadarRelationshipLink = {
+	readonly id: string;
+	readonly relationshipType: RelationshipType;
+	readonly sourceBlip: BlipWithPosition;
+	readonly targetBlip: BlipWithPosition;
+};
+
+type ActiveRadarRelationships = {
+	readonly sourceBlip: BlipWithPosition;
+	readonly links: readonly RadarRelationshipLink[];
+	readonly relatedBlipIds: ReadonlySet<string>;
+};
+
+const getRelationshipLabelWidth = (label: string): number =>
+	Math.max(
+		86,
+		label.length * relationshipLabelCharacterWidth +
+			relationshipLabelHorizontalPadding,
+	);
+
+const createBlipsById = (
+	blips: readonly BlipWithPosition[],
+): ReadonlyMap<string, BlipWithPosition> =>
+	blips.reduce((blipsById, blip) => blipsById.set(blip.id, blip), new Map());
+
+const createDirectRelationshipLinks = (
+	sourceBlip: BlipWithPosition,
+	blipsById: ReadonlyMap<string, BlipWithPosition>,
+): readonly RadarRelationshipLink[] =>
+	(sourceBlip.relatedBlips ?? []).flatMap((relationship) => {
+		const targetBlip = blipsById.get(relationship.blipId);
+		const isSelfRelationship = relationship.blipId === sourceBlip.id;
+
+		if (!targetBlip || isSelfRelationship) {
+			return [];
+		}
+
+		return [
+			{
+				id: `${sourceBlip.id}-${targetBlip.id}-${relationship.relationshipType}-direct`,
+				relationshipType: relationship.relationshipType,
+				sourceBlip,
+				targetBlip,
+			},
+		];
+	});
+
+const createIncomingBidirectionalRelationshipLinks = (
+	sourceBlip: BlipWithPosition,
+	blips: readonly BlipWithPosition[],
+): readonly RadarRelationshipLink[] =>
+	blips.flatMap((candidateBlip) =>
+		(candidateBlip.relatedBlips ?? [])
+			.filter(
+				(relationship) =>
+					relationship.blipId === sourceBlip.id &&
+					relationship.bidirectional &&
+					candidateBlip.id !== sourceBlip.id,
+			)
+			.map((relationship) => ({
+				id: `${sourceBlip.id}-${candidateBlip.id}-${relationship.relationshipType}-incoming`,
+				relationshipType: relationship.relationshipType,
+				sourceBlip,
+				targetBlip: candidateBlip,
+			})),
+	);
+
+const dedupeRelationshipLinks = (
+	links: readonly RadarRelationshipLink[],
+): readonly RadarRelationshipLink[] => {
+	const seenRelationshipKeys = new Set<string>();
+
+	return links.filter((link) => {
+		const relationshipKey = `${link.targetBlip.id}:${link.relationshipType}`;
+
+		if (seenRelationshipKeys.has(relationshipKey)) {
+			return false;
+		}
+
+		seenRelationshipKeys.add(relationshipKey);
+		return true;
+	});
+};
+
+const createActiveRadarRelationships = (
+	sourceBlipId: string | null,
+	blips: readonly BlipWithPosition[],
+): ActiveRadarRelationships | null => {
+	if (sourceBlipId === null) {
+		return null;
+	}
+
+	const blipsById = createBlipsById(blips);
+	const sourceBlip = blipsById.get(sourceBlipId);
+
+	if (!sourceBlip) {
+		return null;
+	}
+
+	const links = dedupeRelationshipLinks([
+		...createDirectRelationshipLinks(sourceBlip, blipsById),
+		...createIncomingBidirectionalRelationshipLinks(sourceBlip, blips),
+	]);
+
+	if (links.length === 0) {
+		return null;
+	}
+
+	return {
+		links,
+		relatedBlipIds: new Set(links.map(({ targetBlip }) => targetBlip.id)),
+		sourceBlip,
+	};
+};
+
+type RadarTransformConstraint = ReturnType<
+	typeof createRadarTransformConstraint
+>;
+
+const easeOutCubic = (progress: number) => 1 - (1 - progress) ** 3;
+
+const interpolateTransformMatrix = (
+	from: TransformMatrix,
+	to: TransformMatrix,
+	progress: number,
+): TransformMatrix => {
+	const easedProgress = easeOutCubic(progress);
+	const interpolate = (fromValue: number, toValue: number) =>
+		fromValue + (toValue - fromValue) * easedProgress;
+
+	return {
+		scaleX: interpolate(from.scaleX, to.scaleX),
+		scaleY: interpolate(from.scaleY, to.scaleY),
+		skewX: interpolate(from.skewX, to.skewX),
+		skewY: interpolate(from.skewY, to.skewY),
+		translateX: interpolate(from.translateX, to.translateX),
+		translateY: interpolate(from.translateY, to.translateY),
+	};
+};
+
+const createFocusedBlipTransform = ({
+	blip,
+	centerX,
+	centerY,
+	height,
+	width,
+	currentTransform,
+}: {
+	readonly blip: BlipWithPosition;
+	readonly centerX: number;
+	readonly centerY: number;
+	readonly height: number;
+	readonly width: number;
+	readonly currentTransform: TransformMatrix;
+}): TransformMatrix => {
+	const targetScale = clamp(
+		Math.max(currentTransform.scaleX, focusZoomScale),
+		minZoomScale,
+		maxZoomScale,
+	);
+	const focusedX = centerX + blip.position.x;
+	const focusedY = centerY + blip.position.y;
+
+	return {
+		scaleX: targetScale,
+		scaleY: targetScale,
+		skewX: 0,
+		skewY: 0,
+		translateX: width / 2 - focusedX * targetScale,
+		translateY: height / 2 - focusedY * targetScale,
+	};
+};
+
+const animateRadarTransform = ({
+	from,
+	to,
+	setTransformMatrix,
+	onComplete,
+}: {
+	readonly from: TransformMatrix;
+	readonly to: TransformMatrix;
+	readonly setTransformMatrix: (transform: TransformMatrix) => void;
+	readonly onComplete?: () => void;
+}): (() => void) => {
+	let animationFrameId: number | null = null;
+	const startedAt = performance.now();
+
+	const step = (currentTime: number) => {
+		const progress = clamp(
+			(currentTime - startedAt) / focusAnimationDurationMs,
+			0,
+			1,
+		);
+
+		setTransformMatrix(interpolateTransformMatrix(from, to, progress));
+
+		if (progress < 1) {
+			animationFrameId = requestAnimationFrame(step);
+			return;
+		}
+
+		onComplete?.();
+	};
+
+	animationFrameId = requestAnimationFrame(step);
+
+	return () => {
+		if (animationFrameId !== null) {
+			cancelAnimationFrame(animationFrameId);
+		}
+	};
+};
 
 const RadarBlipTooltip = ({ blip }: { blip: BlipWithPosition }) => {
 	const blipColor = getRadarBlipColor(blip.quadrant);
@@ -220,6 +494,274 @@ const RadarBlipTooltip = ({ blip }: { blip: BlipWithPosition }) => {
 			</div>
 		</div>
 	);
+};
+
+const renderRadarRelationshipLink = ({
+	labelScale,
+	link,
+	shouldShowRelationshipLabels,
+}: {
+	readonly labelScale: number;
+	readonly link: RadarRelationshipLink;
+	readonly shouldShowRelationshipLabels: boolean;
+}) => {
+	const { id, relationshipType, sourceBlip, targetBlip } = link;
+	const label = relationshipTypeLabels[relationshipType];
+	const labelWidth = getRelationshipLabelWidth(label);
+	const labelColor = relationshipTypeColors[relationshipType];
+	const midpointX = (sourceBlip.position.x + targetBlip.position.x) / 2;
+	const midpointY = (sourceBlip.position.y + targetBlip.position.y) / 2;
+
+	return (
+		<g key={id}>
+			<line
+				x1={sourceBlip.position.x}
+				y1={sourceBlip.position.y}
+				x2={targetBlip.position.x}
+				y2={targetBlip.position.y}
+				stroke={labelColor}
+				strokeWidth={2.2}
+				strokeLinecap="square"
+				strokeDasharray="7 7"
+			/>
+			<circle
+				cx={targetBlip.position.x}
+				cy={targetBlip.position.y}
+				r={18}
+				fill="none"
+				stroke={labelColor}
+				strokeWidth={2.4}
+			/>
+			{shouldShowRelationshipLabels && (
+				<g
+					transform={`translate(${midpointX - labelWidth / 2}, ${
+						midpointY - 10
+					}) scale(${labelScale})`}
+				>
+					<rect
+						x={0}
+						y={-12}
+						width={labelWidth}
+						height={18}
+						rx={0}
+						fill="rgba(2, 6, 23, 0.78)"
+						stroke={labelColor}
+						strokeWidth={1}
+					/>
+					<text
+						x={labelWidth / 2}
+						y={1}
+						fill="rgba(248, 250, 252, 0.94)"
+						fontFamily="IBM Plex Mono, monospace"
+						fontSize={9}
+						fontWeight={800}
+						textAnchor="middle"
+					>
+						{label}
+					</text>
+				</g>
+			)}
+		</g>
+	);
+};
+
+const RadarRelationshipOverlay = memo(function RadarRelationshipOverlay({
+	detailLevel,
+	labelScale,
+	relationships,
+}: {
+	readonly detailLevel: RadarBlipDetailLevel;
+	readonly labelScale: number;
+	readonly relationships: ActiveRadarRelationships | null;
+}) {
+	if (relationships === null) {
+		return null;
+	}
+
+	const shouldShowRelationshipLabels = detailLevel === "detail";
+
+	return (
+		<g className={styles.radarRelationshipOverlay}>
+			{relationships.links.map((link) =>
+				renderRadarRelationshipLink({
+					labelScale,
+					link,
+					shouldShowRelationshipLabels,
+				}),
+			)}
+		</g>
+	);
+});
+
+type RadarBlipCollectionProps = {
+	readonly blips: readonly BlipWithPosition[];
+	readonly detailLevel: RadarBlipDetailLevel;
+	readonly labelScale: number;
+	readonly focusedBlipId: string | null;
+	readonly hoveredBlipId: string | null;
+	readonly relatedBlipIds: ReadonlySet<string>;
+	readonly relationshipSourceBlipId: string | null;
+	readonly onHover: (
+		event: MouseEvent<Element>,
+		blip: BlipWithPosition,
+	) => void;
+	readonly onUnhover: () => void;
+};
+
+const RadarBlipCollection = memo(function RadarBlipCollection({
+	blips,
+	detailLevel,
+	labelScale,
+	focusedBlipId,
+	hoveredBlipId,
+	relatedBlipIds,
+	relationshipSourceBlipId,
+	onHover,
+	onUnhover,
+}: RadarBlipCollectionProps) {
+	return (
+		<>
+			{blips.map((blip) => (
+				<RadarBlip
+					key={blip.id}
+					blip={blip}
+					detailLevel={detailLevel}
+					labelScale={labelScale}
+					isFocused={focusedBlipId === blip.id}
+					isHovered={hoveredBlipId === blip.id}
+					isRelated={relatedBlipIds.has(blip.id)}
+					isRelationshipSource={relationshipSourceBlipId === blip.id}
+					onHover={onHover}
+					onUnhover={onUnhover}
+				/>
+			))}
+		</>
+	);
+});
+
+const MiniMapBlipCollection = memo(function MiniMapBlipCollection({
+	blips,
+}: {
+	readonly blips: readonly BlipWithPosition[];
+}) {
+	return (
+		<>
+			{blips.map((blip) => (
+				<MiniMapBlip key={blip.id} blip={blip} />
+			))}
+		</>
+	);
+});
+
+type RadarZoom = ProvidedZoom<SVGSVGElement> & {
+	readonly transformMatrix: TransformMatrix;
+};
+
+const RadarFocusController = ({
+	activeSearchTerm,
+	blips,
+	centerX,
+	centerY,
+	constrainTransform,
+	height,
+	onFocusedBlipChange,
+	width,
+	zoom,
+}: {
+	readonly activeSearchTerm: string;
+	readonly blips: readonly BlipWithPosition[];
+	readonly centerX: number;
+	readonly centerY: number;
+	readonly constrainTransform: RadarTransformConstraint;
+	readonly height: number;
+	readonly onFocusedBlipChange: (blipId: string | null) => void;
+	readonly width: number;
+	readonly zoom: RadarZoom;
+}) => {
+	const focusRequest = useStore(radarFocusRequest);
+	const handledRequestIdRef = useRef<number | null>(null);
+	const cancelAnimationRef = useRef<(() => void) | null>(null);
+	const pulseTimerRef = useRef<number | null>(null);
+
+	useEffect(() => {
+		if (!activeSearchTerm.trim()) {
+			onFocusedBlipChange(null);
+		}
+	}, [activeSearchTerm, onFocusedBlipChange]);
+
+	useEffect(
+		() => () => {
+			cancelAnimationRef.current?.();
+
+			if (pulseTimerRef.current !== null) {
+				window.clearTimeout(pulseTimerRef.current);
+			}
+		},
+		[],
+	);
+
+	useEffect(() => {
+		if (
+			focusRequest === null ||
+			handledRequestIdRef.current === focusRequest.id
+		) {
+			return;
+		}
+
+		const targetBlip = focusRequest.targetBlipId
+			? blips.find((blip) => blip.id === focusRequest.targetBlipId)
+			: blips[0];
+
+		if (!targetBlip) {
+			return;
+		}
+
+		handledRequestIdRef.current = focusRequest.id;
+		cancelAnimationRef.current?.();
+
+		if (pulseTimerRef.current !== null) {
+			window.clearTimeout(pulseTimerRef.current);
+		}
+
+		const constrainedTargetTransform = constrainTransform(
+			createFocusedBlipTransform({
+				blip: targetBlip,
+				centerX,
+				centerY,
+				currentTransform: zoom.transformMatrix,
+				height,
+				width,
+			}),
+		);
+
+		onFocusedBlipChange(targetBlip.id);
+		cancelAnimationRef.current = animateRadarTransform({
+			from: zoom.transformMatrix,
+			onComplete: () => {
+				cancelAnimationRef.current = null;
+			},
+			setTransformMatrix: zoom.setTransformMatrix,
+			to: constrainedTargetTransform,
+		});
+
+		pulseTimerRef.current = window.setTimeout(() => {
+			onFocusedBlipChange(null);
+			pulseTimerRef.current = null;
+		}, focusedBlipPulseDurationMs);
+	}, [
+		blips,
+		centerX,
+		centerY,
+		constrainTransform,
+		focusRequest,
+		height,
+		onFocusedBlipChange,
+		width,
+		zoom.setTransformMatrix,
+		zoom.transformMatrix,
+	]);
+
+	return null;
 };
 
 const RadarLoadingState = ({
@@ -322,12 +864,11 @@ const usePersistentRadarSidebar = () => {
 };
 
 type RadarProps = {
-	blips: Blip[];
 	editions: Edition[];
 	editionViews?: readonly RadarEditionViewWithMetadata[];
 };
 
-const Radar = ({ blips, editionViews, editions }: RadarProps) => {
+const Radar = ({ editionViews, editions }: RadarProps) => {
 	const { width, height, centerX, centerY } = useStore(radarConfig);
 	const { containerRef, TooltipInPortal } = useTooltipInPortal();
 	const miniMapstate = useStore(miniMapState);
@@ -347,8 +888,8 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 		setBgColor(currentTheme === "light" ? "#ffffff" : "#000000");
 	}, [currentTheme]);
 
-	// 🆕 Edition filtering MUST happen first to prevent duplicate blips
-	// A blip can appear in multiple editions, so we always filter by current edition
+	// Edition snapshots define the visible radar blips. Legacy canonical blips are
+	// only used upstream to enrich those snapshots with shared blip metadata.
 	const currentEdition = useStore(selectedEdition);
 
 	const snapshotEditionBlips = useMemo(
@@ -363,27 +904,24 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 		[currentEdition, editionViews],
 	);
 
-	// Get blips for current edition (or empty array if no edition selected yet)
-	const editionBlips = useMemo(
-		() =>
-			snapshotEditionBlips ??
-			(currentEdition ? getBlipsForEdition(blips, currentEdition) : []),
-		[blips, currentEdition, snapshotEditionBlips],
+	const editionBlips = useMemo<Blip[]>(
+		() => [...(snapshotEditionBlips ?? [])],
+		[snapshotEditionBlips],
 	);
 
-	const adrFilteredEditionBlips = useMemo<Blip[]>(
+	const adrFilteredRadarBlips = useMemo<Blip[]>(
 		() => [...filterBlipsByAdr(editionBlips, activeAdrFilter)],
 		[activeAdrFilter, editionBlips],
 	);
 
-	const tagFilteredEditionBlips = useMemo<Blip[]>(
-		() => [...filterBlipsByTag(adrFilteredEditionBlips, activeTagFilter)],
-		[activeTagFilter, adrFilteredEditionBlips],
+	const tagFilteredRadarBlips = useMemo<Blip[]>(
+		() => [...filterBlipsByTag(adrFilteredRadarBlips, activeTagFilter)],
+		[activeTagFilter, adrFilteredRadarBlips],
 	);
 
 	useEffect(() => {
-		setRadarTagFilterSourceBlips(adrFilteredEditionBlips);
-	}, [adrFilteredEditionBlips]);
+		setRadarTagFilterSourceBlips(adrFilteredRadarBlips);
+	}, [adrFilteredRadarBlips]);
 
 	useEffect(() => {
 		if (activeTagFilter === allRadarTagsValue) {
@@ -391,15 +929,15 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 		}
 
 		if (
-			!getAvailableRadarTags(adrFilteredEditionBlips).includes(activeTagFilter)
+			!getAvailableRadarTags(adrFilteredRadarBlips).includes(activeTagFilter)
 		) {
 			setRadarTagFilter(allRadarTagsValue);
 		}
-	}, [activeTagFilter, adrFilteredEditionBlips]);
+	}, [activeTagFilter, adrFilteredRadarBlips]);
 
 	useEffect(() => {
-		setRadarSearchableBlips(tagFilteredEditionBlips);
-	}, [tagFilteredEditionBlips]);
+		setRadarSearchableBlips(tagFilteredRadarBlips);
+	}, [tagFilteredRadarBlips]);
 
 	useEffect(
 		() => () => {
@@ -410,7 +948,7 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 	);
 
 	const { filteredBlips } = useBlipSearchResults(
-		tagFilteredEditionBlips,
+		tagFilteredRadarBlips,
 		activeSearchTerm,
 	);
 	const tableBlips = useMemo<TableBlip[]>(
@@ -429,11 +967,10 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 		[filteredBlips],
 	);
 
-	// Calculate positions for edition + search filtered blips
+	// Calculate positions for selected-edition + search-filtered blips.
 	const radarBlips = UseBlipPositions(filteredBlips);
 
-	// Minimap also uses edition-filtered blips (not all blips)
-	const miniMapBlips = UseBlipPositions(adrFilteredEditionBlips);
+	const miniMapBlips = UseBlipPositions(adrFilteredRadarBlips);
 	const constrainRadarTransform = useMemo(
 		() => createRadarTransformConstraint(width, height),
 		[width, height],
@@ -457,6 +994,21 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 	}, [isRadarPreparing]);
 
 	const [hoveredBlipId, setHoveredBlipId] = useState<string | null>(null);
+	const [focusedBlipId, setFocusedBlipId] = useState<string | null>(null);
+	const handleFocusedBlipChange = useCallback((blipId: string | null) => {
+		setFocusedBlipId(blipId);
+	}, []);
+	const activeRelationshipSourceBlipId = hoveredBlipId ?? focusedBlipId;
+	const activeRadarRelationships = useMemo(
+		() =>
+			createActiveRadarRelationships(
+				activeRelationshipSourceBlipId,
+				radarBlips,
+			),
+		[activeRelationshipSourceBlipId, radarBlips],
+	);
+	const relatedBlipIds =
+		activeRadarRelationships?.relatedBlipIds ?? emptyRelatedBlipIds;
 	const handleBlipHover = useCallback(
 		(event: MouseEvent<Element>, blip: BlipWithPosition) => {
 			const { left, top } = createTooltipPosition(event);
@@ -492,8 +1044,25 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 			{(zoom) => {
 				// Generate transform string manually
 				const transformString = `matrix(${zoom.transformMatrix.scaleX},${zoom.transformMatrix.skewY},${zoom.transformMatrix.skewX},${zoom.transformMatrix.scaleY},${zoom.transformMatrix.translateX},${zoom.transformMatrix.translateY})`;
+				const zoomScale = zoom.transformMatrix.scaleX;
+				const blipDetailLevel = getRadarBlipDetailLevel(zoomScale);
+				const blipLabelScale = radarDetailLevelLabelScale[blipDetailLevel];
+				const isRelationshipModeActive =
+					activeRelationshipSourceBlipId !== null &&
+					activeRadarRelationships !== null;
 				return (
 					<div className={styles.radarShell}>
+						<RadarFocusController
+							activeSearchTerm={activeSearchTerm}
+							blips={radarBlips}
+							centerX={centerX}
+							centerY={centerY}
+							constrainTransform={constrainRadarTransform}
+							height={height}
+							onFocusedBlipChange={handleFocusedBlipChange}
+							width={width}
+							zoom={zoom}
+						/>
 						<div
 							className={styles.sidebarSpacer}
 							data-open={isSidebarOpen ? "true" : "false"}
@@ -574,11 +1143,13 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 											top={centerY}
 											left={centerX}
 											className={styles.radarBlipLayer}
-											data-hovering={hoveredBlipId ? "true" : undefined}
+											data-hovering={
+												isRelationshipModeActive ? "true" : undefined
+											}
 										>
 											<RadarRings />
 											{/* Global dimming overlay */}
-											{hoveredBlipId && (
+											{isRelationshipModeActive && (
 												<rect
 													x={-centerX}
 													y={-centerY}
@@ -589,6 +1160,11 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 													style={{ pointerEvents: "none" }}
 												/>
 											)}
+											<RadarRelationshipOverlay
+												detailLevel={blipDetailLevel}
+												labelScale={blipLabelScale}
+												relationships={activeRadarRelationships}
+											/>
 											{/* biome-ignore lint/a11y/noStaticElementInteractions: transparent SVG hit layer delegates drag, touch, and zoom gestures for the radar surface. */}
 											<rect
 												x={-centerX}
@@ -611,15 +1187,19 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 													zoom.scale({ scaleX: 1.12, scaleY: 1.12, point });
 												}}
 											/>
-											{radarBlips.map((blip) => (
-												<RadarBlip
-													key={blip.id}
-													blip={blip}
-													isHovered={hoveredBlipId === blip.id}
-													onHover={handleBlipHover}
-													onUnhover={handleBlipUnhover}
-												/>
-											))}
+											<RadarBlipCollection
+												blips={radarBlips}
+												detailLevel={blipDetailLevel}
+												labelScale={blipLabelScale}
+												focusedBlipId={focusedBlipId}
+												hoveredBlipId={hoveredBlipId}
+												relatedBlipIds={relatedBlipIds}
+												relationshipSourceBlipId={
+													activeRelationshipSourceBlipId
+												}
+												onHover={handleBlipHover}
+												onUnhover={handleBlipUnhover}
+											/>
 										</Group>
 									</g>
 									{miniMapstate.showMiniMap && (
@@ -641,9 +1221,7 @@ const Radar = ({ blips, editionViews, editions }: RadarProps) => {
 											<Labels />
 											<Group top={centerY} left={centerX}>
 												<RadarRings />
-												{miniMapBlips.map((blip) => (
-													<MiniMapBlip key={blip.id} blip={blip} />
-												))}
+												<MiniMapBlipCollection blips={miniMapBlips} />
 											</Group>
 											<rect
 												width={width}
