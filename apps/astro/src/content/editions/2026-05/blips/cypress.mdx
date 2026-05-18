@@ -1,17 +1,25 @@
 ---
-blip: "9"
-ring: "Trial"
-status: "active"
-notes: "Visual fixture: moved toward Adopt, so it should render the moved-in arrow."
+blip: '9'
+ring: Trial
+status: active
+notes: 'Visual fixture: moved toward Adopt, so it should render the moved-in arrow.'
 relatedBlips:
-  - blipId: "33"
-    relationshipType: "ecosystem"
-    reason: "Cypress is frequently used to validate React user journeys end to end."
-    context: "Tie frontend testing tools back to the main UI framework in this edition."
+  - blipId: '33'
+    relationshipType: ecosystem
+    reason: Cypress is frequently used to validate React user journeys end to end.
+    context: Tie frontend testing tools back to the main UI framework in this edition.
     bidirectional: true
-  - blipId: "21"
-    relationshipType: "comparison"
-    reason: "Karma represents an older browser test-runner approach compared with Cypress."
-    context: "Make the testing-tool evolution visible on hover."
+  - blipId: '21'
+    relationshipType: comparison
+    reason: >-
+      Karma represents an older browser test-runner approach compared with
+      Cypress.
+    context: Make the testing-tool evolution visible on hover.
+    bidirectional: true
+  - blipId: '21'
+    relationshipType: complement
+    reason: >-
+      Cypress and Karma together support a comprehensive testing workflow in the
+      frontend tools quadrant.
     bidirectional: true
 ---
