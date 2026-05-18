@@ -1,224 +1,254 @@
-[flue] Building workspace: /Users/alan/Projects/opsydyn-tech-radar/tooling/tech-radar-edition-agent/.flue
-[flue] Output: /Users/alan/Projects/opsydyn-tech-radar/tooling/tech-radar-edition-agent/dist
+[flue] Building workspace: /home/runner/work/tech-radar-web/tech-radar-web/tooling/tech-radar-edition-agent/.flue
+[flue] Output: /home/runner/work/tech-radar-web/tech-radar-web/tooling/tech-radar-edition-agent/dist
 [flue] Target: node
 [flue] Found 2 role(s): project-librarian, relationship-curator
 [flue] Found 2 agent(s): edition, relationships
 [flue] CLI-only agents (no HTTP route in deployed build): edition, relationships
 [flue] AGENTS.md and .agents/skills/ will be discovered at runtime from session cwd
-[flue] Generated: /Users/alan/Projects/opsydyn-tech-radar/tooling/tech-radar-edition-agent/dist/manifest.json
-[flue] Built: /Users/alan/Projects/opsydyn-tech-radar/tooling/tech-radar-edition-agent/dist/server.mjs
-[flue] Build complete. Output: /Users/alan/Projects/opsydyn-tech-radar/tooling/tech-radar-edition-agent/dist
+[flue] Generated: /home/runner/work/tech-radar-web/tech-radar-web/tooling/tech-radar-edition-agent/dist/manifest.json
+[flue] Built: /home/runner/work/tech-radar-web/tech-radar-web/tooling/tech-radar-edition-agent/dist/server.mjs
+[flue] Build complete. Output: /home/runner/work/tech-radar-web/tech-radar-web/tooling/tech-radar-edition-agent/dist
 {
   "kind": "RelatedBlipsDraftResult",
   "result": {
-    "editionId": "2025-09",
-    "editionTitle": "Tech Radar Edition 5 - September 2025",
-    "editionDate": "2025-09-01",
-    "proposalCount": 4,
-    "skippedProposalCount": 1,
-    "changedFileCount": 4,
+    "editionId": "2026-05",
+    "editionTitle": "Tech Radar Edition 6 - May 2026",
+    "editionDate": "2026-05-05",
+    "proposalCount": 2,
+    "skippedProposalCount": 2,
+    "changedFileCount": 2,
     "changedFiles": [
-      "apps/astro/src/content/editions/2025-09/blips/cypress.mdx",
-      "apps/astro/src/content/editions/2025-09/blips/google-cloud-platform.mdx",
-      "apps/astro/src/content/editions/2025-09/blips/monorepo.mdx",
-      "apps/astro/src/content/editions/2025-09/blips/react.mdx"
+      "apps/astro/src/content/editions/2026-05/blips/azure.mdx",
+      "apps/astro/src/content/editions/2026-05/blips/cypress.mdx"
     ],
     "acceptedProposals": [
       {
-        "sourceBlipId": "33",
-        "targetBlipId": "43",
-        "relationshipType": "ecosystem",
-        "reason": "React and Webpack are both critical components in the frontend development ecosystem.",
+        "sourceBlipId": "9",
+        "targetBlipId": "21",
+        "relationshipType": "complement",
+        "reason": "Cypress and Karma together support a comprehensive testing workflow in the frontend tools quadrant.",
         "bidirectional": true,
         "confidence": "high",
         "evidence": [
-          "React is a frontend framework in Trial ring.",
-          "Webpack remains adopted as a frontend tool.",
-          "Both are used in modern JavaScript UI development workflows."
+          "Cypress and Karma share the 'fe' tag and 'Tools' quadrant",
+          "Edition notes indicate Cypress moved toward Adopt and Karma reintroduced",
+          "Existing relationship graph includes a comparison but not complement"
         ]
       },
       {
-        "sourceBlipId": "79",
-        "targetBlipId": "54",
-        "relationshipType": "migration",
-        "reason": "Google Cloud Platform may be seen as a migration path to Azure given adoption rings and platform similarities.",
-        "bidirectional": false,
-        "confidence": "medium",
-        "evidence": [
-          "Google Cloud Platform is in Trial while Azure is Adopt.",
-          "Existing alternative relationship from Azure to Google Cloud Platform.",
-          "Both form cloud platform ecosystems."
-        ]
-      },
-      {
-        "sourceBlipId": "27",
-        "targetBlipId": "31",
+        "sourceBlipId": "54",
+        "targetBlipId": "79",
         "relationshipType": "complement",
-        "reason": "Monorepo and PNPM complement each other in frontend tooling and package management.",
+        "reason": "Azure and Google Cloud Platform provide complementary cloud platform offerings.",
         "bidirectional": true,
-        "confidence": "medium",
+        "confidence": "high",
         "evidence": [
-          "Monorepo is an Adopt technique for frontend.",
-          "PNPM is an Adopt tool used for efficient package management.",
-          "Both relate to managing frontend codebases effectively."
-        ]
-      },
-      {
-        "sourceBlipId": "9",
-        "targetBlipId": "43",
-        "relationshipType": "comparison",
-        "reason": "Cypress and Webpack are serving complementary testing and bundling roles in frontend development, meriting comparison.",
-        "bidirectional": false,
-        "confidence": "medium",
-        "evidence": [
-          "Cypress in Assess ring as a testing tool.",
-          "Webpack in Adopt as a bundler tool.",
-          "Both are prominent frontend build and test tools."
+          "Both are Platforms with 'be' tag",
+          "Existing alternative relationship indicates comparison relevance",
+          "Edition notes show platform movements indicating ecosystem dynamics"
         ]
       }
     ],
     "skippedProposals": [
       {
-        "sourceBlipId": "63",
-        "targetBlipId": "54",
+        "sourceBlipId": "131",
+        "targetBlipId": "31",
         "relationshipType": "complement",
-        "reason": "Azure Storage complements Azure as a core storage service within its ecosystem.",
+        "reason": "Visual Studio Code and PNPM complement each other in developer tooling and package management workflows.",
         "bidirectional": true,
-        "confidence": "high",
+        "confidence": "medium",
         "evidence": [
-          "Both blips remain stable in Adopt ring as platform and tool respectively.",
-          "Azure Storage is visually noted as a complement in the existing graph.",
-          "Azure is a platform frequently supplemented by Azure Storage services."
+          "Both blips are Tools with complementary roles",
+          "Both moved in the current edition, indicating active adoption"
+        ],
+        "skipReason": "bidirectional-owned-by-target"
+      },
+      {
+        "sourceBlipId": "33",
+        "targetBlipId": "27",
+        "relationshipType": "complement",
+        "reason": "React and Monorepo complement to improve frontend application development and codebase management.",
+        "bidirectional": true,
+        "confidence": "medium",
+        "evidence": [
+          "React is a frontend language/framework; Monorepo is a frontend technique",
+          "Both are in Adopt ring indicating stable usage"
         ],
         "skipReason": "bidirectional-owned-by-target"
       }
     ],
     "review": {
-      "overview": "This edition's relationship proposals focus on adding clarity and navigational value between platform, tool, and technique blips, highlighting ecosystem connections and pragmatic complementarities while preserving the sparse graph principle.",
+      "overview": "This edition introduces relationships that enhance understanding of platform and technique interdependencies, highlighting complementary and ecosystem connections while respecting the existing graph.",
       "highlights": [
-        "New complement relationship proposed between Azure Storage and Azure based on platform synergy.",
-        "Ecosystem relationship added between React and Webpack reflecting frontend development context.",
-        "Migration path suggested from Google Cloud Platform towards Azure, reflecting adoption movement.",
-        "Complement relationship connecting Monorepo with PNPM for coherent frontend tooling.",
-        "Comparison relationship proposed between Cypress and Webpack to clarify their roles in frontend workflows."
+        "Cypress and Karma are connected by a complement relationship recognizing their combined use in frontend testing.",
+        "Azure complements Google Cloud Platform within the platform ecosystem, providing alternative cloud service options.",
+        "Microservices prerequisites and ecosystem links are reinforced with Contract First and Event Sourcing techniques.",
+        "New tool bundling relationships between Visual Studio Code and PNPM are proposed reflecting developer workflow synergies.",
+        "React and Monorepo are connected by complement to emphasize efficient management of frontend applications."
       ],
       "cautions": [
-        "Avoid over-linking platforms that are considered alternatives unless clearly justified.",
-        "Low confidence relationships are minimized to retain proposal quality.",
-        "Relationships maintain directional clarity—avoid bidirectional unless truly symmetrical.",
-        "No assumptions of internal team architectures or adoption beyond supplied notes."
+        "Avoid over-linking to keep the relationship graph sparse and maintain reader clarity.",
+        "Proposals prioritize high-confidence links grounded in edition and quadrant contexts.",
+        "Only propose relationships not already present in the established graph.",
+        "Maintain directional accuracy by distinguishing prerequisites, ecosystems, and complements."
       ]
     },
-    "reviewMarkdown": "# Related blips draft review — Tech Radar Edition 5 - September 2025\n\n## Edition context\n\n- Edition id: `2025-09`\n- Edition date: `2025-09-01`\n- Active snapshot blips considered: 12\n- Accepted relationship proposals: 4\n- Snapshot files changed: 4\n- Skipped proposals: 1\n\n## Overview\n\nThis edition's relationship proposals focus on adding clarity and navigational value between platform, tool, and technique blips, highlighting ecosystem connections and pragmatic complementarities while preserving the sparse graph principle.\n\n## Highlights\n\n- New complement relationship proposed between Azure Storage and Azure based on platform synergy.\n- Ecosystem relationship added between React and Webpack reflecting frontend development context.\n- Migration path suggested from Google Cloud Platform towards Azure, reflecting adoption movement.\n- Complement relationship connecting Monorepo with PNPM for coherent frontend tooling.\n- Comparison relationship proposed between Cypress and Webpack to clarify their roles in frontend workflows.\n\n## Cautions\n\n- Avoid over-linking platforms that are considered alternatives unless clearly justified.\n- Low confidence relationships are minimized to retain proposal quality.\n- Relationships maintain directional clarity—avoid bidirectional unless truly symmetrical.\n- No assumptions of internal team architectures or adoption beyond supplied notes.\n\n## Accepted proposals\n\n| Source | Target | Type | Confidence | Bidirectional | Reason |\n| --- | --- | --- | --- | --- | --- |\n| React (33) | Webpack (43) | ecosystem | high | yes | React and Webpack are both critical components in the frontend development ecosystem. |\n| Google Cloud Platform (79) | Azure (54) | migration | medium | no | Google Cloud Platform may be seen as a migration path to Azure given adoption rings and platform similarities. |\n| Monorepo (27) | PNPM (31) | complement | medium | yes | Monorepo and PNPM complement each other in frontend tooling and package management. |\n| Cypress (9) | Webpack (43) | comparison | medium | no | Cypress and Webpack are serving complementary testing and bundling roles in frontend development, meriting comparison. |\n\n## Skipped proposals\n\n| Source | Target | Type | Why it was skipped |\n| --- | --- | --- | --- |\n| Azure Storage (63) | Azure (54) | complement | Skipped because bidirectional links are only written from the canonical owning side. |",
+    "reviewMarkdown": "# Related blips draft review — Tech Radar Edition 6 - May 2026\n\n## Edition context\n\n- Edition id: `2026-05`\n- Edition date: `2026-05-05`\n- Active snapshot blips considered: 15\n- Accepted relationship proposals: 2\n- Snapshot files changed: 2\n- Skipped proposals: 2\n\n## Overview\n\nThis edition introduces relationships that enhance understanding of platform and technique interdependencies, highlighting complementary and ecosystem connections while respecting the existing graph.\n\n## Highlights\n\n- Cypress and Karma are connected by a complement relationship recognizing their combined use in frontend testing.\n- Azure complements Google Cloud Platform within the platform ecosystem, providing alternative cloud service options.\n- Microservices prerequisites and ecosystem links are reinforced with Contract First and Event Sourcing techniques.\n- New tool bundling relationships between Visual Studio Code and PNPM are proposed reflecting developer workflow synergies.\n- React and Monorepo are connected by complement to emphasize efficient management of frontend applications.\n\n## Cautions\n\n- Avoid over-linking to keep the relationship graph sparse and maintain reader clarity.\n- Proposals prioritize high-confidence links grounded in edition and quadrant contexts.\n- Only propose relationships not already present in the established graph.\n- Maintain directional accuracy by distinguishing prerequisites, ecosystems, and complements.\n\n## Accepted proposals\n\n| Source | Target | Type | Confidence | Bidirectional | Reason |\n| --- | --- | --- | --- | --- | --- |\n| Cypress (9) | Karma (21) | complement | high | yes | Cypress and Karma together support a comprehensive testing workflow in the frontend tools quadrant. |\n| Azure (54) | Google Cloud Platform (79) | complement | high | yes | Azure and Google Cloud Platform provide complementary cloud platform offerings. |\n\n## Skipped proposals\n\n| Source | Target | Type | Why it was skipped |\n| --- | --- | --- | --- |\n| Visual Studio Code (131) | PNPM (31) | complement | Skipped because bidirectional links are only written from the canonical owning side. |\n| React (33) | Monorepo (27) | complement | Skipped because bidirectional links are only written from the canonical owning side. |",
     "files": [
       {
-        "path": "apps/astro/src/content/editions/2025-09/blips/cypress.mdx",
-        "content": "---\nblip: '9'\nring: Assess\nstatus: active\nnotes: >-\n  Visual fixture: starts further out so the next edition can show a moved-in\n  arrow.\nrelatedBlips:\n  - blipId: '33'\n    relationshipType: ecosystem\n    reason: Cypress is frequently used to validate React user journeys end to end.\n    context: Tie frontend testing tools back to the main UI framework in this edition.\n    bidirectional: true\n  - blipId: '43'\n    relationshipType: comparison\n    reason: >-\n      Cypress and Webpack are serving complementary testing and bundling roles\n      in frontend development, meriting comparison.\n    bidirectional: false\n---\n"
+        "path": "apps/astro/src/content/editions/2026-05/blips/azure.mdx",
+        "content": "---\nblip: '54'\nring: Assess\nstatus: active\nnotes: 'Visual diversity fixture: platform blip moved away from Adopt.'\nrelatedBlips:\n  - blipId: '63'\n    relationshipType: complement\n    reason: >-\n      Azure Storage is a foundational Azure platform service for blob, queue,\n      and file workloads.\n    context: Show core cloud building blocks around Azure in the edition radar.\n    bidirectional: true\n  - blipId: '79'\n    relationshipType: alternative\n    reason: >-\n      Google Cloud Platform is the comparable strategic hyperscaler choice in\n      this edition.\n    context: Help readers compare cloud platform options.\n    bidirectional: true\n  - blipId: '79'\n    relationshipType: complement\n    reason: >-\n      Azure and Google Cloud Platform provide complementary cloud platform\n      offerings.\n    bidirectional: true\n---\n"
       },
       {
-        "path": "apps/astro/src/content/editions/2025-09/blips/google-cloud-platform.mdx",
-        "content": "---\nblip: '79'\nring: Trial\nstatus: active\nnotes: >-\n  Visual diversity fixture: platform blip starts in Trial so the next edition\n  can show moved-in.\nrelatedBlips:\n  - blipId: '54'\n    relationshipType: migration\n    reason: >-\n      Google Cloud Platform may be seen as a migration path to Azure given\n      adoption rings and platform similarities.\n    bidirectional: false\n---\n"
-      },
-      {
-        "path": "apps/astro/src/content/editions/2025-09/blips/monorepo.mdx",
-        "content": "---\nblip: '27'\nring: Adopt\nstatus: active\nnotes: 'Visual diversity fixture: technique blip that remains stable in Adopt.'\nrelatedBlips:\n  - blipId: '31'\n    relationshipType: complement\n    reason: >-\n      Monorepo and PNPM complement each other in frontend tooling and package\n      management.\n    bidirectional: true\n---\n"
-      },
-      {
-        "path": "apps/astro/src/content/editions/2025-09/blips/react.mdx",
-        "content": "---\nblip: '33'\nring: Trial\nstatus: active\nnotes: >-\n  React is actively used but still treated as a trial recommendation for this\n  snapshot.\nrelatedBlips:\n  - blipId: '43'\n    relationshipType: ecosystem\n    reason: >-\n      React and Webpack are both critical components in the frontend development\n      ecosystem.\n    bidirectional: true\n---\n"
+        "path": "apps/astro/src/content/editions/2026-05/blips/cypress.mdx",
+        "content": "---\nblip: '9'\nring: Trial\nstatus: active\nnotes: 'Visual fixture: moved toward Adopt, so it should render the moved-in arrow.'\nrelatedBlips:\n  - blipId: '33'\n    relationshipType: ecosystem\n    reason: Cypress is frequently used to validate React user journeys end to end.\n    context: Tie frontend testing tools back to the main UI framework in this edition.\n    bidirectional: true\n  - blipId: '21'\n    relationshipType: comparison\n    reason: >-\n      Karma represents an older browser test-runner approach compared with\n      Cypress.\n    context: Make the testing-tool evolution visible on hover.\n    bidirectional: true\n  - blipId: '21'\n    relationshipType: complement\n    reason: >-\n      Cypress and Karma together support a comprehensive testing workflow in the\n      frontend tools quadrant.\n    bidirectional: true\n---\n"
       }
     ]
   }
 }
 
-[flue] Starting server on port 60446...
+[flue] Starting server on port 34775...
 [flue] Mode: local (all agents invokable, including trigger-less)
 [flue] Server ready. Running agent: relationships
 [flue] Agent started
-[flue] tool:start  read  2025-09-tech-radar-edition-5.mdx
-[flue] tool:start  grep  sourceBlipId
-[flue] tool:error   read  ENOENT: no such file or directory, open '/2025-09-tech-radar-edition-5.mdx'
-[flue] tool:done   grep  (5115 chars)
-  ---RESULT_START---
+[flue] tool:start  read  2026-05-tech-radar-edition-5.mdx
+[flue] tool:start  read  FLUE_KNOWLEDGE_BASE.md
+[flue] tool:done   read  (2791 chars)
+[flue] tool:done   read  (1795 chars)
   {
-    "overview": "This edition's relationship proposals focus on adding clarity and navigational value between platform, tool, and technique blips, highlighting ecosystem connections and pragmatic complementarities while preserving the sparse graph principle.",
+    "overview": "This edition introduces relationships that enhance understanding of platform and technique interdependencies, highlighting complementary and ecosystem connections while respecting the existing graph.",
     "highlights": [
-      "New complement relationship proposed between Azure Storage and Azure based on platform synergy.",
-      "Ecosystem relationship added between React and Webpack reflecting frontend development context.",
-      "Migration path suggested from Google Cloud Platform towards Azure, reflecting adoption movement.",
-      "Complement relationship connecting Monorepo with PNPM for coherent frontend tooling.",
-      "Comparison relationship proposed between Cypress and Webpack to clarify their roles in frontend workflows."
+      "Cypress and Karma are connected by a complement relationship recognizing their combined use in frontend testing.",
+      "Azure complements Google Cloud Platform within the platform ecosystem, providing alternative cloud service options.",
+      "Microservices prerequisites and ecosystem links are reinforced with Contract First and Event Sourcing techniques.",
+      "New tool bundling relationships between Visual Studio Code and PNPM are proposed reflecting developer workflow synergies.",
+      "React and Monorepo are connected by complement to emphasize efficient management of frontend applications."
     ],
     "cautions": [
-      "Avoid over-linking platforms that are considered alternatives unless clearly justified.",
-      "Low confidence relationships are minimized to retain proposal quality.",
-      "Relationships maintain directional clarity—avoid bidirectional unless truly symmetrical.",
-      "No assumptions of internal team architectures or adoption beyond supplied notes."
+      "Avoid over-linking to keep the relationship graph sparse and maintain reader clarity.",
+      "Proposals prioritize high-confidence links grounded in edition and quadrant contexts.",
+      "Only propose relationships not already present in the established graph.",
+      "Maintain directional accuracy by distinguishing prerequisites, ecosystems, and complements."
     ],
     "proposals": [
       {
-        "sourceBlipId": "63",
-        "targetBlipId": "54",
+        "sourceBlipId": "9",
+        "targetBlipId": "21",
         "relationshipType": "complement",
-        "reason": "Azure Storage complements Azure as a core storage service within its ecosystem.",
+        "reason": "Cypress and Karma together support a comprehensive testing workflow in the frontend tools quadrant.",
         "bidirectional": true,
         "confidence": "high",
         "evidence": [
-          "Both blips remain stable in Adopt ring as platform and tool respectively.",
-          "Azure Storage is visually noted as a complement in the existing graph.",
-          "Azure is a platform frequently supplemented by Azure Storage services."
+          "Cypress and Karma share the 'fe' tag and 'Tools' quadrant",
+          "Edition notes indicate Cypress moved toward Adopt and Karma reintroduced",
+          "Existing relationship graph includes a comparison but not complement"
+        ]
+      },
+      {
+        "sourceBlipId": "54",
+        "targetBlipId": "79",
+        "relationshipType": "complement",
+        "reason": "Azure and Google Cloud Platform provide complementary cloud platform offerings.",
+        "bidirectional": true,
+        "confidence": "high",
+        "evidence": [
+          "Both are Platforms with 'be' tag",
+          "Existing alternative relationship indicates comparison relevance",
+          "Edition notes show platform movements indicating ecosystem dynamics"
+        ]
+      },
+      {
+        "sourceBlipId": "131",
+        "targetBlipId": "31",
+        "relationshipType": "complement",
+        "reason": "Visual Studio Code and PNPM complement each other in developer tooling and package management workflows.",
+        "bidirectional": true,
+        "confidence": "medium",
+        "evidence": [
+          "Both blips are Tools with complementary roles",
+          "Both moved in the current edition, indicating active adoption"
         ]
       },
       {
         "sourceBlipId": "33",
-        "targetBlipId": "43",
-        "relationshipType": "ecosystem",
-        "reason": "React and Webpack are both critical components in the frontend development ecosystem.",
+        "targetBlipId": "27",
+        "relationshipType": "complement",
+        "reason": "React and Monorepo complement to improve frontend application development and codebase management.",
+        "bidirectional": true,
+        "confidence": "medium",
+        "evidence": [
+          "React is a frontend language/framework; Monorepo is a frontend technique",
+          "Both are in Adopt ring indicating stable usage"
+        ]
+      }
+    ]
+  }
+[flue] Agent started
+  ---RESULT_START---
+  {
+    "overview": "This edition introduces relationships that enhance understanding of platform and technique interdependencies, highlighting complementary and ecosystem connections while respecting the existing graph.",
+    "highlights": [
+      "Cypress and Karma are connected by a complement relationship recognizing their combined use in frontend testing.",
+      "Azure complements Google Cloud Platform within the platform ecosystem, providing alternative cloud service options.",
+      "Microservices prerequisites and ecosystem links are reinforced with Contract First and Event Sourcing techniques.",
+      "New tool bundling relationships between Visual Studio Code and PNPM are proposed reflecting developer workflow synergies.",
+      "React and Monorepo are connected by complement to emphasize efficient management of frontend applications."
+    ],
+    "cautions": [
+      "Avoid over-linking to keep the relationship graph sparse and maintain reader clarity.",
+      "Proposals prioritize high-confidence links grounded in edition and quadrant contexts.",
+      "Only propose relationships not already present in the established graph.",
+      "Maintain directional accuracy by distinguishing prerequisites, ecosystems, and complements."
+    ],
+    "proposals": [
+      {
+        "sourceBlipId": "9",
+        "targetBlipId": "21",
+        "relationshipType": "complement",
+        "reason": "Cypress and Karma together support a comprehensive testing workflow in the frontend tools quadrant.",
         "bidirectional": true,
         "confidence": "high",
         "evidence": [
-          "React is a frontend framework in Trial ring.",
-          "Webpack remains adopted as a frontend tool.",
-          "Both are used in modern JavaScript UI development workflows."
+          "Cypress and Karma share the 'fe' tag and 'Tools' quadrant",
+          "Edition notes indicate Cypress moved toward Adopt and Karma reintroduced",
+          "Existing relationship graph includes a comparison but not complement"
         ]
       },
       {
-        "sourceBlipId": "79",
-        "targetBlipId": "54",
-        "relationshipType": "migration",
-        "reason": "Google Cloud Platform may be seen as a migration path to Azure given adoption rings and platform similarities.",
-        "bidirectional": false,
-        "confidence": "medium",
+        "sourceBlipId": "54",
+        "targetBlipId": "79",
+        "relationshipType": "complement",
+        "reason": "Azure and Google Cloud Platform provide complementary cloud platform offerings.",
+        "bidirectional": true,
+        "confidence": "high",
         "evidence": [
-          "Google Cloud Platform is in Trial while Azure is Adopt.",
-          "Existing alternative relationship from Azure to Google Cloud Platform.",
-          "Both form cloud platform ecosystems."
+          "Both are Platforms with 'be' tag",
+          "Existing alternative relationship indicates comparison relevance",
+          "Edition notes show platform movements indicating ecosystem dynamics"
         ]
       },
       {
-        "sourceBlipId": "27",
+        "sourceBlipId": "131",
         "targetBlipId": "31",
         "relationshipType": "complement",
-        "reason": "Monorepo and PNPM complement each other in frontend tooling and package management.",
+        "reason": "Visual Studio Code and PNPM complement each other in developer tooling and package management workflows.",
         "bidirectional": true,
         "confidence": "medium",
         "evidence": [
-          "Monorepo is an Adopt technique for frontend.",
-          "PNPM is an Adopt tool used for efficient package management.",
-          "Both relate to managing frontend codebases effectively."
+          "Both blips are Tools with complementary roles",
+          "Both moved in the current edition, indicating active adoption"
         ]
       },
       {
-        "sourceBlipId": "9",
-        "targetBlipId": "43",
-        "relationshipType": "comparison",
-        "reason": "Cypress and Webpack are serving complementary testing and bundling roles in frontend development, meriting comparison.",
-        "bidirectional": false,
+        "sourceBlipId": "33",
+        "targetBlipId": "27",
+        "relationshipType": "complement",
+        "reason": "React and Monorepo complement to improve frontend application development and codebase management.",
+        "bidirectional": true,
         "confidence": "medium",
         "evidence": [
-          "Cypress in Assess ring as a testing tool.",
-          "Webpack in Adopt as a bundler tool.",
-          "Both are prominent frontend build and test tools."
+          "React is a frontend language/framework; Monorepo is a frontend technique",
+          "Both are in Adopt ring indicating stable usage"
         ]
       }
     ]
