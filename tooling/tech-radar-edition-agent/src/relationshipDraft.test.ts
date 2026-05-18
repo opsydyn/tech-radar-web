@@ -1,7 +1,11 @@
+import * as fs from "node:fs/promises";
+import * as os from "node:os";
+import * as path from "node:path";
 import matter from "gray-matter";
 import { describe, expect, it } from "vitest";
 import {
 	applyRelationshipProposals,
+	assertEditionSnapshotExists,
 	buildCandidateBlipsContext,
 	buildExistingRelationshipGraphContext,
 	buildRelationshipReviewMarkdown,
@@ -291,6 +295,40 @@ describe("applyRelationshipProposals", () => {
 });
 
 describe("relationship draft helpers", () => {
+	it("reports available edition ids when the requested edition snapshot does not exist", async () => {
+		const tempDirectory = await fs.mkdtemp(
+			path.join(os.tmpdir(), "relationship-draft-"),
+		);
+
+		try {
+			const existingEditionDirectory = path.join(
+				tempDirectory,
+				"apps",
+				"astro",
+				"src",
+				"content",
+				"editions",
+				"2025-09",
+			);
+			await fs.mkdir(path.join(existingEditionDirectory, "blips"), {
+				recursive: true,
+			});
+			await fs.writeFile(
+				path.join(existingEditionDirectory, "index.mdx"),
+				'---\nid: "2025-09"\nnumber: 5\ntitle: "Test Edition"\ndate: "2025-09-01"\n---\n',
+				"utf8",
+			);
+
+			await expect(
+				assertEditionSnapshotExists(tempDirectory, "2026-06"),
+			).rejects.toThrow(
+				"Edition snapshot `2026-06` was not found under `apps/astro/src/content/editions`. Available edition ids: `2025-09`.",
+			);
+		} finally {
+			await fs.rm(tempDirectory, { recursive: true, force: true });
+		}
+	});
+
 	it("orders numeric blip ids predictably and assigns bidirectional ownership to the lower id", () => {
 		expect(compareBlipIds("54", "79")).toBeLessThan(0);
 		expect(compareBlipIds("79", "54")).toBeGreaterThan(0);

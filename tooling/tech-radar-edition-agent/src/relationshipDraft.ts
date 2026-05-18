@@ -234,6 +234,34 @@ const normalizeCanonicalBlip = (
 const readMarkdownFile = async (filePath: string): Promise<string> =>
 	fs.readFile(filePath, "utf8");
 
+const editionCollectionDirectoryForRoot = (repoRoot: string) =>
+	path.join(repoRoot, "apps", "astro", "src", "content", "editions");
+
+const editionDirectoryFor = (repoRoot: string, editionId: string) =>
+	path.join(editionCollectionDirectoryForRoot(repoRoot), editionId);
+
+const editionIndexFilePathFor = (repoRoot: string, editionId: string) =>
+	path.join(editionDirectoryFor(repoRoot, editionId), "index.mdx");
+
+const snapshotDirectoryFor = (repoRoot: string, editionId: string) =>
+	path.join(editionDirectoryFor(repoRoot, editionId), "blips");
+
+const isNotFoundError = (error: unknown): boolean =>
+	error instanceof Error && "code" in error && error.code === "ENOENT";
+
+const pathExists = async (targetPath: string): Promise<boolean> => {
+	try {
+		await fs.access(targetPath);
+		return true;
+	} catch (error) {
+		if (isNotFoundError(error)) {
+			return false;
+		}
+
+		throw error;
+	}
+};
+
 const listMarkdownFiles = async (
 	directoryPath: string,
 ): Promise<readonly string[]> => {
@@ -245,6 +273,68 @@ const listMarkdownFiles = async (
 		.filter((entry) => entry.isFile() && /\.mdx?$/.test(entry.name))
 		.map((entry) => entry.name)
 		.sort((left, right) => left.localeCompare(right));
+};
+
+export const listAvailableEditionIds = async (
+	repoRoot: string,
+): Promise<readonly string[]> => {
+	const editionsDirectory = editionCollectionDirectoryForRoot(repoRoot);
+
+	try {
+		const directoryEntries = await fs.readdir(editionsDirectory, {
+			withFileTypes: true,
+		});
+		const candidateEditionIds = directoryEntries
+			.filter((entry) => entry.isDirectory())
+			.map((entry) => entry.name);
+		const editionAvailability = await Promise.all(
+			candidateEditionIds.map(async (editionId) => ({
+				editionId,
+				hasIndex: await pathExists(
+					editionIndexFilePathFor(repoRoot, editionId),
+				),
+			})),
+		);
+
+		return editionAvailability
+			.filter((edition) => edition.hasIndex)
+			.map((edition) => edition.editionId)
+			.sort((left, right) => left.localeCompare(right));
+	} catch (error) {
+		if (isNotFoundError(error)) {
+			return [];
+		}
+
+		throw error;
+	}
+};
+
+export const assertEditionSnapshotExists = async (
+	repoRoot: string,
+	editionId: string,
+): Promise<void> => {
+	const hasEditionIndex = await pathExists(
+		editionIndexFilePathFor(repoRoot, editionId),
+	);
+	const hasSnapshotDirectory = await pathExists(
+		snapshotDirectoryFor(repoRoot, editionId),
+	);
+
+	if (hasEditionIndex && hasSnapshotDirectory) {
+		return;
+	}
+
+	const availableEditionIds = await listAvailableEditionIds(repoRoot);
+	const availableEditionIdsLabel =
+		availableEditionIds.length > 0
+			? availableEditionIds
+					.map((availableEditionId) => `\`${availableEditionId}\``)
+					.join(", ")
+			: "none";
+
+	throw new Error(
+		`Edition snapshot \`${editionId}\` was not found under \`apps/astro/src/content/editions\`. Available edition ids: ${availableEditionIdsLabel}.`,
+	);
 };
 
 const loadCanonicalBlips = async (
@@ -277,16 +367,7 @@ const loadSnapshotFiles = async (
 	repoRoot: string,
 	editionId: string,
 ): Promise<readonly SnapshotFile[]> => {
-	const snapshotDirectory = path.join(
-		repoRoot,
-		"apps",
-		"astro",
-		"src",
-		"content",
-		"editions",
-		editionId,
-		"blips",
-	);
+	const snapshotDirectory = snapshotDirectoryFor(repoRoot, editionId);
 	const markdownFiles = await listMarkdownFiles(snapshotDirectory);
 
 	return Promise.all(
@@ -313,16 +394,7 @@ const loadEditionMetadata = async (
 	repoRoot: string,
 	editionId: string,
 ): Promise<{ readonly editionTitle: string; readonly editionDate: string }> => {
-	const editionFilePath = path.join(
-		repoRoot,
-		"apps",
-		"astro",
-		"src",
-		"content",
-		"editions",
-		editionId,
-		"index.mdx",
-	);
+	const editionFilePath = editionIndexFilePathFor(repoRoot, editionId);
 	const fileContents = await readMarkdownFile(editionFilePath);
 	const parsed = v.parse(
 		RawEditionFrontmatterSchema,
@@ -364,16 +436,9 @@ export const createRelationshipDraftContext = async (input: {
 	editionId: string;
 }): Promise<RelationshipDraftContext> => {
 	const repoRoot = input.repoRoot ?? defaultRepoRoot;
-	const editionDirectory = path.join(
-		repoRoot,
-		"apps",
-		"astro",
-		"src",
-		"content",
-		"editions",
-		input.editionId,
-	);
-	const snapshotDirectory = path.join(editionDirectory, "blips");
+	const editionDirectory = editionDirectoryFor(repoRoot, input.editionId);
+	const snapshotDirectory = snapshotDirectoryFor(repoRoot, input.editionId);
+	await assertEditionSnapshotExists(repoRoot, input.editionId);
 	const [{ editionDate, editionTitle }, canonicalBlipsById, snapshotFiles] =
 		await Promise.all([
 			loadEditionMetadata(repoRoot, input.editionId),
@@ -439,7 +504,9 @@ export const buildAllowedBlipIdsContext = (
 	context: RelationshipDraftContext,
 ): string =>
 	context.candidateBlips
-		.map((candidateBlip) => `- \`${candidateBlip.blipId}\`: ${candidateBlip.name}`)
+		.map(
+			(candidateBlip) => `- \`${candidateBlip.blipId}\`: ${candidateBlip.name}`,
+		)
 		.join("\n");
 
 export const buildCandidateBlipsContext = (
@@ -520,7 +587,10 @@ export const isBidirectionalOwner = (
 ): boolean => compareBlipIds(sourceBlipId, targetBlipId) < 0;
 
 const normalizeCandidateReference = (value: string): string =>
-	value.trim().replace(/^[`"'“”‘’]+|[`"'“”‘’]+$/g, "").trim();
+	value
+		.trim()
+		.replace(/^[`"'“”‘’]+|[`"'“”‘’]+$/g, "")
+		.trim();
 
 const normalizeCandidateLookupKey = (value: string): string =>
 	normalizeCandidateReference(value).toLowerCase().replace(/\s+/g, " ");

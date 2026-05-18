@@ -140,10 +140,14 @@ export default async function ({ init, payload }: FlueContext) {
 		context,
 		draft.proposals,
 	);
-	const appliedDraft = applyRelationshipProposals(context, normalizedProposals, {
-		maxRelationshipsPerBlip,
-		minimumConfidence,
-	});
+	const appliedDraft = applyRelationshipProposals(
+		context,
+		normalizedProposals,
+		{
+			maxRelationshipsPerBlip,
+			minimumConfidence,
+		},
+	);
 	const review = {
 		overview: draft.overview,
 		highlights: draft.highlights,

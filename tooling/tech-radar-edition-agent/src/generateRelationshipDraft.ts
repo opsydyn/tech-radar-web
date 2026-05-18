@@ -4,7 +4,11 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import * as v from "valibot";
-import { confidenceLevels, relationshipTypes } from "./relationshipDraft";
+import {
+	assertEditionSnapshotExists,
+	confidenceLevels,
+	relationshipTypes,
+} from "./relationshipDraft";
 
 const execFileAsync = promisify(execFile);
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -96,8 +100,7 @@ const requireEditionId = (): string => {
 	return editionId;
 };
 
-const buildPayload = () => {
-	const editionId = requireEditionId();
+const buildPayload = (editionId: string) => {
 	const maxRelationshipsPerBlip = process.env.MAX_RELATIONSHIPS_PER_BLIP;
 
 	return {
@@ -176,7 +179,9 @@ const runRelationshipAgent = async (payload: string, runId: string) =>
 	);
 
 const program = async () => {
-	const payload = JSON.stringify(buildPayload());
+	const editionId = requireEditionId();
+	await assertEditionSnapshotExists(repoRoot, editionId);
+	const payload = JSON.stringify(buildPayload(editionId));
 	const relationshipRunId = buildRelationshipRunId();
 	const commandOutput = await runRelationshipAgent(payload, relationshipRunId);
 	const combinedOutput = toCombinedOutput(commandOutput);

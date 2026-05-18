@@ -50,6 +50,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Validate edition snapshot input
+        run: |
+          edition_directory="apps/astro/src/content/editions/${{ inputs.editionId }}"
+
+          if [[ ! -f "$edition_directory/index.mdx" || ! -d "$edition_directory/blips" ]]; then
+            echo "::error title=Invalid editionId::Edition '${{ inputs.editionId }}' does not exist under apps/astro/src/content/editions."
+            echo "Available edition ids:"
+            find apps/astro/src/content/editions -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | LC_ALL=C sort | sed 's/^/- /'
+            exit 1
+          fi
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
