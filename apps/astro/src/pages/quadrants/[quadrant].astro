@@ -2,102 +2,61 @@
 export const prerender = true;
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
-import { Match } from "effect";
 import BlipListIsland from "~components/BlipListIsland";
 import BlipLayout from "~layouts/BlipLayout.astro";
 import * as styles from "~styles/pages/quadrant.css";
 import type { Blip } from "~types/radar-types";
-import { withBasePath } from "~utils/sitePaths";
-import { getEffectiveTheme } from "../../stores/theme-store";
+import { getQuadrantColorSolid } from "~utils/quadrantColors";
+import {
+	getQuadrantPath,
+	quadrantRouteLabels,
+	type QuadrantRouteKey,
+	toQuadrantRouteKey,
+} from "~utils/quadrantRouting";
 
 type BlipCollectionEntry = CollectionEntry<"blip"> & { data: Blip };
 
 export async function getStaticPaths() {
-	const quadrants = {
-		tools: "Tools",
-		techniques: "Techniques",
-		platforms: "Platforms",
-		"languages-frameworks": "Languages & Frameworks",
-	};
-	return Object.keys(quadrants).map((quadrant) => {
+	return Object.keys(quadrantRouteLabels).map((quadrant) => {
 		return {
 			params: { quadrant: quadrant },
 		};
 	});
 }
 
-const quadrants = {
-	tools: "Tools",
-	techniques: "Techniques",
-	platforms: "Platforms",
-	"languages-frameworks": "Languages & Frameworks",
-} as const;
+const quadrants = quadrantRouteLabels;
 
-const quadrant = Astro.params.quadrant as keyof typeof quadrants;
+const quadrant = (toQuadrantRouteKey(Astro.params.quadrant ?? "tools") ??
+	"tools") as QuadrantRouteKey;
 const blips: BlipCollectionEntry[] = await getCollection("blip");
 
 const blipData = blips.filter(
-	({ data }: { data: Blip }) =>
-		data.quadrant.toLowerCase() === quadrant.toLowerCase(),
+	({ data }: { data: Blip }) => toQuadrantRouteKey(data.quadrant) === quadrant,
 );
-
-const quadrantColorsSolid = {
-	tools: "rgb(80, 197, 241)",
-	techniques: "rgb(255, 163, 71)",
-	platforms: "rgb(125, 110, 238)",
-	"languages-frameworks": "rgb(81, 245, 141)",
-};
-
-type QuadrantType =
-	| "tools"
-	| "techniques"
-	| "platforms"
-	| "languages-frameworks";
-
-const getQuadrantColor = (quadrant: string): string => {
-	const lowerQuadrant = quadrant.toLowerCase() as QuadrantType;
-
-	return Match.value(lowerQuadrant).pipe(
-		Match.when("tools", () => quadrantColorsSolid.tools),
-		Match.when("techniques", () => quadrantColorsSolid.techniques),
-		Match.when("platforms", () => quadrantColorsSolid.platforms),
-		Match.when(
-			"languages-frameworks",
-			() => quadrantColorsSolid["languages-frameworks"],
-		),
-		Match.orElse(() => quadrantColorsSolid.tools),
-	);
-};
-
-const quadrantColor = getQuadrantColor(quadrant);
+const quadrantColor = getQuadrantColorSolid(quadrant);
 
 // Helper function to get nav item style classes
 const getNavItemClasses = (
 	navQuadrant: keyof typeof quadrants,
 	currentQuadrant: string,
 ) => {
-	const baseClasses = Match.value(navQuadrant).pipe(
-		Match.when("tools", () => styles.quadrantNavItemTools),
-		Match.when("techniques", () => styles.quadrantNavItemTechniques),
-		Match.when("platforms", () => styles.quadrantNavItemPlatforms),
-		Match.when("languages-frameworks", () => styles.quadrantNavItemLanguages),
-		Match.exhaustive,
-	);
+	const baseClasses = {
+		tools: styles.quadrantNavItemTools,
+		techniques: styles.quadrantNavItemTechniques,
+		platforms: styles.quadrantNavItemPlatforms,
+		"languages-frameworks": styles.quadrantNavItemLanguages,
+	} as const;
 
-	const activeClasses = Match.value(navQuadrant).pipe(
-		Match.when("tools", () => styles.quadrantNavItemActiveTools),
-		Match.when("techniques", () => styles.quadrantNavItemActiveTechniques),
-		Match.when("platforms", () => styles.quadrantNavItemActivePlatforms),
-		Match.when(
-			"languages-frameworks",
-			() => styles.quadrantNavItemActiveLanguages,
-		),
-		Match.exhaustive,
-	);
+	const activeClasses = {
+		tools: styles.quadrantNavItemActiveTools,
+		techniques: styles.quadrantNavItemActiveTechniques,
+		platforms: styles.quadrantNavItemActivePlatforms,
+		"languages-frameworks": styles.quadrantNavItemActiveLanguages,
+	} as const;
 
 	return navQuadrant === currentQuadrant
-		? `${baseClasses} ${activeClasses}`
-		: baseClasses;
+		? `${baseClasses[navQuadrant]} ${activeClasses[navQuadrant]}`
+		: baseClasses[navQuadrant];
 };
 ---
 
@@ -116,7 +75,7 @@ const getNavItemClasses = (
 				<nav class={styles.quadrantNav}>
 					{Object.entries(quadrants).map(([key, label]) => (
 						<a
-							href={withBasePath(`/quadrants/${key}`)}
+							href={getQuadrantPath(key)}
 							class={getNavItemClasses(key as keyof typeof quadrants, quadrant)}
 						>
 							{label}

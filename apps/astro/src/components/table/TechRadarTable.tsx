@@ -1,3 +1,4 @@
+import { useStore } from "@nanostores/react";
 import {
 	flexRender,
 	getCoreRowModel,
@@ -14,8 +15,10 @@ import * as styles from "~components/table/TechRadarTable.css";
 import TechRadarTableColumns from "~components/table/TechRadarTableColumns";
 // import ToggleSwitchWithFieldset from "~components/toggleSwitchWithFieldset/ToggleSwitchWithFieldset";
 import type { Blip, BlipKeys } from "~components/table/types";
+import { selectedEdition } from "~components/radar/editionSelectionState";
 import useTechRadarDispatchHandlers from "~components/table/useTechRadarDispatchHandlers";
 import { getBlipPath } from "~utils/blipRouting";
+import { getEditionIdentity } from "~utils/editionHelpers";
 
 const MOBILE_TABLE_LABELS: Partial<Record<BlipKeys, string>> = {
 	hasAdr: "ADR",
@@ -51,6 +54,7 @@ const sortIconProps = {
 } as const;
 
 function TechRadarTable({ blips }: TechRadarTableProps) {
+	const currentEdition = useStore(selectedEdition);
 	const { state, handleTableSorting, handlePagination } =
 		useTechRadarDispatchHandlers();
 
@@ -115,7 +119,14 @@ function TechRadarTable({ blips }: TechRadarTableProps) {
 			: styles.td);
 
 	const navigateToBlip = (blip: Blip): void => {
-		window.location.assign(getBlipPath(blip));
+		window.location.assign(
+			getBlipPath(
+				blip,
+				currentEdition
+					? { editionId: getEditionIdentity(currentEdition) }
+					: undefined,
+			),
+		);
 	};
 
 	const handleRowKeyDown = (

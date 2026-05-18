@@ -9,21 +9,20 @@
  */
 
 import { useStore } from "@nanostores/react";
-import { atom } from "nanostores";
 import { useEffect, useMemo } from "react";
 import type { Edition } from "~utils/editionHelpers";
 import {
 	findEditionByIdentity,
 	formatEditionLabel,
 	getEditionIdentity,
-	getLatestEdition,
 	sortEditionsByDate,
 } from "~utils/editionHelpers";
+import {
+	persistEditionSelection,
+	resolveInitialEditionSelection,
+	selectedEdition,
+} from "./editionSelectionState";
 import * as styles from "./EditionSwitcher.css";
-
-// 🗂️ Global store for selected edition
-// Initialized with null, but will be set to latest edition on mount
-export const selectedEdition = atom<Edition | null>(null);
 
 type EditionSwitcherProps = {
 	editions: Edition[];
@@ -46,13 +45,23 @@ export const EditionSwitcher = ({ editions }: EditionSwitcherProps) => {
 
 	// Initialize with latest edition if not set
 	useEffect(() => {
-		if (!selected && sortedEditions.length > 0) {
-			const latest = getLatestEdition(editions);
-			if (latest) {
-				selectedEdition.set(latest);
-			}
+		if (selected || sortedEditions.length === 0) {
+			return;
+		}
+
+		const initialEdition = resolveInitialEditionSelection(editions);
+		if (initialEdition) {
+			selectedEdition.set(initialEdition);
 		}
 	}, [editions, selected, sortedEditions.length]);
+
+	useEffect(() => {
+		if (!selected) {
+			return;
+		}
+
+		persistEditionSelection(selected);
+	}, [selected]);
 
 	const handleChange = (value: string) => {
 		const edition = findEditionByIdentity(editions, value);

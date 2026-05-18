@@ -2,42 +2,50 @@ import { useStore } from "@nanostores/react";
 import { LegendItem, LegendLabel, LegendOrdinal } from "@visx/legend";
 import { scaleOrdinal } from "@visx/scale";
 import { type MouseEvent, type ReactNode, useEffect, useState } from "react";
+import { selectedEdition } from "~components/radar/editionSelectionState";
+import { getEditionIdentity } from "~utils/editionHelpers";
+import { getQuadrantPath, type QuadrantRouteKey } from "~utils/quadrantRouting";
 import { getEffectiveTheme, theme } from "~stores/theme-store";
 import { hardEdgeRadius } from "~styles/theme.css";
-import { withBasePath } from "~utils/sitePaths";
 import { LegendMoveState } from "./LegendMoveState";
 
 // Quadrant data with links and colors
 const quadrantData = [
 	{
 		id: "Platforms",
+		routeKey: "platforms",
 		label: "Platforms",
-		href: withBasePath("/quadrants/platforms"),
 		color: "rgb(125, 110, 238, 1)",
 		tooltip: "View all platform technologies",
 	},
 	{
 		id: "Languages",
+		routeKey: "languages-frameworks",
 		label: "Languages & Frameworks",
-		href: withBasePath("/quadrants/languages-frameworks"),
 		color: "rgb(81, 245, 141, 1)",
 		tooltip: "View all languages and frameworks",
 	},
 	{
 		id: "Tools",
+		routeKey: "tools",
 		label: "Tools",
-		href: withBasePath("/quadrants/tools"),
 		color: "rgb(80, 197, 241, 1)",
 		tooltip: "View all tools and utilities",
 	},
 	{
 		id: "Techniques",
+		routeKey: "techniques",
 		label: "Techniques",
-		href: withBasePath("/quadrants/techniques"),
 		color: "rgb(255, 163, 71, 1)",
 		tooltip: "View all techniques and methodologies",
 	},
-];
+] as const satisfies ReadonlyArray<{
+	readonly id: string;
+	readonly routeKey: QuadrantRouteKey;
+	readonly label: string;
+	readonly color: string;
+	readonly tooltip: string;
+}>;
 
 const ordinalColor2Scale = scaleOrdinal({
 	domain: quadrantData.map((q) => q.id),
@@ -109,10 +117,14 @@ function LegendBase({
 	);
 }
 export const LegendTwo = () => {
+	const currentEdition = useStore(selectedEdition);
 	const currentTheme = useStore(theme);
 	const [textColor, setTextColor] = useState("#efefef");
 	const [tooltipContent, setTooltipContent] = useState<string | null>(null);
 	const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+	const currentEditionId = currentEdition
+		? getEditionIdentity(currentEdition)
+		: undefined;
 
 	useEffect(() => {
 		const effectiveTheme =
@@ -150,7 +162,12 @@ export const LegendTwo = () => {
 										cursor: "pointer",
 									}}
 									onClick={() => {
-										window.location.href = quadrant.href;
+										window.location.href = getQuadrantPath(
+											quadrant.routeKey,
+											currentEditionId
+												? { editionId: currentEditionId }
+												: undefined,
+										);
 									}}
 									onMouseMove={(e) => handleMouseMove(e, quadrant.tooltip)}
 									onMouseLeave={handleMouseLeave}

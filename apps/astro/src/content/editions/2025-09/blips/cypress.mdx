@@ -1,12 +1,20 @@
 ---
-blip: "9"
-ring: "Assess"
-status: "active"
-notes: "Visual fixture: starts further out so the next edition can show a moved-in arrow."
+blip: '9'
+ring: Assess
+status: active
+notes: >-
+  Visual fixture: starts further out so the next edition can show a moved-in
+  arrow.
 relatedBlips:
-  - blipId: "33"
-    relationshipType: "ecosystem"
-    reason: "Cypress is frequently used to validate React user journeys end to end."
-    context: "Tie frontend testing tools back to the main UI framework in this edition."
+  - blipId: '33'
+    relationshipType: ecosystem
+    reason: Cypress is frequently used to validate React user journeys end to end.
+    context: Tie frontend testing tools back to the main UI framework in this edition.
     bidirectional: true
+  - blipId: '43'
+    relationshipType: comparison
+    reason: >-
+      Cypress and Webpack are serving complementary testing and bundling roles
+      in frontend development, meriting comparison.
+    bidirectional: false
 ---

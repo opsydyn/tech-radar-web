@@ -1,6 +1,6 @@
 ---
-// biome-ignore lint/correctness/noUnusedImports: Astro template markup below uses the imported styles.
 import * as styles from "~styles/pages/blip.css";
+import { getQuadrantPath } from "~utils/quadrantRouting";
 import { withBaseHref } from "~utils/sitePaths";
 
 interface Props {
@@ -8,24 +8,48 @@ interface Props {
 	backText: string;
 	tabs: { href: string; text: string; condition?: boolean }[];
 	quadrantLinks?: boolean;
+	quadrantEditionId?: string;
 }
 
-// biome-ignore lint/correctness/noUnusedVariables: Astro template markup below consumes these props.
-const { backLink, backText, tabs, quadrantLinks = false } = Astro.props;
-// biome-ignore lint/correctness/noUnusedVariables: Astro template markup below uses this resolved href.
+const {
+	backLink,
+	backText,
+	tabs,
+	quadrantLinks = false,
+	quadrantEditionId,
+} = Astro.props;
 const resolvedBackLink = withBaseHref(backLink);
-// biome-ignore lint/correctness/noUnusedVariables: Astro template markup below uses these resolved tabs.
 const resolvedTabs = tabs.map((tab) => ({
 	...tab,
 	href: withBaseHref(tab.href),
 }));
-// biome-ignore lint/correctness/noUnusedVariables: Astro template markup below uses these quadrant links.
 const quadrantTabLinks = [
-	{ href: withBaseHref("/quadrants/techniques"), label: "Techniques" },
-	{ href: withBaseHref("/quadrants/platforms"), label: "Platforms" },
-	{ href: withBaseHref("/quadrants/tools"), label: "Tools" },
 	{
-		href: withBaseHref("/quadrants/languages-frameworks"),
+		href: getQuadrantPath(
+			"techniques",
+			quadrantEditionId ? { editionId: quadrantEditionId } : undefined,
+		),
+		label: "Techniques",
+	},
+	{
+		href: getQuadrantPath(
+			"platforms",
+			quadrantEditionId ? { editionId: quadrantEditionId } : undefined,
+		),
+		label: "Platforms",
+	},
+	{
+		href: getQuadrantPath(
+			"tools",
+			quadrantEditionId ? { editionId: quadrantEditionId } : undefined,
+		),
+		label: "Tools",
+	},
+	{
+		href: getQuadrantPath(
+			"languages-frameworks",
+			quadrantEditionId ? { editionId: quadrantEditionId } : undefined,
+		),
 		label: "Languages & Frameworks",
 	},
 ];

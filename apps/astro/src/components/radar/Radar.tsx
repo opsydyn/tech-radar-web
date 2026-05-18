@@ -17,7 +17,7 @@ import type {
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MessageDrawer from "~components/MessageDrawer";
 import { RadarChart } from "~components/radar/BaseChart";
-import { selectedEdition } from "~components/radar/EditionSwitcher";
+import { selectedEdition } from "~components/radar/editionSelectionState";
 import { Labels } from "~components/radar/Labels";
 import { LegendTwo } from "~components/radar/Legend";
 import { MiniMapControls } from "~components/radar/MiniMapControls";

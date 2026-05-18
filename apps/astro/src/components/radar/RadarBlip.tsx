@@ -1,9 +1,12 @@
+import { useStore } from "@nanostores/react";
 import { Circle } from "@visx/shape";
 import { Text } from "@visx/text";
 import type { MouseEvent } from "react";
 import { memo } from "react";
+import { selectedEdition } from "~components/radar/editionSelectionState";
 import type { BlipWithPosition, MoveTuple, MoveType } from "~types/radar-types";
 import { getBlipPath } from "~utils/blipRouting";
+import { getEditionIdentity } from "~utils/editionHelpers";
 import type { DerivedMovement } from "~utils/editionSnapshots";
 
 import * as styles from "./Radar.css";
@@ -120,6 +123,7 @@ export const RadarBlip = memo(function RadarBlip({
 	isRelated = false,
 	isRelationshipSource = false,
 }: RadarBlipProps) {
+	const currentEdition = useStore(selectedEdition);
 	const blipColor = getRadarBlipColor(blip.quadrant);
 	const { x, y } = blip.position;
 	const textColor = "#000000";
@@ -129,7 +133,12 @@ export const RadarBlip = memo(function RadarBlip({
 	const detailSummary = getDetailSummary(blip);
 	const detailLabelWidth = getDetailLabelWidth(detailSummary);
 
-	const blipPath = getBlipPath(blip);
+	const blipPath = getBlipPath(
+		blip,
+		currentEdition
+			? { editionId: getEditionIdentity(currentEdition) }
+			: undefined,
+	);
 
 	return (
 		<a

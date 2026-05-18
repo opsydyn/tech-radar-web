@@ -1,0 +1,151 @@
+name: Draft related blips
+
+on:
+  workflow_dispatch:
+    inputs:
+      editionId:
+        description: Edition snapshot id to enrich, for example 2026-05
+        required: true
+        type: string
+      model:
+        description: Optional exact model id override
+        required: false
+        type: string
+      minimumConfidence:
+        description: Optional confidence threshold (high, medium, or low)
+        required: false
+        default: medium
+        type: string
+      maxRelationshipsPerBlip:
+        description: Optional cap on accepted relationships per source blip
+        required: false
+        default: "3"
+        type: string
+  workflow_call:
+    inputs:
+      editionId:
+        required: true
+        type: string
+      model:
+        required: false
+        type: string
+      minimumConfidence:
+        required: false
+        type: string
+      maxRelationshipsPerBlip:
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  draft-related-blips:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.12.0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+
+      - name: Verify OpenAI secret is configured
+        run: |
+          if [[ -z "$OPENAI_API_KEY" ]]; then
+            echo "OPENAI_API_KEY is not configured."
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck edition agent package
+        working-directory: tooling/tech-radar-edition-agent
+        run: bun run typecheck
+
+      - name: Test deterministic relationship merge logic
+        working-directory: tooling/tech-radar-edition-agent
+        run: bun run test
+
+      - name: Generate related blips draft
+        working-directory: tooling/tech-radar-edition-agent
+        env:
+          EDITION_ID: ${{ inputs.editionId }}
+          RELATIONSHIP_MODEL: ${{ inputs.model }}
+          MINIMUM_CONFIDENCE: ${{ inputs.minimumConfidence }}
+          MAX_RELATIONSHIPS_PER_BLIP: ${{ inputs.maxRelationshipsPerBlip }}
+          RELATIONSHIP_RUN_ID: related-blips-${{ github.run_id }}
+        run: |
+          bun run generate:relationships
+
+      - name: Read relationship draft metadata
+        id: relationship_metadata
+        working-directory: tooling/tech-radar-edition-agent
+        run: |
+          node --input-type=module <<'EOF' >> "$GITHUB_OUTPUT"
+          import { readFileSync } from "node:fs";
+
+          const result = JSON.parse(
+            readFileSync(".generated/related-blips-draft-result.json", "utf8"),
+          );
+
+          console.log(`edition_id=${result.editionId}`);
+          console.log(`edition_title=${result.editionTitle}`);
+          console.log(`proposal_count=${result.proposalCount}`);
+          console.log(`skipped_proposal_count=${result.skippedProposalCount}`);
+          console.log(`changed_file_count=${result.changedFileCount}`);
+          EOF
+
+      - name: Upload relationship draft artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: related-blips-draft-output
+          path: |
+            tooling/tech-radar-edition-agent/.generated/related-blips-draft-result.json
+            tooling/tech-radar-edition-agent/.generated/related-blips-review.md
+            tooling/tech-radar-edition-agent/.generated/relationship-agent-output.txt
+
+      - name: Create draft pull request for related blips
+        if: steps.relationship_metadata.outputs.changed_file_count != '0'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: >-
+            feat: draft related blips for ${{ steps.relationship_metadata.outputs.edition_id }}
+          branch: automation/related-blips-${{ github.run_id }}
+          delete-branch: true
+          draft: true
+          title: >-
+            draft: propose related blips for ${{ steps.relationship_metadata.outputs.edition_title }}
+          body: |
+            ## Related blips draft
+
+            This draft pull request was created automatically by the related blips workflow.
+
+            - Edition: `${{ steps.relationship_metadata.outputs.edition_id }}`
+            - Accepted proposals: `${{ steps.relationship_metadata.outputs.proposal_count }}`
+            - Skipped proposals: `${{ steps.relationship_metadata.outputs.skipped_proposal_count }}`
+            - Changed snapshot files: `${{ steps.relationship_metadata.outputs.changed_file_count }}`
+            - Workflow run: `${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`
+
+            Review the generated snapshot edits alongside `tooling/tech-radar-edition-agent/.generated/related-blips-review.md`.
+          add-paths: |
+            apps/astro/src/content/editions/${{ inputs.editionId }}/blips/*.mdx
+            tooling/tech-radar-edition-agent/.generated/related-blips-draft-result.json
+            tooling/tech-radar-edition-agent/.generated/related-blips-review.md
+            tooling/tech-radar-edition-agent/.generated/relationship-agent-output.txt
+
+      - name: Report no-op draft run
+        if: steps.relationship_metadata.outputs.changed_file_count == '0'
+        run: |
+          echo "No related blip changes were produced for edition ${{ steps.relationship_metadata.outputs.edition_id }}."

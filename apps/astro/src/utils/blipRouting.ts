@@ -6,6 +6,10 @@ interface BlipIdentity {
 	name: string;
 }
 
+type BlipPathOptions = {
+	readonly editionId?: string;
+};
+
 const slugifyBlipName = (name: string): string =>
 	name
 		.normalize("NFKD")
@@ -22,8 +26,17 @@ export const getBlipSlug = ({ id, name }: BlipIdentity): string => {
 	return slug.length > 0 ? slug : `blip-${id}`;
 };
 
-export const getBlipPath = (blip: BlipIdentity): string =>
-	withBasePath(`/blip/${getBlipSlug(blip)}`);
+export const getBlipPath = (
+	blip: BlipIdentity,
+	options: BlipPathOptions = {},
+): string => {
+	const slug = getBlipSlug(blip);
+	const path = options.editionId
+		? (`/edition/${options.editionId}/blip/${slug}` as `/${string}`)
+		: (`/blip/${slug}` as `/${string}`);
+
+	return withBasePath(path);
+};
 
 const matchesBlipRouteParam = (
 	routeParam: string,

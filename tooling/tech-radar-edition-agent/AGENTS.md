@@ -8,12 +8,16 @@ This workspace package will host the Flue-powered phase-1 edition generator for 
 - Bump the edition number on each run
 - Generate one new edition MDX file
 - Include librarian summary, views, recommendations, and AI provenance
+- Draft edition-local `relatedBlips` proposals for existing snapshot editions
+- Write reviewable snapshot Markdown updates plus relationship review artifacts
 
 ## Constraints
 
 - Keep frontmatter compatible with the existing Astro `edition` collection
+- Keep snapshot frontmatter compatible with the Astro `editionBlipSnapshot` collection
 - Prefer deterministic inputs for selection and AI only for free-text synthesis
 - Write reviewable Markdown artifacts
+- Keep humans in the review loop for every relationship suggestion
 
 ## Flue reference material
 

@@ -1,13 +1,17 @@
+import { useStore } from "@nanostores/react";
 import { CornerUpRight } from "pixelarticons/react/CornerUpRight";
 import type { CSSProperties } from "react";
+import { selectedEdition } from "~components/radar/editionSelectionState";
 import * as styles from "~components/BlipDetail.css";
 import type { Blip } from "~types/radar-types";
 import { getBlipPath } from "~utils/blipRouting";
 import { formatDate, normalizeDateValue } from "~utils/dateFormatter";
+import { getEditionIdentity } from "~utils/editionHelpers";
 
 type BlipDetailProps = {
 	blip: Blip | null;
 	quadrantColor: string;
+	editionId?: string;
 };
 
 const getDescription = (desc: unknown) =>
@@ -28,7 +32,15 @@ const detailsIconProps = {
 	width: 16,
 } as const;
 
-export const BlipDetail = ({ blip, quadrantColor }: BlipDetailProps) => {
+export const BlipDetail = ({
+	blip,
+	quadrantColor,
+	editionId,
+}: BlipDetailProps) => {
+	const currentEdition = useStore(selectedEdition);
+	const activeEditionId =
+		editionId ??
+		(currentEdition ? getEditionIdentity(currentEdition) : undefined);
 	const quadrantStyle = {
 		"--quadrant-color": quadrantColor,
 		"--quadrant-color-shadow": `${quadrantColor}40`,
@@ -94,7 +106,13 @@ export const BlipDetail = ({ blip, quadrantColor }: BlipDetailProps) => {
 				</div>
 			)}
 
-			<a href={getBlipPath(blip)} className={styles.detailsLink}>
+			<a
+				href={getBlipPath(
+					blip,
+					activeEditionId ? { editionId: activeEditionId } : undefined,
+				)}
+				className={styles.detailsLink}
+			>
 				<span className={styles.detailsLinkText}>View full details</span>
 				<CornerUpRight
 					{...detailsIconProps}

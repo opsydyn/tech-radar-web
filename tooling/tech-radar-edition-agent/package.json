@@ -4,9 +4,12 @@
   "type": "module",
   "scripts": {
     "generate:edition": "bun run src/generateEditionFile.ts",
+    "generate:relationships": "bun run src/generateRelationshipDraft.ts",
+    "test": "bunx vitest run src/relationshipDraft.test.ts",
     "typecheck": "tsc --noEmit",
     "flue:dev": "flue dev --target node --env ../../.env",
-    "flue:run": "flue run edition --target node --id local-edition --payload '{}'"
+    "flue:run": "flue run edition --target node --id local-edition --payload '{}'",
+    "flue:run:relationships": "flue run relationships --target node --id local-related-blips --payload '{\"editionId\":\"2026-05\"}'"
   },
   "dependencies": {
     "@flue/sdk": "^0.3.6",

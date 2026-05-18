@@ -9,6 +9,7 @@ type BlipListIslandProps = {
 	blips: Blip[];
 	quadrant: string;
 	quadrantColor: string;
+	editionId?: string;
 };
 
 const quadrantDefinitions = [
@@ -42,6 +43,7 @@ const BlipListIsland: React.FC<BlipListIslandProps> = ({
 	blips,
 	quadrant,
 	quadrantColor,
+	editionId,
 }) => {
 	// Use our custom search hook
 	const {
@@ -169,7 +171,11 @@ const BlipListIsland: React.FC<BlipListIslandProps> = ({
 
 				{/* Blip detail panel */}
 				<div className={styles.detailPanel}>
-					<BlipDetail blip={selected} quadrantColor={quadrantColor} />
+					<BlipDetail
+						blip={selected}
+						quadrantColor={quadrantColor}
+						editionId={editionId}
+					/>
 				</div>
 			</div>
 		</div>

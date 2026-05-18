@@ -15,7 +15,9 @@ import {
 	getHighlightedSnippet,
 } from "~hooks/useBlipSearch";
 import { getBlipPath } from "~utils/blipRouting";
+import { getEditionIdentity } from "~utils/editionHelpers";
 import * as styles from "./RadarTopNavControls.css";
+import { selectedEdition } from "./editionSelectionState";
 import {
 	clearRadarSearchTerm,
 	radarSearchableBlips,
@@ -64,6 +66,7 @@ const renderHighlightedText = (
 };
 
 export const RadarTopNavControls = () => {
+	const currentEdition = useStore(selectedEdition);
 	const searchableBlips = useStore(radarSearchableBlips);
 	const searchTerm = useStore(radarSearchTerm);
 	const hasSearchTerm = searchTerm.trim().length > 0;
@@ -77,6 +80,9 @@ export const RadarTopNavControls = () => {
 	const shouldShowSuggestions = isSearchFocused && hasSearchTerm;
 	const showEmptyState = shouldShowSuggestions && suggestions.length === 0;
 	const showSuggestions = shouldShowSuggestions && suggestions.length > 0;
+	const currentEditionId = currentEdition
+		? getEditionIdentity(currentEdition)
+		: undefined;
 
 	const handleSearchChange = useCallback(
 		(event: ChangeEvent<HTMLInputElement>) => {
@@ -230,7 +236,10 @@ export const RadarTopNavControls = () => {
 					>
 						{suggestions.map((suggestion, index) => {
 							const { highlights, item } = suggestion;
-							const blipPath = getBlipPath(item);
+							const blipPath = getBlipPath(
+								item,
+								currentEditionId ? { editionId: currentEditionId } : undefined,
+							);
 							const descriptionSnippet = getHighlightedSnippet(
 								item.description,
 								highlights.description,

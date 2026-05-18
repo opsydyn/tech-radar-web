@@ -6,74 +6,136 @@ import type { GetStaticPaths, InferGetStaticParamsType } from "astro";
 import BlipLayout from "~layouts/BlipLayout.astro";
 import type { Blip } from "~types/radar-types";
 
-import BlipHistory from "../../components/BlipHistory";
-import DocumentFreshnessIndicator from "../../components/DocumentFreshnessIndicator.astro";
-import RelatedBlipsSection from "../../components/RelatedBlipsSection.astro";
-import MetaInfo from "../../components/page/MetaInfo.astro";
-import PageHeader from "../../components/page/PageHeader.astro";
-import StickyNavigation from "../../components/page/StickyNavigation.astro";
-import {
-	findBlipByRouteParam,
-	getBlipPath,
-	getBlipSlug,
-} from "../../utils/blipRouting";
-import { formatDate } from "../../utils/dateFormatter";
+import BlipHistory from "../../../../components/BlipHistory";
+import DocumentFreshnessIndicator from "../../../../components/DocumentFreshnessIndicator.astro";
+import RelatedBlipsSection from "../../../../components/RelatedBlipsSection.astro";
+import MetaInfo from "../../../../components/page/MetaInfo.astro";
+import PageHeader from "../../../../components/page/PageHeader.astro";
+import StickyNavigation from "../../../../components/page/StickyNavigation.astro";
+import { getBlipPath, getBlipSlug } from "../../../../utils/blipRouting";
+import { formatDate } from "../../../../utils/dateFormatter";
+import { buildRadarEditionViewsFromCollections } from "../../../../utils/editionSnapshotAdapter";
+import { getQuadrantPath } from "../../../../utils/quadrantRouting";
 import {
 	getQuadrantColor,
 	getQuadrantColorDark,
 	getQuadrantColorSolid,
-} from "../../utils/quadrantColors";
-import { getRelatedBlipsContext } from "../../utils/relatedBlipsUtils";
+} from "../../../../utils/quadrantColors";
+import { getRelatedBlipsContext } from "../../../../utils/relatedBlipsUtils";
 import * as styles from "~styles/pages/blip.css";
 
 type BlipCollectionEntry = CollectionEntry<"blip"> & { data: Blip };
+type EditionSnapshotEntry = CollectionEntry<"editionSnapshot">;
+type EditionBlipSnapshotEntry = CollectionEntry<"editionBlipSnapshot">;
 type Params = InferGetStaticParamsType<typeof getStaticPaths>;
 
+type BlipIdentity = Pick<Blip, "id" | "name">;
+
+const matchesBlipRouteParam = (
+	routeParam: string,
+	blip: BlipIdentity,
+): boolean => routeParam === blip.id || routeParam === getBlipSlug(blip);
+
 export const getStaticPaths = (async () => {
-	const blips: BlipCollectionEntry[] = await getCollection("blip");
-
-	return blips.flatMap(({ data }: { data: Blip }) => {
-		const slug = getBlipSlug(data);
-		const idPath = data.id === slug ? [] : [{ params: { slug: data.id } }];
-
-		return [{ params: { slug } }, ...idPath];
+	const blipEntries: BlipCollectionEntry[] = await getCollection("blip");
+	const editionEntries: EditionSnapshotEntry[] =
+		await getCollection("editionSnapshot");
+	const snapshotEntries: EditionBlipSnapshotEntry[] = await getCollection(
+		"editionBlipSnapshot",
+	);
+	const editionViews = buildRadarEditionViewsFromCollections({
+		canonicalBlips: blipEntries.map(({ data }) => data),
+		editionEntries,
+		snapshotEntries,
 	});
+
+	return editionViews.flatMap(({ edition, blips }) =>
+		blips.flatMap((blip) => {
+			const slug = getBlipSlug(blip);
+			const idPath =
+				blip.id === slug
+					? []
+					: [{ params: { edition: edition.id, slug: blip.id } }];
+
+			return [{ params: { edition: edition.id, slug } }, ...idPath];
+		}),
+	);
 }) satisfies GetStaticPaths;
 
-const blips: BlipCollectionEntry[] = await getCollection("blip");
-const { slug } = Astro.params as Params;
-
-const blip =
-	typeof slug === "string" ? findBlipByRouteParam(blips, slug) : undefined;
-const blipData = blip?.data as Blip | undefined;
-const blipContent = blip ? await render(blip) : undefined;
+const canonicalBlips: BlipCollectionEntry[] = await getCollection("blip");
+const editionEntries: EditionSnapshotEntry[] =
+	await getCollection("editionSnapshot");
+const editionBlipSnapshotEntries: EditionBlipSnapshotEntry[] =
+	await getCollection("editionBlipSnapshot");
+const { edition, slug } = Astro.params as Params;
+const editionViews = buildRadarEditionViewsFromCollections({
+	canonicalBlips: canonicalBlips.map(({ data }) => data),
+	editionEntries,
+	snapshotEntries: editionBlipSnapshotEntries,
+});
+const editionView =
+	typeof edition === "string"
+		? editionViews.find(
+				({ edition: currentEdition }) => currentEdition.id === edition,
+			)
+		: undefined;
+const editionEntry =
+	typeof edition === "string"
+		? editionEntries.find(({ data }) => data.id === edition)
+		: undefined;
+const canonicalBlip =
+	typeof slug === "string"
+		? canonicalBlips.find((entry) =>
+				matchesBlipRouteParam(slug, {
+					id: entry.data.id,
+					name: entry.data.name,
+				}),
+			)
+		: undefined;
+const editionBlip =
+	typeof slug === "string"
+		? editionView?.blips.find((entry) =>
+				matchesBlipRouteParam(slug, {
+					id: entry.id,
+					name: entry.name,
+				}),
+			)
+		: undefined;
+const blipData = editionBlip ?? canonicalBlip?.data;
+const blipContent = canonicalBlip ? await render(canonicalBlip) : undefined;
 const Content = blipContent?.Content;
-const embeddedAdr = blipData?.adr;
-const showAdrSection = blipData?.hasAdr === true;
+const embeddedAdr = canonicalBlip?.data.adr;
+const showAdrSection = canonicalBlip?.data.hasAdr === true;
 const hasEmbeddedAdr = showAdrSection && embeddedAdr !== undefined;
-const formattedDate = formatDate(blipData?.created);
-
-const relatedBlipsContext = blipData?.id
-	? await getRelatedBlipsContext(blipData.id)
-	: null;
-
+const formattedDate = formatDate(canonicalBlip?.data.created);
+const relatedBlipsContext =
+	blipData?.id && typeof edition === "string"
+		? await getRelatedBlipsContext(blipData.id, { editionId: edition })
+		: null;
 const enrichedRelatedBlips = relatedBlipsContext
 	? [...relatedBlipsContext.relatedBlips]
 	: [];
 const currentEditionId =
 	relatedBlipsContext?.type === "snapshot"
 		? relatedBlipsContext.editionId
-		: undefined;
-
+		: typeof edition === "string"
+			? edition
+			: undefined;
 const fallbackRelatedBlips =
 	enrichedRelatedBlips.length === 0
 		? [...(relatedBlipsContext?.fallbackBlips ?? [])]
 		: [];
-
-// Get the quadrant colors for styling
 const quadrantColorValue = getQuadrantColor(blipData?.quadrant);
 const quadrantColorSolidValue = getQuadrantColorSolid(blipData?.quadrant);
 const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
+const editionSubtitle = editionEntry?.data.title ?? currentEditionId;
+const quadrantBackLink =
+	blipData?.quadrant && currentEditionId
+		? getQuadrantPath(blipData.quadrant, { editionId: currentEditionId })
+		: currentEditionId
+			? `/?edition=${currentEditionId}`
+			: "/";
+const quadrantBackText = blipData?.quadrant ?? "Back to Radar";
 ---
 
 <BlipLayout>
@@ -82,13 +144,14 @@ const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
     --quadrant-color-solid: ${quadrantColorSolidValue};
     --quadrant-color-dark: ${quadrantColorDarkValue};
   `}>
-    <!-- Hero Section -->
-    <PageHeader title={blipData?.name ?? "Tech Radar Blip"} />
+    <PageHeader
+      title={blipData?.name ?? "Tech Radar Blip"}
+      subtitle={editionSubtitle ? `Edition snapshot: ${editionSubtitle}` : undefined}
+    />
 
-    <!-- Navigation Bar -->
     <StickyNavigation
-      backLink={`/quadrants/${blipData?.quadrant?.toLowerCase()}`}
-      backText={blipData?.quadrant ?? "Back"}
+      backLink={quadrantBackLink}
+      backText={quadrantBackText}
       tabs={[
         { href: "#overview", text: "Overview" },
         { href: "#adr", text: "ADR", condition: showAdrSection },
@@ -96,10 +159,9 @@ const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
         { href: "#related", text: "Related" }
       ]}
       quadrantLinks={true}
-      quadrantEditionId={undefined}
+      quadrantEditionId={currentEditionId}
     />
 
-    <!-- Details Section -->
     <section id="overview" class={styles.detailsSection} slot="left">
       <MetaInfo
         date={formattedDate}
@@ -108,7 +170,7 @@ const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
       />
 
       <DocumentFreshnessIndicator
-        dateValue={blipData?.created}
+        dateValue={canonicalBlip?.data.created}
         showRecommendation={true}
         size="medium"
       />
@@ -168,7 +230,6 @@ const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
       </section>
     )}
 
-    {/* History Section */}
     {blipData?.move && blipData.move.length > 0 && (
       <section id="history" class={styles.detailsSection} slot="left">
         <h2 class={styles.sectionTitle}>Movement History</h2>
@@ -183,7 +244,6 @@ const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
       </section>
     )}
 
-    <!-- Related Blips Section -->
     <section id="related" class={styles.fullBleed}>
       <div class={styles.relatedBlipsSection}>
         {enrichedRelatedBlips.length > 0 ? (

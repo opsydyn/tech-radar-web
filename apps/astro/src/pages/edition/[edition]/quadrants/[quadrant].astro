@@ -1,0 +1,148 @@
+---
+export const prerender = true;
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import type { GetStaticPaths, InferGetStaticParamsType } from "astro";
+import BlipListIsland from "~components/BlipListIsland";
+import BlipLayout from "~layouts/BlipLayout.astro";
+import * as styles from "~styles/pages/quadrant.css";
+import type { Blip } from "~types/radar-types";
+import { buildRadarEditionViewsFromCollections } from "~utils/editionSnapshotAdapter";
+import { getQuadrantColorSolid } from "~utils/quadrantColors";
+import {
+	getQuadrantPath,
+	quadrantRouteLabels,
+	type QuadrantRouteKey,
+	toQuadrantRouteKey,
+} from "~utils/quadrantRouting";
+import { withBasePath } from "~utils/sitePaths";
+
+type BlipCollectionEntry = CollectionEntry<"blip"> & { data: Blip };
+type EditionSnapshotEntry = CollectionEntry<"editionSnapshot">;
+type EditionBlipSnapshotEntry = CollectionEntry<"editionBlipSnapshot">;
+type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+
+const getNavItemClasses = (
+	navQuadrant: QuadrantRouteKey,
+	currentQuadrant: QuadrantRouteKey,
+) => {
+	const baseClasses = {
+		tools: styles.quadrantNavItemTools,
+		techniques: styles.quadrantNavItemTechniques,
+		platforms: styles.quadrantNavItemPlatforms,
+		"languages-frameworks": styles.quadrantNavItemLanguages,
+	} as const;
+	const activeClasses = {
+		tools: styles.quadrantNavItemActiveTools,
+		techniques: styles.quadrantNavItemActiveTechniques,
+		platforms: styles.quadrantNavItemActivePlatforms,
+		"languages-frameworks": styles.quadrantNavItemActiveLanguages,
+	} as const;
+
+	return navQuadrant === currentQuadrant
+		? `${baseClasses[navQuadrant]} ${activeClasses[navQuadrant]}`
+		: baseClasses[navQuadrant];
+};
+
+export const getStaticPaths = (async () => {
+	const blipEntries: BlipCollectionEntry[] = await getCollection("blip");
+	const editionEntries: EditionSnapshotEntry[] =
+		await getCollection("editionSnapshot");
+	const snapshotEntries: EditionBlipSnapshotEntry[] = await getCollection(
+		"editionBlipSnapshot",
+	);
+	const editionViews = buildRadarEditionViewsFromCollections({
+		canonicalBlips: blipEntries.map(({ data }) => data),
+		editionEntries,
+		snapshotEntries,
+	});
+
+	return editionViews.flatMap(({ edition }) =>
+		(Object.keys(quadrantRouteLabels) as QuadrantRouteKey[]).map(
+			(quadrant) => ({
+				params: {
+					edition: edition.id,
+					quadrant,
+				},
+			}),
+		),
+	);
+}) satisfies GetStaticPaths;
+
+const canonicalBlips: BlipCollectionEntry[] = await getCollection("blip");
+const editionEntries: EditionSnapshotEntry[] =
+	await getCollection("editionSnapshot");
+const snapshotEntries: EditionBlipSnapshotEntry[] = await getCollection(
+	"editionBlipSnapshot",
+);
+const { edition, quadrant } = Astro.params as Params;
+const normalizedQuadrant =
+	typeof quadrant === "string"
+		? (toQuadrantRouteKey(quadrant) ?? "tools")
+		: "tools";
+const editionViews = buildRadarEditionViewsFromCollections({
+	canonicalBlips: canonicalBlips.map(({ data }) => data),
+	editionEntries,
+	snapshotEntries,
+});
+const editionView =
+	typeof edition === "string"
+		? editionViews.find(
+				({ edition: currentEdition }) => currentEdition.id === edition,
+			)
+		: undefined;
+const editionEntry =
+	typeof edition === "string"
+		? editionEntries.find(({ data }) => data.id === edition)
+		: undefined;
+const editionBlips = (editionView?.blips ?? []).filter(
+	(blip) => toQuadrantRouteKey(blip.quadrant) === normalizedQuadrant,
+);
+const quadrantLabel = quadrantRouteLabels[normalizedQuadrant];
+const quadrantColor = getQuadrantColorSolid(normalizedQuadrant);
+const editionId = editionEntry?.data.id ?? editionView?.edition.id;
+const editionTitle = editionEntry?.data.title ?? editionId;
+const radarBackLink = editionId
+	? withBasePath(`/?edition=${editionId}` as `/${string}`)
+	: "/";
+---
+
+<BlipLayout>
+	<div slot="center" class={styles.quadrantContainer}>
+		<header class={styles.quadrantHeader}>
+			<div class={styles.navigationContainer}>
+				<div>
+					<a href={radarBackLink} class={styles.homeLink}>
+						← Back to Radar
+					</a>
+					<h1 class={styles.quadrantTitle}>{quadrantLabel}</h1>
+					<p style={`margin: 0.5rem 0 0; color: ${quadrantColor}; font-family: 'IBM Plex Mono', monospace;`}>
+						Edition snapshot: {editionTitle}
+					</p>
+				</div>
+				<nav class={styles.quadrantNav}>
+					{(Object.entries(quadrantRouteLabels) as [QuadrantRouteKey, string][]).map(
+						([key, label]) => (
+							<a
+								href={getQuadrantPath(
+									key,
+									editionId ? { editionId } : undefined,
+								)}
+								class={getNavItemClasses(key, normalizedQuadrant)}
+							>
+								{label}
+							</a>
+						),
+					)}
+				</nav>
+			</div>
+		</header>
+		<BlipListIsland
+			client:idle
+			blips={editionBlips}
+			quadrant={normalizedQuadrant}
+			quadrantColor={quadrantColor}
+			editionId={editionId}
+		/>
+	</div>
+</BlipLayout>

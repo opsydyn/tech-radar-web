@@ -41,9 +41,10 @@ const relationshipColors: Record<RelationshipType, string> = {
 interface Props {
     relatedBlips: RelatedBlipWithData[];
     currentBlipName: string;
+    editionId?: string;
 }
 
-const { relatedBlips, currentBlipName } = Astro.props;
+const { relatedBlips, currentBlipName, editionId } = Astro.props;
 
 // Simple grouping function (no need for useMemo)
 const groupBlipsByRelationship = (blips: RelatedBlipWithData[]) =>
@@ -99,7 +100,10 @@ const relationshipTypes = Object.keys(groupedBlips) as RelationshipType[];
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; align-items: start;">
                             {blips.map((blip) => (
                                 <a
-                                    href={getBlipPath({ id: blip.blipId, name: blip.blipName })}
+                                    href={getBlipPath(
+                                        { id: blip.blipId, name: blip.blipName },
+                                        editionId ? { editionId } : undefined,
+                                    )}
                                     class={styles.relatedBlipCard}
                                     title={`View ${blip.blipName} details`}
                                     style="margin: 0; min-height: fit-content; height: auto;"
