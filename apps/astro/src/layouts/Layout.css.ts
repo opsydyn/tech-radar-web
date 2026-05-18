@@ -56,8 +56,10 @@ export const mainContent = style({
 	justifyContent: "center",
 	position: "relative",
 	padding: "1rem",
+	boxSizing: "border-box",
 	width: "100%",
 	maxWidth: "100vw",
+	minWidth: 0,
 	height: "calc(100vh - 60px)", // Account for the top nav height
 	overflow: "hidden",
 });
@@ -69,8 +71,10 @@ export const mainContentBlip = style({
 	justifyContent: "center",
 	position: "relative",
 	padding: "1rem",
+	boxSizing: "border-box",
 	width: "100%",
 	maxWidth: "100vw",
+	minWidth: 0,
 	overflow: "hidden",
 });
 
@@ -97,6 +101,7 @@ export const topNavArea = style({
 	position: "fixed",
 	top: "1rem",
 	right: "0.5rem",
+	boxSizing: "border-box",
 	display: "flex",
 	alignItems: "center",
 	justifyContent: "flex-end",

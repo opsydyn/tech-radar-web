@@ -9,7 +9,6 @@ import {
 import { darkThemeVars, hardEdgeRadius, lightThemeVars } from "../theme.css";
 import {
 	spacingLevel2,
-	spacingLevel3,
 	spacingLevel4,
 	spacingLevel5,
 } from "../vertical-rhythm.css";
@@ -106,6 +105,8 @@ export const container = style({
 		[layers.layout]: {
 			width: "100%",
 			maxWidth: "1400px",
+			minWidth: 0,
+			boxSizing: "border-box",
 			margin: "0 auto",
 			padding: "0",
 		},
@@ -136,13 +137,20 @@ globalStyle(`html[data-theme="dark"] .${fullBleed}`, {
 
 // --- HERO SECTION ---
 export const heroSection = style([
-	spacingLevel2,
 	{
 		"@layer": {
 			[layers.hero]: {
 				background: "var(--quadrant-color-solid)",
 				padding: "6rem 2rem 4rem",
-				width: "100%",
+				boxSizing: "border-box",
+				width: "calc(100% - 4rem)",
+				maxWidth: "100%",
+			},
+		},
+		"@media": {
+			"screen and (max-width: 768px)": {
+				padding: "5rem 1rem 3rem",
+				width: "calc(100% - 2rem)",
 			},
 		},
 	},
@@ -197,7 +205,6 @@ export const stickyNav = style({
 });
 
 export const navBar = style([
-	spacingLevel5,
 	{
 		"@layer": {
 			[layers.navigation]: {
@@ -206,8 +213,20 @@ export const navBar = style([
 				display: "flex",
 				alignItems: "center",
 				padding: "1rem 2rem",
+				boxSizing: "border-box",
 				gap: "2rem",
-				width: "100%",
+				width: "calc(100% - 4rem)",
+				maxWidth: "100%",
+				minWidth: 0,
+			},
+		},
+		"@media": {
+			"screen and (max-width: 768px)": {
+				padding: "1rem",
+				width: "calc(100% - 2rem)",
+				flexWrap: "wrap",
+				alignItems: "flex-start",
+				gap: "1rem",
 			},
 		},
 		selectors: {
@@ -247,6 +266,8 @@ export const navTabs = style({
 		[layers.navigation]: {
 			display: "flex",
 			gap: "1.5rem",
+			minWidth: 0,
+			flexWrap: "wrap",
 		},
 	},
 });
@@ -357,25 +378,30 @@ export const floatingNavDot = style({
 });
 
 // --- DETAILS SECTION ---
-export const detailsSection = style([
-	spacingLevel3,
-	{
-		padding: "4rem 2rem",
-		maxWidth: "1000px",
-		margin: "0 auto",
-		width: "100%",
+export const detailsSection = style({
+	padding: "4rem 2rem",
+	boxSizing: "border-box",
+	maxWidth: "calc(1000px - 4rem)",
+	margin: "0 auto",
+	width: "calc(100% - 4rem)",
+	minWidth: 0,
+	"@media": {
+		"screen and (max-width: 768px)": {
+			padding: "2.5rem 1rem",
+			width: "calc(100% - 2rem)",
+			maxWidth: "calc(100% - 2rem)",
+		},
 	},
-]);
+});
 
-export const detailsMeta = style([
-	spacingLevel5,
-	{
-		display: "flex",
-		alignItems: "center",
-		gap: "1.5rem",
-		marginBottom: "3rem",
-	},
-]);
+export const detailsMeta = style({
+	display: "flex",
+	alignItems: "center",
+	gap: "1.5rem",
+	minWidth: 0,
+	flexWrap: "wrap",
+	marginBottom: "3rem",
+});
 
 export const detailsDate = style([
 	metaText,
@@ -408,6 +434,10 @@ export const detailsRing = style([
 export const detailsContent = style({
 	backgroundColor: lightThemeVars.color.background,
 	padding: "1.5rem",
+	boxSizing: "border-box",
+	width: "100%",
+	maxWidth: "100%",
+	minWidth: 0,
 	borderRadius: hardEdgeRadius,
 	boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
 	marginBottom: rhythm3,
@@ -442,25 +472,30 @@ export const detailsLongText = style([
 ]);
 
 // --- RELATED BLIPS SECTION ---
-export const relatedBlipsSection = style([
-	spacingLevel2,
-	{
-		"@layer": {
-			[layers.relatedBlips]: {
-				background: "#111",
-				padding: "4rem 2rem",
-				width: "100%",
-				color: "var(--quadrant-color-solid)",
-			},
-		},
-		selectors: {
-			'html[data-theme="light"] &': {
-				background: "rgba(17, 24, 39, 0.04)",
-				color: lightThemeVars.color.text,
-			},
+export const relatedBlipsSection = style({
+	"@layer": {
+		[layers.relatedBlips]: {
+			background: "#111",
+			padding: "4rem 2rem",
+			boxSizing: "border-box",
+			width: "calc(100% - 4rem)",
+			maxWidth: "100%",
+			color: "var(--quadrant-color-solid)",
 		},
 	},
-]);
+	"@media": {
+		"screen and (max-width: 768px)": {
+			padding: "2.5rem 1rem",
+			width: "calc(100% - 2rem)",
+		},
+	},
+	selectors: {
+		'html[data-theme="light"] &': {
+			background: "rgba(17, 24, 39, 0.04)",
+			color: lightThemeVars.color.text,
+		},
+	},
+});
 
 export const relatedBlipsTitle = style({
 	fontFamily: "'Space Grotesk', sans-serif",

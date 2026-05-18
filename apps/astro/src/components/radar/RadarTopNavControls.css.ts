@@ -7,6 +7,7 @@ export const controls = style({
 	justifyContent: "flex-end",
 	gap: "1.1rem",
 	minWidth: 0,
+	maxWidth: "100%",
 	"@media": {
 		"screen and (max-width: 960px)": {
 			flexWrap: "wrap",
@@ -26,12 +27,13 @@ const topNavControlSurface = {
 
 export const searchShell = style({
 	position: "relative",
-	minWidth: "18rem",
+	minWidth: 0,
 	width: "min(32rem, 100%)",
+	maxWidth: "min(32rem, calc(100vw - 1rem))",
 	"@media": {
 		"screen and (max-width: 960px)": {
-			minWidth: "14rem",
 			width: "100%",
+			maxWidth: "100%",
 		},
 	},
 });
@@ -40,6 +42,8 @@ export const searchField = style({
 	display: "flex",
 	alignItems: "center",
 	gap: "0.5rem",
+	minWidth: 0,
+	boxSizing: "border-box",
 	padding: "0.45rem 0.6rem",
 	borderRadius: hardEdgeRadius,
 	...topNavControlSurface,
@@ -186,7 +190,7 @@ export const searchHint = style({
 		},
 	},
 	"@media": {
-		"screen and (max-width: 560px)": {
+		"screen and (max-width: 768px)": {
 			display: "none",
 		},
 	},

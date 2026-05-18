@@ -16,6 +16,9 @@ export const container = style({
 	flexDirection: "column",
 	minHeight: "80vh",
 	width: "100%",
+	maxWidth: "100%",
+	minWidth: 0,
+	boxSizing: "border-box",
 	backgroundColor: lightThemeVars.color.background,
 	color: lightThemeVars.color.text,
 	vars: {
@@ -37,6 +40,9 @@ export const headerContainer = style({
 	display: "flex",
 	justifyContent: "space-between",
 	alignItems: "flex-start",
+	boxSizing: "border-box",
+	width: "100%",
+	minWidth: 0,
 	margin: "1rem 2rem 1.5rem 2rem",
 	position: "relative",
 	gap: "1.5rem",
@@ -71,6 +77,7 @@ export const quadrantIntro = style({
 	display: "grid",
 	gap: "0.85rem",
 	maxWidth: "62rem",
+	minWidth: 0,
 	paddingTop: "0.1rem",
 	flex: 1,
 });
@@ -130,8 +137,16 @@ export const quadrantIntroItemTitle = style({
 export const searchContainer = style({
 	display: "flex",
 	flexDirection: "column",
+	minWidth: 0,
+	width: "100%",
+	maxWidth: "14rem",
 	marginBottom: "0.5rem",
 	flexShrink: 0,
+	"@media": {
+		"screen and (max-width: 980px)": {
+			maxWidth: "100%",
+		},
+	},
 });
 
 // Search footer styles
@@ -153,7 +168,9 @@ export const searchInput = style({
 	borderRadius: hardEdgeRadius,
 	backgroundColor: "#f0f0f0",
 	color: "#333",
-	width: "200px",
+	boxSizing: "border-box",
+	width: "100%",
+	maxWidth: "100%",
 	transition:
 		"background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease",
 	":focus": {
@@ -203,11 +220,19 @@ globalStyle(`html[data-theme="dark"] .${searchResultsCount}`, {
 export const contentContainer = style({
 	display: "flex",
 	flex: 1,
+	minWidth: 0,
+	"@media": {
+		"screen and (max-width: 980px)": {
+			flexDirection: "column",
+		},
+	},
 });
 
 // Scroll panel styles
 export const scrollPanel = style({
 	flex: "0 0 38.2%",
+	minWidth: 0,
+	boxSizing: "border-box",
 	borderRight: `1px solid ${quadrantColor}`,
 	padding: "2rem",
 	height: "calc(80vh - 5rem)",
@@ -228,6 +253,17 @@ export const scrollPanel = style({
 		},
 		"&::-webkit-scrollbar-thumb:hover": {
 			background: `color-mix(in srgb, ${quadrantColor} 35%, transparent)`,
+		},
+	},
+	"@media": {
+		"screen and (max-width: 980px)": {
+			flex: "none",
+			width: "100%",
+			height: "auto",
+			maxHeight: "24rem",
+			borderRight: "none",
+			borderBottom: "1px solid var(--quadrant-color)",
+			padding: "1.25rem",
 		},
 	},
 });
@@ -335,6 +371,8 @@ globalStyle(`html[data-theme="dark"] .${blipRing}`, {
 // Detail panel styles
 export const detailPanel = style({
 	flex: 1,
+	minWidth: 0,
+	boxSizing: "border-box",
 	minHeight: "calc(80vh - 5rem)",
 	alignSelf: "flex-start",
 	padding: "2rem",
@@ -343,6 +381,8 @@ export const detailPanel = style({
 	"@media": {
 		"screen and (max-width: 980px)": {
 			alignSelf: "stretch",
+			minHeight: "auto",
+			padding: "1.25rem",
 		},
 	},
 });

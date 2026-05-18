@@ -138,8 +138,10 @@ const BlipHistory = ({
 		return (
 			<div
 				style={{
-					width,
+					width: "100%",
+					maxWidth: `${width}px`,
 					height,
+					boxSizing: "border-box",
 					display: "flex",
 					alignItems: "center",
 					justifyContent: "center",
@@ -196,8 +198,20 @@ const BlipHistory = ({
 	};
 
 	return (
-		<div style={{ position: "relative" }}>
-			<svg width={width} height={height}>
+		<div
+			style={{
+				position: "relative",
+				width: "100%",
+				maxWidth: `${width}px`,
+			}}
+		>
+			<svg
+				width={width}
+				height={height}
+				viewBox={`0 0 ${width} ${height}`}
+				preserveAspectRatio="xMinYMin meet"
+				style={{ display: "block", width: "100%", height: "auto" }}
+			>
 				<title>Movement history timeline</title>
 				<rect
 					width={width}

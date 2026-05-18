@@ -6,6 +6,10 @@ import { darkThemeVars, hardEdgeRadius, lightThemeVars } from "../theme.css";
 // Container for the quadrant page
 export const quadrantContainer = style({
 	padding: "2rem",
+	boxSizing: "border-box",
+	width: "100%",
+	maxWidth: "100%",
+	minWidth: 0,
 	minHeight: "100vh",
 	backgroundColor: lightThemeVars.color.background,
 	color: lightThemeVars.color.text,
@@ -32,6 +36,8 @@ export const navigationContainer = style({
 	display: "flex",
 	justifyContent: "space-between",
 	alignItems: "center",
+	minWidth: 0,
+	gap: "1rem",
 	marginBottom: "1rem",
 	"@media": {
 		"screen and (max-width: 768px)": {
@@ -76,6 +82,8 @@ export const quadrantTitle = style({
 export const quadrantNav = style({
 	display: "flex",
 	gap: "0.75rem",
+	minWidth: 0,
+	maxWidth: "100%",
 	flexWrap: "nowrap",
 	overflowX: "auto",
 	"@media": {
