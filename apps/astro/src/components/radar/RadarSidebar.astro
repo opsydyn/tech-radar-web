@@ -49,24 +49,24 @@ const { editions } = Astro.props;
 			<div class={styles.content}>
 				<section class={styles.section} data-base-ui-swipe-ignore="">
 					<div class={styles.sectionHeading}>Edition</div>
-					<RadarSidebarControls editions={editions} client:load />
+					<RadarSidebarControls editions={editions} client:only="react" />
 				</section>
 
 				<section class={styles.section}>
 					<div class={styles.sectionHeading}>Quadrants</div>
-					<RadarSidebarQuadrantLinks client:load />
+					<RadarSidebarQuadrantLinks client:only="react" />
 				</section>
 
 				<section class={styles.radarSection} data-base-ui-swipe-ignore="">
 					<div class={styles.sectionHeading}>Radar</div>
-					<RadarSidebarRadarToggle client:load />
+					<RadarSidebarRadarToggle client:only="react" />
 				</section>
 			</div>
 		</div>
 	</aside>
 </div>
 
-<RadarSidebarController client:load />
+<RadarSidebarController client:only="react" />
 
 <script is:inline>
 	(() => {

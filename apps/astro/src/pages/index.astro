@@ -56,11 +56,15 @@ const editions = snapshotEditions;
 ---
 
 <Layout>
-	<RadarTopNavControls slot="topNavControls" client:load />
+	<RadarTopNavControls slot="topNavControls" client:only="react" />
 	<div slot="center" class:list={[styles.flexContainer]}>
 		<RadarSidebar editions={editions} />
 		<div class:list={[styles.chartSection]}>
-			<Radar editions={editions} editionViews={snapshotEditionViews} client:load />
+			<Radar
+				editions={editions}
+				editionViews={snapshotEditionViews}
+				client:only="react"
+			/>
 		</div>
 	</div>
 </Layout>
