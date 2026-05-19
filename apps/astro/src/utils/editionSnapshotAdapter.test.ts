@@ -100,4 +100,45 @@ describe("buildRadarEditionViewsFromCollections", () => {
 			"new",
 		]);
 	});
+
+	it("passes through backfilled snapshot content so edition views can be built without canonical blips", () => {
+		const editionEntries = [
+			{ id: "2026-05/index", data: buildEdition({ id: "2026-05", number: 6 }) },
+		];
+		const snapshotEntries = [
+			buildSnapshotEntry({
+				editionId: "2026-05",
+				slug: "pnpm",
+				data: {
+					blip: "90",
+					name: "PNPM",
+					quadrant: "Tools",
+					ring: "Adopt",
+					description: "Fast, disk-efficient package manager.",
+					hasAdr: false,
+					tags: ["Frontend"],
+					authors: ["Edition Team"],
+					move: [["stay", new Date("2026-05-01")]],
+					created: new Date("2026-05-01"),
+					status: "active",
+				},
+			}),
+		];
+
+		const views = buildRadarEditionViewsFromCollections({
+			canonicalBlips: [],
+			editionEntries,
+			snapshotEntries,
+		});
+
+		expect(views[0]?.blips).toHaveLength(1);
+		expect(views[0]?.blips[0]).toMatchObject({
+			id: "90",
+			name: "PNPM",
+			quadrant: "Tools",
+			ring: "Adopt",
+			description: "Fast, disk-efficient package manager.",
+			movement: "new",
+		});
+	});
 });

@@ -1,6 +1,50 @@
 ---
-blip: "69"
-ring: "Assess"
-status: "active"
-notes: "Visual diversity fixture: new technique blip in Assess."
+blip: '69'
+name: Contract First
+ring: Assess
+quadrant: Techniques
+status: active
+description: ''
+hasAdr: true
+adr:
+  status: Proposed
+  author: Alan Currie
+  reviewers:
+  - Alan Currie
+  tags:
+  - Backend
+tags:
+- be
+authors:
+- Alan Currie
+move:
+- - go
+  - '2024-04-08'
+- - grow
+  - '2025-01-17'
+- - grow
+  - '2025-02-01'
+- - go
+  - '2025-03-24'
+- - grow
+  - '2025-04-07'
+- - grow
+  - '2025-04-10'
+created: '2023-01-02'
+notes: 'Visual diversity fixture: new technique blip in Assess.'
 ---
+
+
+## Context
+
+Contract-first delivery helps teams coordinate API changes before implementation details leak across service boundaries. The approach is useful for static documentation, generated clients, and clearer collaboration between producers and consumers.
+
+## Decision
+
+Treat contract-first design as a proposed technique for API-facing work where integration risk is high or multiple consumers depend on stable semantics.
+
+## Consequences
+
+- API contracts become reviewable artifacts before implementation is complete.
+- Teams need discipline to keep generated artifacts and implementation aligned.
+- Lightweight internal APIs may not need the full ceremony.

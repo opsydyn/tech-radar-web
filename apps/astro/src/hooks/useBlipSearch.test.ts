@@ -7,18 +7,22 @@ import {
 
 const buildBlip = (
 	overrides: Partial<Blip> & Pick<Blip, "id" | "name">,
-): Blip => ({
-	authors: ["test"],
-	description: "Test description",
-	hasAdr: false,
-	id: overrides.id,
-	move: [["stay", "2026-05-01"]],
-	name: overrides.name,
-	quadrant: "Tools",
-	ring: "Adopt",
-	tags: [],
-	...overrides,
-});
+): Blip => {
+	const { id, name, ...restOverrides } = overrides;
+
+	return {
+		authors: ["test"],
+		description: "Test description",
+		hasAdr: false,
+		id,
+		move: [["stay", "2026-05-01"]],
+		name,
+		quadrant: "Tools",
+		ring: "Adopt",
+		tags: [],
+		...restOverrides,
+	};
+};
 
 const blips: readonly Blip[] = [
 	buildBlip({

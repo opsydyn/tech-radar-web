@@ -7,7 +7,7 @@
  * - Blips can appear in multiple editions if they have multiple moves
  */
 
-import type { Blip } from "~/types/radar-types";
+import type { Blip } from "~types/radar-types";
 
 // 🏷️ Branded types for domain safety
 type EditionNumber = number & { readonly __brand: "EditionNumber" };

@@ -1,17 +1,62 @@
 ---
-blip: "54"
-ring: "Assess"
-status: "active"
-notes: "Visual diversity fixture: platform blip moved away from Adopt."
+blip: '54'
+name: Azure
+ring: Assess
+quadrant: Platforms
+status: active
+description: ''
+hasAdr: true
+adr:
+  status: Accepted
+  author: Alan Currie
+  reviewers:
+  - Alan Currie
+  tags:
+  - Cloud
+  - Backend
+tags:
+- be
+authors:
+- Alan Currie
+move:
+- - stay
+  - '2022-02-04'
+- - stay
+  - '2022-07-21'
+- - stay
+  - '2024-08-03'
+- - go
+  - '2025-03-05'
+- - stay
+  - '2025-04-09'
+created: '2023-01-02'
+notes: 'Visual diversity fixture: platform blip moved away from Adopt.'
 relatedBlips:
-  - blipId: "63"
-    relationshipType: "complement"
-    reason: "Azure Storage is a foundational Azure platform service for blob, queue, and file workloads."
-    context: "Show core cloud building blocks around Azure in the edition radar."
-    bidirectional: true
-  - blipId: "79"
-    relationshipType: "alternative"
-    reason: "Google Cloud Platform is the comparable strategic hyperscaler choice in this edition."
-    context: "Help readers compare cloud platform options."
-    bidirectional: true
+- blipId: '63'
+  relationshipType: complement
+  reason: Azure Storage is a foundational Azure platform service for blob, queue,
+    and file workloads.
+  context: Show core cloud building blocks around Azure in the edition radar.
+  bidirectional: true
+- blipId: '79'
+  relationshipType: alternative
+  reason: Google Cloud Platform is the comparable strategic hyperscaler choice in
+    this edition.
+  context: Help readers compare cloud platform options.
+  bidirectional: true
 ---
+
+
+## Context
+
+Azure is a strategic cloud platform for workloads that benefit from managed services, identity integration, and operational consistency. Because platform choice affects cost, deployment shape, and long-term maintainability, the radar needs an explicit decision record.
+
+## Decision
+
+Keep Azure as an accepted platform choice for workloads where its managed services and operational model align with team capabilities and delivery needs.
+
+## Consequences
+
+- Teams can select Azure confidently for suitable platform work.
+- Architecture decisions should still document service-level trade-offs, not simply default to Azure everywhere.
+- Cost, observability, and identity practices must be included in implementation planning.

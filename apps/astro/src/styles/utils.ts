@@ -1,4 +1,4 @@
-import type { CSSProperties } from "@vanilla-extract/css";
+import type { CSSProperties, StyleRule } from "@vanilla-extract/css";
 
 export const applyStyleProp =
 	<P extends keyof CSSProperties>(prop: P, value: CSSProperties[P]) =>
@@ -8,8 +8,8 @@ export const applyStyleProp =
 	});
 
 const composeStyleProps =
-	(styles: CSSProperties) =>
-	(rulesToApply: CSSProperties): CSSProperties => ({
+	(styles: StyleRule) =>
+	(rulesToApply: StyleRule): StyleRule => ({
 		...rulesToApply,
 		...styles,
 	});

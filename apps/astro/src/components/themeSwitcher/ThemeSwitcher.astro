@@ -1,15 +1,16 @@
 ---
-// biome-ignore lint/correctness/noUnusedImports: styles are referenced in the Astro template markup below.
 import * as styles from "./ThemeSwitcher.css";
 
+void styles;
+
 // Define client-side script for theme switching
-// biome-ignore lint/correctness/noUnusedVariables: the string is injected into the inline Astro script below.
 const themeScript = `
   function setTheme(theme) {
     const event = new CustomEvent('theme-change', { detail: { theme } });
     document.dispatchEvent(event);
   }
 `;
+void themeScript;
 ---
 
 <div class={styles.desktopSwitchers}>
@@ -37,11 +38,15 @@ const themeScript = `
 <script>
   // Listen for theme change events and call the imported setTheme function
   import { setTheme } from "~stores/theme-store";
+
+  type ThemeEventDetail = {
+    theme: "light" | "dark" | "machine";
+  };
   
   document.addEventListener('theme-change', ((event: Event) => {
-    const customEvent = event as CustomEvent<{ theme: import('~stores/theme-store').Theme }>;
+    const customEvent = event as CustomEvent<ThemeEventDetail>;
     setTheme(customEvent.detail.theme);
   }) as EventListener);
 </script>
 
-<script set:html={themeScript}></script>
+<script is:inline set:html={themeScript}></script>

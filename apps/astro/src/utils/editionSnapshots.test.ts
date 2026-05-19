@@ -110,6 +110,40 @@ describe("buildRadarEditionView", () => {
 			editionId: "2026-05",
 		});
 	});
+
+	it("builds active edition snapshots directly from snapshot content when canonical data is unavailable", () => {
+		const editionView = buildRadarEditionView({
+			editionId: "2026-05",
+			canonicalBlips: [],
+			currentSnapshots: [
+				{
+					blipId: "90",
+					name: "PNPM",
+					quadrant: "Tools",
+					ring: "Adopt",
+					description: "Fast, disk-efficient package manager.",
+					hasAdr: false,
+					tags: ["Frontend"],
+					authors: ["Edition Team"],
+					move: [],
+					created: new Date("2026-05-01"),
+					status: "active",
+				},
+			],
+			previousSnapshots: [],
+		});
+
+		expect(editionView.blips).toHaveLength(1);
+		expect(editionView.blips[0]).toMatchObject({
+			id: "90",
+			name: "PNPM",
+			quadrant: "Tools",
+			ring: "Adopt",
+			description: "Fast, disk-efficient package manager.",
+			movement: "new",
+			editionId: "2026-05",
+		});
+	});
 });
 
 describe("getEditionIdFromSnapshotPath", () => {

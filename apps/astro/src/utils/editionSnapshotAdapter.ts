@@ -50,11 +50,19 @@ const toEditionBlipSnapshot = ({
 	data,
 }: CollectionEntryLike<EditionBlipSnapshotData>): EditionBlipSnapshot => ({
 	blipId: data.blip,
+	authors: data.authors,
+	created: data.created,
+	description: data.description,
+	adr: data.adr,
+	hasAdr: data.hasAdr,
+	move: data.move,
+	name: data.name,
 	notes: data.notes,
 	quadrant: data.quadrant,
 	relatedBlips: data.relatedBlips,
 	ring: data.ring,
 	status: data.status,
+	tags: data.tags,
 });
 
 const appendSnapshot = (

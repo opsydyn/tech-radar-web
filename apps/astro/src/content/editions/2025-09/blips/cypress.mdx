@@ -1,20 +1,57 @@
 ---
 blip: '9'
+name: Cypress
 ring: Assess
+quadrant: Tools
 status: active
-notes: >-
-  Visual fixture: starts further out so the next edition can show a moved-in
-  arrow.
+description: ''
+hasAdr: true
+adr:
+  status: Accepted
+  author: Alan Currie
+  reviewers:
+  - Alan Currie
+  tags:
+  - Frontend
+  - Qa
+tags:
+- fe
+authors:
+- Alan Currie
+move:
+- - go
+  - '2023-03-03'
+- - go
+  - '2024-04-30'
+- - grow
+  - '2024-12-17'
+created: '2023-01-02'
+notes: 'Visual fixture: starts further out so the next edition can show a moved-in
+  arrow.'
 relatedBlips:
-  - blipId: '33'
-    relationshipType: ecosystem
-    reason: Cypress is frequently used to validate React user journeys end to end.
-    context: Tie frontend testing tools back to the main UI framework in this edition.
-    bidirectional: true
-  - blipId: '43'
-    relationshipType: comparison
-    reason: >-
-      Cypress and Webpack are serving complementary testing and bundling roles
-      in frontend development, meriting comparison.
-    bidirectional: false
+- blipId: '33'
+  relationshipType: ecosystem
+  reason: Cypress is frequently used to validate React user journeys end to end.
+  context: Tie frontend testing tools back to the main UI framework in this edition.
+  bidirectional: true
+- blipId: '43'
+  relationshipType: comparison
+  reason: Cypress and Webpack are serving complementary testing and bundling roles
+    in frontend development, meriting comparison.
+  bidirectional: false
 ---
+
+
+## Context
+
+Cypress is used as a high-confidence browser testing tool for product flows where fast feedback and clear debugging matter. The team needs an explicit decision record because test tooling shapes developer workflow, CI runtime, and confidence in release readiness.
+
+## Decision
+
+Keep Cypress as an accepted testing tool for end-to-end and component-level browser scenarios where its developer experience and diagnostics are valuable.
+
+## Consequences
+
+- Teams have a clear default for browser automation scenarios.
+- Test suites should remain focused to avoid slow feedback loops.
+- Projects should pair Cypress coverage with lower-level tests where browser automation would be excessive.

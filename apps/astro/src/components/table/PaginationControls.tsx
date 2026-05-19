@@ -1,5 +1,5 @@
 import type { Table } from "@tanstack/react-table";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { ArrowBarLeft } from "pixelarticons/react/ArrowBarLeft";
 import { ArrowBarRight } from "pixelarticons/react/ArrowBarRight";
 import { ChevronLeft } from "pixelarticons/react/ChevronLeft";
@@ -40,7 +40,7 @@ const paginationIconProps = {
 	width: 16,
 } as const;
 
-const buttonVariants = {
+const buttonVariants: Variants = {
 	initial: {
 		scale: 1,
 		rotate: 0,
@@ -66,7 +66,7 @@ const buttonVariants = {
 	},
 };
 
-const selectVariants = {
+const selectVariants: Variants = {
 	initial: {
 		scale: 1,
 		y: 0,

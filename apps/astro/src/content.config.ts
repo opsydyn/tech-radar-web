@@ -57,16 +57,46 @@ const AdrSchema = z.object({
 	tags: Tags,
 });
 
+const DescriptionSchema = z.preprocess(
+	(value) => (typeof value === "string" ? value : ""),
+	z.string(),
+);
+
+const addAdrConsistencyIssues = (
+	value: { hasAdr?: boolean; adr?: AdrMetadata },
+	ctx: z.RefinementCtx,
+	options: {
+		readonly missingAdrMessage: string;
+		readonly unexpectedAdrMessage: string;
+	},
+) => {
+	const hasEmbeddedAdr = value.hasAdr === true && value.adr !== undefined;
+	const hasUnexpectedAdr = value.hasAdr !== true && value.adr !== undefined;
+
+	if (value.hasAdr === true && !hasEmbeddedAdr) {
+		ctx.addIssue({
+			code: "custom",
+			message: options.missingAdrMessage,
+			path: ["adr"],
+		});
+	}
+
+	if (hasUnexpectedAdr) {
+		ctx.addIssue({
+			code: "custom",
+			message: options.unexpectedAdrMessage,
+			path: ["adr"],
+		});
+	}
+};
+
 const BlipSchema = z
 	.object({
 		id: z.string(),
 		name: z.string(),
 		quadrant: QuadrantEnum,
 		ring: RingEnum,
-		description: z.preprocess(
-			(value) => (typeof value === "string" ? value : ""),
-			z.string(),
-		),
+		description: DescriptionSchema,
 		hasAdr: z.boolean(),
 		adr: AdrSchema.optional(),
 		tags: z.array(z.string()),
@@ -76,24 +106,12 @@ const BlipSchema = z
 		created: z.coerce.date().optional(),
 	})
 	.superRefine((blip, ctx) => {
-		const hasEmbeddedAdr = blip.hasAdr === true && blip.adr !== undefined;
-		const hasUnexpectedAdr = blip.hasAdr === false && blip.adr !== undefined;
-
-		if (blip.hasAdr === true && !hasEmbeddedAdr) {
-			ctx.addIssue({
-				code: "custom",
-				message: "Blips with hasAdr: true must include an adr metadata block.",
-				path: ["adr"],
-			});
-		}
-
-		if (hasUnexpectedAdr) {
-			ctx.addIssue({
-				code: "custom",
-				message: "Blips with hasAdr: false must not include adr metadata.",
-				path: ["adr"],
-			});
-		}
+		addAdrConsistencyIssues(blip, ctx, {
+			missingAdrMessage:
+				"Blips with hasAdr: true must include an adr metadata block.",
+			unexpectedAdrMessage:
+				"Blips with hasAdr: false must not include adr metadata.",
+		});
 	});
 
 export type AdrStatus = z.infer<typeof AdrStatusEnum>;
@@ -137,8 +155,16 @@ export type EditionData = z.infer<typeof EditionSchema>;
 const EditionBlipSnapshotSchema = z
 	.object({
 		blip: z.string().min(1),
+		name: z.string().optional(),
 		ring: RingEnum.optional(),
 		quadrant: QuadrantEnum.optional(),
+		description: DescriptionSchema.optional(),
+		hasAdr: z.boolean().optional(),
+		adr: AdrSchema.optional(),
+		tags: z.array(z.string()).optional(),
+		authors: z.array(z.string()).optional(),
+		move: z.array(MoveTuple).optional(),
+		created: z.coerce.date().optional(),
 		status: EditionBlipStatusEnum.default("active"),
 		notes: z.string().optional(),
 		relatedBlips: z.array(RelatedBlipSchema).optional(),
@@ -154,6 +180,13 @@ const EditionBlipSnapshotSchema = z
 				path: ["ring"],
 			});
 		}
+
+		addAdrConsistencyIssues(snapshot, ctx, {
+			missingAdrMessage:
+				"Edition blip snapshots with hasAdr: true must include an adr metadata block.",
+			unexpectedAdrMessage:
+				"Edition blip snapshots with hasAdr: false must not include adr metadata.",
+		});
 	});
 
 export type EditionBlipSnapshotData = z.infer<typeof EditionBlipSnapshotSchema>;

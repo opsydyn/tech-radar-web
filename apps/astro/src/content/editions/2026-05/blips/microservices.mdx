@@ -1,22 +1,52 @@
 ---
-blip: "109"
-ring: "Trial"
-status: "active"
-notes: "Visual diversity fixture: technique blip moved away from Adopt."
+blip: '109'
+name: Microservices
+ring: Trial
+quadrant: Techniques
+status: active
+description: ''
+hasAdr: false
+tags:
+- be
+authors:
+- Author
+move:
+- - go
+  - '2025-01-11'
+- - grow
+  - '2025-03-23'
+- - stay
+  - '2025-04-06'
+- - go
+  - '2025-04-09'
+- - grow
+  - '2025-04-09'
+created: '2023-01-02'
+notes: 'Visual diversity fixture: technique blip moved away from Adopt.'
 relatedBlips:
-  - blipId: "72"
-    relationshipType: "ecosystem"
-    reason: "Event Sourcing is a common architectural pattern inside microservice-heavy systems."
-    context: "Reveal architecture patterns connected to service decomposition."
-    bidirectional: true
-  - blipId: "69"
-    relationshipType: "prerequisite"
-    reason: "Contract-first API design helps microservices evolve safely across team boundaries."
-    context: "Highlight the governance practice that keeps service boundaries explicit."
-    bidirectional: true
-  - blipId: "126"
-    relationshipType: "migration"
-    reason: "The Strangler Pattern is a practical migration route toward microservices."
-    context: "Connect architecture target state with incremental modernization tactics."
-    bidirectional: true
+- blipId: '72'
+  relationshipType: ecosystem
+  reason: Event Sourcing is a common architectural pattern inside microservice-heavy
+    systems.
+  context: Reveal architecture patterns connected to service decomposition.
+  bidirectional: true
+- blipId: '69'
+  relationshipType: prerequisite
+  reason: Contract-first API design helps microservices evolve safely across team
+    boundaries.
+  context: Highlight the governance practice that keeps service boundaries explicit.
+  bidirectional: true
+- blipId: '126'
+  relationshipType: migration
+  reason: The Strangler Pattern is a practical migration route toward microservices.
+  context: Connect architecture target state with incremental modernization tactics.
+  bidirectional: true
 ---
+
+
+# "Microservices"
+**Ring**: "Adopt"
+**Quadrant**: "Techniques"
+**New**: false
+**Description**: {{description}}
+**has ADR**: false

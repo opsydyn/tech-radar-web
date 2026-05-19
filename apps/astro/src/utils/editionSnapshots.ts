@@ -15,11 +15,31 @@ export type DerivedMovement =
 
 export type EditionBlipSnapshot = {
 	readonly blipId: string;
+	readonly name?: Blip["name"];
 	readonly ring?: Ring;
 	readonly quadrant?: Quadrant;
+	readonly description?: Blip["description"];
+	readonly hasAdr?: Blip["hasAdr"];
+	readonly adr?: Blip["adr"];
+	readonly tags?: Blip["tags"];
+	readonly authors?: Blip["authors"];
+	readonly move?: Blip["move"];
+	readonly created?: Blip["created"];
 	readonly status: EditionBlipStatus;
 	readonly notes?: string;
 	readonly relatedBlips?: RelatedBlip[];
+};
+
+type SnapshotBackfilledBlipFields = {
+	readonly name: Blip["name"];
+	readonly quadrant: Quadrant;
+	readonly description: Blip["description"];
+	readonly hasAdr: Blip["hasAdr"];
+	readonly adr?: Blip["adr"];
+	readonly tags: Blip["tags"];
+	readonly authors: Blip["authors"];
+	readonly move: Blip["move"];
+	readonly created?: Blip["created"];
 };
 
 export type ActiveEditionBlipSnapshot = EditionBlipSnapshot & {
@@ -76,6 +96,75 @@ const findBlipById = (
 	blips: readonly Blip[],
 	blipId: string,
 ): Blip | undefined => blips.find((blip) => blip.id === blipId);
+
+const hasDefinedValue = <T>(value: T | undefined): value is T =>
+	value !== undefined;
+
+const hasBackfilledSnapshotBlipFields = (
+	snapshot: ActiveEditionBlipSnapshot,
+): snapshot is ActiveEditionBlipSnapshot & SnapshotBackfilledBlipFields =>
+	hasDefinedValue(snapshot.name) &&
+	hasDefinedValue(snapshot.quadrant) &&
+	hasDefinedValue(snapshot.description) &&
+	typeof snapshot.hasAdr === "boolean" &&
+	hasDefinedValue(snapshot.tags) &&
+	hasDefinedValue(snapshot.authors) &&
+	hasDefinedValue(snapshot.move) &&
+	(snapshot.hasAdr === false || snapshot.adr !== undefined);
+
+const buildSnapshotBackfilledBlip = (
+	snapshot: ActiveEditionBlipSnapshot,
+): Blip | undefined => {
+	if (!hasBackfilledSnapshotBlipFields(snapshot)) {
+		return undefined;
+	}
+
+	return {
+		id: snapshot.blipId,
+		name: snapshot.name,
+		quadrant: snapshot.quadrant,
+		ring: snapshot.ring,
+		description: snapshot.description,
+		hasAdr: snapshot.hasAdr,
+		adr: snapshot.adr,
+		tags: snapshot.tags,
+		authors: snapshot.authors,
+		move: snapshot.move,
+		created: snapshot.created,
+		relatedBlips: snapshot.relatedBlips,
+	};
+};
+
+const buildEditionBlip = (
+	snapshot: ActiveEditionBlipSnapshot,
+	canonicalBlip: Blip | undefined,
+): Blip | undefined => {
+	const snapshotBackfilledBlip = buildSnapshotBackfilledBlip(snapshot);
+	const baseBlip = snapshotBackfilledBlip ?? canonicalBlip;
+
+	if (baseBlip === undefined) {
+		return undefined;
+	}
+
+	const hasAdr = snapshot.hasAdr ?? baseBlip.hasAdr;
+	const adr = hasAdr ? (snapshot.adr ?? baseBlip.adr) : undefined;
+
+	return {
+		...baseBlip,
+		id: snapshot.blipId,
+		name: snapshot.name ?? baseBlip.name,
+		quadrant: snapshot.quadrant ?? baseBlip.quadrant,
+		ring: snapshot.ring,
+		description: snapshot.description ?? baseBlip.description,
+		hasAdr,
+		adr,
+		tags: snapshot.tags ?? baseBlip.tags,
+		authors: snapshot.authors ?? baseBlip.authors,
+		move: snapshot.move ?? baseBlip.move,
+		created: snapshot.created ?? baseBlip.created,
+		relatedBlips: snapshot.relatedBlips,
+	};
+};
 
 const deriveActiveMovement = (
 	current: ActiveEditionBlipSnapshot,
@@ -137,7 +226,8 @@ export const buildRadarEditionView = ({
 		}
 
 		const canonicalBlip = findBlipById(canonicalBlips, currentSnapshot.blipId);
-		if (canonicalBlip === undefined) {
+		const editionBlip = buildEditionBlip(currentSnapshot, canonicalBlip);
+		if (editionBlip === undefined) {
 			return [];
 		}
 
@@ -155,13 +245,10 @@ export const buildRadarEditionView = ({
 
 		return [
 			{
-				...canonicalBlip,
+				...editionBlip,
 				editionId,
 				movement,
 				previousRing,
-				quadrant: currentSnapshot.quadrant ?? canonicalBlip.quadrant,
-				relatedBlips: currentSnapshot.relatedBlips,
-				ring: currentSnapshot.ring,
 			},
 		];
 	}),
