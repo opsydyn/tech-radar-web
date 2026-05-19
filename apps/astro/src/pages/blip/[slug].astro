@@ -17,7 +17,9 @@ import {
 	getBlipPath,
 	getBlipSlug,
 } from "../../utils/blipRouting";
+import { buildRadarEditionViewsFromCollections } from "../../utils/editionSnapshotAdapter";
 import { formatDate } from "../../utils/dateFormatter";
+import { getQuadrantPath } from "../../utils/quadrantRouting";
 import {
 	getQuadrantColor,
 	getQuadrantColorDark,
@@ -27,7 +29,16 @@ import { getRelatedBlipsContext } from "../../utils/relatedBlipsUtils";
 import * as styles from "~styles/pages/blip.css";
 
 type BlipCollectionEntry = CollectionEntry<"blip"> & { data: Blip };
+type EditionSnapshotEntry = CollectionEntry<"editionSnapshot">;
+type EditionBlipSnapshotEntry = CollectionEntry<"editionBlipSnapshot">;
 type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+
+type BlipIdentity = Pick<Blip, "id" | "name">;
+
+const matchesBlipRouteParam = (
+	routeParam: string,
+	blip: BlipIdentity,
+): boolean => routeParam === blip.id || routeParam === getBlipSlug(blip);
 
 export const getStaticPaths = (async () => {
 	const blips: BlipCollectionEntry[] = await getCollection("blip");
@@ -41,29 +52,58 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const blips: BlipCollectionEntry[] = await getCollection("blip");
+const editionEntries: EditionSnapshotEntry[] =
+	await getCollection("editionSnapshot");
+const editionBlipSnapshotEntries: EditionBlipSnapshotEntry[] =
+	await getCollection("editionBlipSnapshot");
 const { slug } = Astro.params as Params;
+const editionViews = buildRadarEditionViewsFromCollections({
+	canonicalBlips: blips.map(({ data }) => data),
+	editionEntries,
+	snapshotEntries: editionBlipSnapshotEntries,
+});
+const latestEditionView = editionViews[0];
+const latestEditionBlip =
+	typeof slug === "string"
+		? latestEditionView?.blips.find((entry) =>
+				matchesBlipRouteParam(slug, {
+					id: entry.id,
+					name: entry.name,
+				}),
+			)
+		: undefined;
 
 const blip =
 	typeof slug === "string" ? findBlipByRouteParam(blips, slug) : undefined;
-const blipData = blip?.data as Blip | undefined;
+const blipData = latestEditionBlip ?? (blip?.data as Blip | undefined);
 const blipContent = blip ? await render(blip) : undefined;
 const Content = blipContent?.Content;
 const embeddedAdr = blipData?.adr;
 const showAdrSection = blipData?.hasAdr === true;
 const hasEmbeddedAdr = showAdrSection && embeddedAdr !== undefined;
 const formattedDate = formatDate(blipData?.created);
+const activeEditionId = latestEditionBlip
+	? latestEditionView?.edition.id
+	: undefined;
+const activeEditionTitle = latestEditionBlip
+	? latestEditionView?.edition.title
+	: undefined;
 
 const relatedBlipsContext = blipData?.id
-	? await getRelatedBlipsContext(blipData.id)
+	? await getRelatedBlipsContext(
+			blipData.id,
+			activeEditionId ? { editionId: activeEditionId } : undefined,
+		)
 	: null;
 
 const enrichedRelatedBlips = relatedBlipsContext
 	? [...relatedBlipsContext.relatedBlips]
 	: [];
 const currentEditionId =
-	relatedBlipsContext?.type === "snapshot"
+	activeEditionId ??
+	(relatedBlipsContext?.type === "snapshot"
 		? relatedBlipsContext.editionId
-		: undefined;
+		: undefined);
 
 const fallbackRelatedBlips =
 	enrichedRelatedBlips.length === 0
@@ -74,6 +114,12 @@ const fallbackRelatedBlips =
 const quadrantColorValue = getQuadrantColor(blipData?.quadrant);
 const quadrantColorSolidValue = getQuadrantColorSolid(blipData?.quadrant);
 const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
+const quadrantBackLink = blipData?.quadrant
+	? getQuadrantPath(
+			blipData.quadrant,
+			currentEditionId ? { editionId: currentEditionId } : undefined,
+		)
+	: "/";
 ---
 
 <BlipLayout>
@@ -83,11 +129,14 @@ const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
     --quadrant-color-dark: ${quadrantColorDarkValue};
   `}>
     <!-- Hero Section -->
-    <PageHeader title={blipData?.name ?? "Tech Radar Blip"} />
+    <PageHeader
+      title={blipData?.name ?? "Tech Radar Blip"}
+      subtitle={activeEditionTitle ? `Latest edition snapshot: ${activeEditionTitle}` : undefined}
+    />
 
     <!-- Navigation Bar -->
     <StickyNavigation
-      backLink={`/quadrants/${blipData?.quadrant?.toLowerCase()}`}
+      backLink={quadrantBackLink}
       backText={blipData?.quadrant ?? "Back"}
       tabs={[
         { href: "#overview", text: "Overview" },
@@ -96,7 +145,7 @@ const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
         { href: "#related", text: "Related" }
       ]}
       quadrantLinks={true}
-      quadrantEditionId={undefined}
+      quadrantEditionId={currentEditionId}
     />
 
     <!-- Details Section -->

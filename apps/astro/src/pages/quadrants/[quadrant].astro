@@ -6,6 +6,7 @@ import BlipListIsland from "~components/BlipListIsland";
 import BlipLayout from "~layouts/BlipLayout.astro";
 import * as styles from "~styles/pages/quadrant.css";
 import type { Blip } from "~types/radar-types";
+import { buildRadarEditionViewsFromCollections } from "~utils/editionSnapshotAdapter";
 import { getQuadrantColorSolid } from "~utils/quadrantColors";
 import {
 	getQuadrantPath,
@@ -15,6 +16,8 @@ import {
 } from "~utils/quadrantRouting";
 
 type BlipCollectionEntry = CollectionEntry<"blip"> & { data: Blip };
+type EditionSnapshotEntry = CollectionEntry<"editionSnapshot">;
+type EditionBlipSnapshotEntry = CollectionEntry<"editionBlipSnapshot">;
 
 export async function getStaticPaths() {
 	return Object.keys(quadrantRouteLabels).map((quadrant) => {
@@ -28,11 +31,27 @@ const quadrants = quadrantRouteLabels;
 
 const quadrant = (toQuadrantRouteKey(Astro.params.quadrant ?? "tools") ??
 	"tools") as QuadrantRouteKey;
-const blips: BlipCollectionEntry[] = await getCollection("blip");
-
-const blipData = blips.filter(
-	({ data }: { data: Blip }) => toQuadrantRouteKey(data.quadrant) === quadrant,
+const canonicalBlips: BlipCollectionEntry[] = await getCollection("blip");
+const editionEntries: EditionSnapshotEntry[] =
+	await getCollection("editionSnapshot");
+const snapshotEntries: EditionBlipSnapshotEntry[] = await getCollection(
+	"editionBlipSnapshot",
 );
+const editionViews = buildRadarEditionViewsFromCollections({
+	canonicalBlips: canonicalBlips.map(({ data }) => data),
+	editionEntries,
+	snapshotEntries,
+});
+const latestEditionView = editionViews[0];
+const activeEditionId = latestEditionView?.edition.id;
+const activeEditionTitle = latestEditionView?.edition.title ?? activeEditionId;
+const blipData: Blip[] = latestEditionView
+	? latestEditionView.blips.filter(
+			(blip) => toQuadrantRouteKey(blip.quadrant) === quadrant,
+		)
+	: canonicalBlips
+			.map(({ data }) => data)
+			.filter((data) => toQuadrantRouteKey(data.quadrant) === quadrant);
 const quadrantColor = getQuadrantColorSolid(quadrant);
 
 // Helper function to get nav item style classes
@@ -71,11 +90,21 @@ const getNavItemClasses = (
 					<h1 class={styles.quadrantTitle}>
 						{quadrants[quadrant]}
 					</h1>
+					{activeEditionTitle && (
+						<p
+							style={`margin: 0.5rem 0 0; color: ${quadrantColor}; font-family: 'IBM Plex Mono', monospace;`}
+						>
+							Latest edition snapshot: {activeEditionTitle}
+						</p>
+					)}
 				</div>
 				<nav class={styles.quadrantNav}>
 					{Object.entries(quadrants).map(([key, label]) => (
 						<a
-							href={getQuadrantPath(key)}
+							href={getQuadrantPath(
+								key,
+								activeEditionId ? { editionId: activeEditionId } : undefined,
+							)}
 							class={getNavItemClasses(key as keyof typeof quadrants, quadrant)}
 						>
 							{label}
@@ -86,9 +115,10 @@ const getNavItemClasses = (
 		</header>
 		<BlipListIsland
 			client:idle
-			blips={blipData.map(({data}) => data)}
+			blips={blipData}
 			quadrant={quadrant}
 			quadrantColor={quadrantColor}
+			editionId={activeEditionId}
 		/>
 	</div>
 </BlipLayout>

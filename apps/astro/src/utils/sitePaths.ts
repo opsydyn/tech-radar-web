@@ -17,5 +17,12 @@ export const withBaseHref = (href: string): string => {
 		return href;
 	}
 
+	if (
+		trimmedBaseUrl !== "/" &&
+		(href === trimmedBaseUrl || href.startsWith(`${trimmedBaseUrl}/`))
+	) {
+		return href;
+	}
+
 	return withBasePath(href as `/${string}` | "/");
 };

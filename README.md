@@ -21,11 +21,15 @@ This repository currently focuses on:
 
 - an Astro 6 web app in `apps/astro`
 - MDX content for blips and editions
+- edition-owned snapshot content in `apps/astro/src/content/editions/`
 - React 19 islands for interactive radar UI
 - Visx-powered radar visualization
 - Vanilla Extract styles
 - fuzzy search with Fuse.js
-- a Flue-powered edition authoring agent in `tooling/tech-radar-edition-agent`
+- edition-aware static blip and quadrant routes
+- snapshot-first related blip rendering on detail pages
+- a Flue-powered edition and related-blips authoring package in `tooling/tech-radar-edition-agent`
+- a draft related-blips GitHub Actions workflow for reviewable snapshot PRs
 - GitHub Pages deployment
 - Moon task orchestration
 - Bun package management
@@ -39,7 +43,7 @@ Out of scope for the simplified version:
 - document freshness API endpoints
 - full-stack intelligence services
 
-## Flue edition agent docs
+## Flue agent docs
 
 For the full Flue docs map, start at the Flue landing page:
 
@@ -53,7 +57,8 @@ Direct links to the Flue doc set:
 - [Why the repo uses Flue this way](./docs/flue/explanation.md)
 
 The Flue slice is intentionally narrow: it supports authoring reviewable edition
-drafts and provenance-aware narrative, while the published site remains static.
+drafts, provenance-aware narrative, and reviewable related-blip snapshot edits,
+while the published site remains static.
 
 ## Repository structure
 
@@ -69,7 +74,7 @@ drafts and provenance-aware narrative, while the published site remains static.
 │   └── tsconfig/           # Shared TypeScript configuration package
 ├── tooling/
 │   └── tech-radar-edition-agent/
-│       ├── .flue/          # Flue agents and roles
+│       ├── .flue/          # Flue agents and roles for edition + relationship drafting
 │       ├── .agents/        # Flue skill markdown
 │       └── package.json    # Flue tooling package scripts/deps
 ├── .github/workflows/      # GitHub Actions workflows
@@ -91,15 +96,14 @@ apps/astro/
 │   ├── components/         # Astro and React components
 │   ├── content/            # Astro content collections
 │   │   ├── blip/           # Technology blip MDX documents
-│   │   ├── edition/        # Legacy edition MDX documents
 │   │   └── editions/       # Edition-owned snapshot folders and blip state
 │   ├── hooks/              # React hooks
 │   ├── layouts/            # Astro layouts
-│   ├── pages/              # Static routes
+│   ├── pages/              # Canonical and edition-scoped static routes
 │   ├── stores/             # Nanostores state
 │   ├── styles/             # Vanilla Extract styles
 │   ├── types/              # Shared TypeScript domain types
-│   └── utils/              # Build-time/content utilities
+│   └── utils/              # Build-time/content utilities and route helpers
 ├── astro.config.mts
 ├── content.config.ts
 └── package.json
@@ -183,15 +187,19 @@ bun run sherif
 From `tooling/tech-radar-edition-agent`:
 
 ```bash
-bun run flue:dev       # Start Flue local development mode with ../../.env
-bun run flue:run       # Run the edition agent once with the default local payload
-bun run typecheck      # Type-check the Flue tooling package
+bun run flue:dev                 # Start Flue local development mode with ../../.env
+bun run flue:run                 # Run the edition agent once with the default local payload
+bun run flue:run:relationships   # Run the relationships agent once for the default edition payload
+bun run generate:relationships   # Execute the deterministic relationship-draft generator
+bun run typecheck                # Type-check the Flue tooling package
+bun run test                     # Test deterministic relationship merge logic
 ```
 
 At the workspace root, the Flue CLI is available through the installed dev dependency:
 
 ```bash
 flue run edition --target node --id local-edition --payload '{}'
+flue run relationships --target node --id local-related-blips --payload '{"editionId":"2026-05"}'
 ```
 
 ### Astro app scripts
@@ -236,39 +244,29 @@ move:
 ```
 
 Today, `ring` and `move` still exist on canonical blips for compatibility with
-legacy edition rendering and blip detail/history views. They are no longer the
-only source of truth for the radar when edition snapshots are present.
+blip detail/history views and canonical-route fallback when a blip is not
+present in the latest edition snapshot. They are no longer the only source of
+truth for the radar when edition snapshots are present.
 
 ### Editions
 
-Legacy editions live in:
-
-```text
-apps/astro/src/content/edition/
-```
-
-Each edition is an MDX document with metadata such as:
-
-```yaml
----
-id: "6"
-number: 6
-title: "Tech Radar Edition 6 - May 2026"
-content: "Edition summary"
-date: "2026-05-05"
----
-```
-
-Edition-owned snapshots live in:
+Editions live in:
 
 ```text
 apps/astro/src/content/editions/
-├── 2025-09/
-│   ├── index.mdx
-│   └── blips/
-└── 2026-05/
-    ├── index.mdx
-    └── blips/
+```
+
+Each edition snapshot is represented by an `index.mdx` document with metadata
+such as:
+
+```yaml
+---
+id: "2026-05"
+number: 6
+title: "Tech Radar Edition 6 - May 2026"
+content: "Pilot edition snapshot used to derive movement from adjacent edition state."
+date: "2026-05-05"
+---
 ```
 
 Each edition snapshot folder contains:
@@ -282,19 +280,25 @@ edition instead of treating them as globally timeless facts.
 
 Current behavior:
 
-- the radar homepage prefers edition-owned snapshots from `src/content/editions/`
+- the radar homepage reads edition-owned snapshots from `src/content/editions/`
+- the edition landing pages under `/edition/[edition]` read snapshot `index.mdx` files only
+- the site generates both canonical routes and edition-specific routes for blips and quadrants
+- canonical quadrant pages use the latest edition snapshot when one exists
+- canonical blip pages use the latest edition snapshot when the requested blip exists there
 - movement is derived by comparing adjacent edition snapshots
-- if no snapshot editions exist, the app still falls back to the legacy
-  `src/content/edition/` + blip `move` date model
 - some detail/history views still read legacy `ring` and `move` data from the
   canonical blip model
+- related blips resolve from edition snapshot metadata first and fall back gracefully when absent
 
 So the codebase is now **partially aligned** with the preferred edition model,
 but the migration is not fully complete yet.
 
-### Related blips roadmap
+The retired `src/content/edition/` folder is no longer used by the app runtime
+and can be deleted after content review.
 
-The intended direction for `relatedBlips` is:
+### Related blips workflow
+
+The current direction for `relatedBlips` is:
 
 - relationships shown on the radar should be **edition-owned facts** declared in
   `src/content/editions/*/blips/*.mdx`
@@ -302,7 +306,7 @@ The intended direction for `relatedBlips` is:
   authoring, not at runtime
 - humans remain the final reviewers of every relationship written to content
 
-Planned Flue-assisted workflow:
+Implemented workflow:
 
 1. Flue reads the candidate edition blips, their rings, quadrants, ADR signals,
    notes, and any existing relationship graph.
@@ -312,17 +316,23 @@ Planned Flue-assisted workflow:
    - a short `reason`
    - optional `context`
    - whether the link should be `bidirectional`
-3. The proposal is written back as reviewable MDX changes inside the edition
-   snapshot, not as hidden runtime state.
-4. Editors review, trim, rewrite, or reject those suggestions before publish.
+3. A deterministic merge layer validates ids, rejects duplicates, enforces
+  confidence thresholds, and limits accepted relationships per source blip.
+4. Accepted proposals are written back as reviewable MDX changes inside the
+  edition snapshot, not as hidden runtime state.
+5. Editors review, trim, rewrite, or reject those suggestions before publish.
+6. The GitHub Actions workflow at `.github/workflows/draft-related-blips.yml`
+  can upload review artifacts and open a draft PR automatically when changes exist.
+
+Current repository entry points:
+
+- local Flue run: `bun run flue:run:relationships`
+- deterministic generator: `bun run generate:relationships`
+- CI/draft PR automation: `.github/workflows/draft-related-blips.yml`
 
 Near-term roadmap:
 
-- seed a small set of high-value relationships in each edition snapshot
-- teach Flue to suggest relationship candidates from edition context
 - add consistency checks for missing reciprocal links and broken target IDs
-- generate lightweight review summaries so editors can audit why a relationship
-  was suggested
 - eventually let Flue refresh relationship drafts when a new edition is created
   or copied forward
 

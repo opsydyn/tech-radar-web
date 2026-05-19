@@ -110,8 +110,16 @@ export const topNavArea = style({
 	zIndex: 200,
 	"@media": {
 		"screen and (max-width: 960px)": {
+			width: "min(32rem, calc(100vw - 4.5rem))",
 			flexWrap: "wrap",
 			alignItems: "stretch",
+			rowGap: "0.75rem",
+		},
+		"screen and (max-width: 768px)": {
+			flexDirection: "column",
+			alignItems: "stretch",
+			gap: "0.75rem",
+			width: "min(20rem, calc(100vw - 4.5rem))",
 		},
 	},
 });
@@ -122,6 +130,12 @@ export const topNavControlsSlot = style({
 	justifyContent: "flex-end",
 	minWidth: 0,
 	marginRight: "0.3rem",
+	"@media": {
+		"screen and (max-width: 768px)": {
+			width: "100%",
+			marginRight: 0,
+		},
+	},
 });
 
 // Global styles for body

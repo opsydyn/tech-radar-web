@@ -166,14 +166,6 @@ const blipCollection = defineCollection({
 	schema: BlipSchema,
 });
 
-const editionCollection = defineCollection({
-	loader: glob({
-		base: "./src/content/edition",
-		pattern: "**/*.{md,mdx}",
-	}),
-	schema: EditionSchema,
-});
-
 const editionSnapshotCollection = defineCollection({
 	loader: glob({
 		base: "./src/content/editions",
@@ -192,7 +184,6 @@ const editionBlipSnapshotCollection = defineCollection({
 
 export const collections = {
 	blip: blipCollection,
-	edition: editionCollection,
 	editionSnapshot: editionSnapshotCollection,
 	editionBlipSnapshot: editionBlipSnapshotCollection,
 };

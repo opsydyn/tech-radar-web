@@ -16,13 +16,17 @@ type RenderableEditionEntry = Parameters<typeof render>[0] & {
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
-	const editions = (await getCollection("edition")) as RenderableEditionEntry[];
+	const editions = (await getCollection(
+		"editionSnapshot",
+	)) as RenderableEditionEntry[];
 	return editions.map(({ data }) => ({
 		params: { edition: data.id },
 	}));
 };
 
-const editions = (await getCollection("edition")) as RenderableEditionEntry[];
+const editions = (await getCollection(
+	"editionSnapshot",
+)) as RenderableEditionEntry[];
 
 const { edition } = Astro.params;
 const editionEntry =

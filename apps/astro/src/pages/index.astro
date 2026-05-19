@@ -32,17 +32,6 @@ const blips: Blip[] = blipCollection.map(({ data }: { data: Blip }) => {
 	};
 });
 
-// Legacy editions still support the current move-date model while the
-// edition-owned snapshot model is rolled in incrementally.
-const editionCollection = await getCollection("edition");
-const legacyEditions = editionCollection
-	.map(({ data }) => {
-		const result = createEdition(data.number, data.title, data.date, data.id);
-		return result.isOk ? result.value : null;
-	})
-	.filter((e): e is NonNullable<typeof e> => e !== null)
-	.sort((a, b) => b.number - a.number); // Most recent first
-
 const editionSnapshotCollection = await getCollection("editionSnapshot");
 const editionBlipSnapshotCollection = await getCollection(
 	"editionBlipSnapshot",
@@ -63,8 +52,7 @@ const snapshotEditions = snapshotEditionViews
 		return result.isOk ? result.value : null;
 	})
 	.filter((e): e is NonNullable<typeof e> => e !== null);
-const hasSnapshotEditions = snapshotEditionViews.length > 0;
-const editions = hasSnapshotEditions ? snapshotEditions : legacyEditions;
+const editions = snapshotEditions;
 ---
 
 <Layout>
@@ -72,11 +60,7 @@ const editions = hasSnapshotEditions ? snapshotEditions : legacyEditions;
 	<div slot="center" class:list={[styles.flexContainer]}>
 		<RadarSidebar editions={editions} />
 		<div class:list={[styles.chartSection]}>
-			<Radar
-				editions={editions}
-				editionViews={hasSnapshotEditions ? snapshotEditionViews : undefined}
-				client:load
-			/>
+			<Radar editions={editions} editionViews={snapshotEditionViews} client:load />
 		</div>
 	</div>
 </Layout>

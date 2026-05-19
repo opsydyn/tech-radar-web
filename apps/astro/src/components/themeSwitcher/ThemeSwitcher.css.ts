@@ -6,40 +6,45 @@ const breakpoint = "768px";
 
 export const themeButtons = style({
 	position: "static",
+	zIndex: 200,
 	display: "flex",
-	gap: "0.8rem",
-	padding: "0.6rem 0.5rem",
 	alignItems: "center",
-	background: "rgba(30, 30, 30, 0.85)",
+	gap: "0.8rem",
+	backdropFilter: "blur(10px)",
+	border: "1px solid rgba(100, 100, 255, 0.2)",
 	borderRadius: hardEdgeRadius,
 	boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
-	border: "1px solid rgba(100, 100, 255, 0.2)",
-	backdropFilter: "blur(10px)",
-	zIndex: 200,
+	background: "rgba(30, 30, 30, 0.85)",
+	padding: "0.6rem 0.5rem",
 	selectors: {
 		'[data-theme="light"] &': {
-			background: "rgba(255, 255, 255, 0.92)",
 			border: "1px solid rgba(0, 0, 0, 0.12)",
 			boxShadow: "0 2px 8px rgba(0, 0, 0, 0.12)",
+			background: "rgba(255, 255, 255, 0.92)",
 		},
 		'[data-theme="machine"] &': {
-			background: "rgba(14, 17, 24, 0.92)",
 			border: "1px solid rgba(158, 255, 166, 0.22)",
 			boxShadow: "0 2px 8px rgba(0, 0, 0, 0.28)",
+			background: "rgba(14, 17, 24, 0.92)",
+		},
+	},
+	"@media": {
+		[`(max-width: ${breakpoint})`]: {
+			marginLeft: "auto",
 		},
 	},
 });
 
 export const themeBtn = style({
-	background: "none",
-	border: "none",
-	cursor: "pointer",
-	padding: "0.2rem",
-	borderRadius: hardEdgeRadius,
 	display: "flex",
 	alignItems: "center",
 	justifyContent: "center",
 	transition: "background 0.2s",
+	border: "none",
+	borderRadius: hardEdgeRadius,
+	background: "none",
+	cursor: "pointer",
+	padding: "0.2rem",
 	selectors: {
 		"&:hover": {
 			background: "rgba(255,255,255,0.08)",
@@ -69,12 +74,12 @@ export const themeBtn = style({
 });
 
 export const themeIcon = style({
+	display: "block",
+	pointerEvents: "none",
 	width: "22px",
 	height: "22px",
 	fill: "#fff",
 	stroke: "#fff",
-	display: "block",
-	pointerEvents: "none",
 	selectors: {
 		'[data-theme="light"] &': {
 			fill: "rgba(0, 0, 0, 0.78)",
@@ -88,15 +93,17 @@ export const themeIcon = style({
 });
 
 export const desktopSwitchers = style({
+	zIndex: 200,
 	display: "flex",
 	flexDirection: "row",
 	alignItems: "center",
 	justifyContent: "center",
 	padding: "0",
-	zIndex: 200,
+	minWidth: 0,
 	"@media": {
 		[`(max-width: ${breakpoint})`]: {
-			display: "none",
+			justifyContent: "flex-end",
+			width: "100%",
 		},
 	},
 });

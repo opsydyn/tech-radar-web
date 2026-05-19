@@ -88,17 +88,21 @@ export const quadrantNav = style({
 	overflowX: "auto",
 	"@media": {
 		"screen and (max-width: 768px)": {
+			display: "grid",
+			gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
 			width: "100%",
 			gap: "0.5rem",
-			overflowX: "auto",
-			scrollbarWidth: "none",
-			msOverflowStyle: "none",
+			overflowX: "visible",
 		},
 	},
 });
 
 export const quadrantNavItem = style({
 	fontFamily: "'IBM Plex Mono', monospace !important",
+	display: "inline-flex",
+	alignItems: "center",
+	justifyContent: "center",
+	minWidth: 0,
 	padding: "0.75rem 1.25rem",
 	borderRadius: hardEdgeRadius,
 	textDecoration: "none !important",
@@ -114,9 +118,12 @@ export const quadrantNavItem = style({
 	outlineOffset: "2px",
 	"@media": {
 		"screen and (max-width: 768px)": {
-			padding: "0.625rem 1rem",
+			padding: "0.75rem 0.85rem",
 			fontSize: "0.8125rem",
-			flex: "1",
+			minHeight: "4rem",
+			whiteSpace: "normal",
+			lineHeight: 1.25,
+			flex: "none",
 			textAlign: "center",
 		},
 	},

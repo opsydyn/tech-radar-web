@@ -130,6 +130,18 @@ export const fullBleed = style({
 	},
 });
 
+export const heroBleed = style([
+	fullBleed,
+	{
+		"@layer": {
+			[layers.layout]: {
+				paddingTop: 0,
+				paddingBottom: 0,
+			},
+		},
+	},
+]);
+
 // Dark theme styles for fullBleed
 globalStyle(`html[data-theme="dark"] .${fullBleed}`, {
 	backgroundColor: darkThemeVars.color.background,
@@ -145,12 +157,15 @@ export const heroSection = style([
 				boxSizing: "border-box",
 				width: "calc(100% - 4rem)",
 				maxWidth: "100%",
+				display: "grid",
+				gap: "1rem",
 			},
 		},
 		"@media": {
 			"screen and (max-width: 768px)": {
-				padding: "5rem 1rem 3rem",
+				padding: "2rem 1rem 1.5rem",
 				width: "calc(100% - 2rem)",
+				gap: "0.75rem",
 			},
 		},
 	},
@@ -162,7 +177,16 @@ export const heroTitle = style([
 		"@layer": {
 			[layers.hero]: {
 				color: "#fff",
+				margin: 0,
+				lineHeight: 0.92,
+				overflowWrap: "anywhere",
 				textShadow: "0 2px 10px rgba(0,0,0,0.2)",
+			},
+		},
+		"@media": {
+			"screen and (max-width: 768px)": {
+				fontSize: "clamp(2.5rem, 11vw, 3.75rem)",
+				lineHeight: 0.9,
 			},
 		},
 	},
@@ -175,7 +199,16 @@ export const heroDate = style([
 			[layers.hero]: {
 				color: "#fff",
 				opacity: 0.9,
-				marginTop: "1rem",
+				marginTop: 0,
+				maxWidth: "32ch",
+				lineHeight: 1.45,
+			},
+		},
+		"@media": {
+			"screen and (max-width: 768px)": {
+				fontSize: "clamp(0.95rem, 4.3vw, 1.1rem)",
+				letterSpacing: "0.03em",
+				maxWidth: "18ch",
 			},
 		},
 	},

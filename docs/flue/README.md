@@ -1,6 +1,6 @@
 # Flue documentation
 
-This documentation set covers the Flue-powered edition agent in `tooling/tech-radar-edition-agent`.
+This documentation set covers the Flue-powered edition and related-blips drafting workflows in `tooling/tech-radar-edition-agent`.
 
 It follows the [Diátaxis](https://diataxis.fr/) model so each document has one clear job:
 
@@ -11,14 +11,20 @@ It follows the [Diátaxis](https://diataxis.fr/) model so each document has one 
 
 ## What this Flue package does
 
-The current Flue slice is a **tech radar edition generator**.
+The current Flue slice is a **tech radar edition generator plus relationship draft curator**.
 
 It is designed to:
 
 - compose free-text edition narrative content
 - keep edition metadata deterministic
 - preserve explicit AI provenance in the result
+- propose reviewable `relatedBlips` edits for edition snapshot content
+- generate relationship review artifacts for local runs and CI
 - run locally and in CI with `--target node`
+
+The documentation set is still centered on the edition authoring flow. The
+related-blips draft flow is implemented and in active use, but its dedicated
+how-to/reference docs are still catching up.
 
 ## Documentation map
 
@@ -54,12 +60,16 @@ It is designed to:
     └── tech-radar-edition-agent/
         ├── .flue/
         │   ├── agents/
-        │   │   └── edition.ts
+        │   │   ├── edition.ts
+        │   │   └── relationships.ts
         │   └── roles/
-        │       └── project-librarian.md
+        │       ├── project-librarian.md
+        │       └── relationship-curator.md
         ├── .agents/
         │   └── skills/
-        │       └── compose-edition/
+        │       ├── compose-edition/
+        │       │   └── SKILL.md
+        │       └── propose-related-blips/
         │           └── SKILL.md
         ├── FLUE_KNOWLEDGE_BASE.md
         └── package.json
@@ -71,3 +81,7 @@ It is designed to:
 - If you already know the workflow and just need a command, use the how-to.
 - If you need exact paths, scripts, or payload fields, use the reference.
 - If you are deciding whether to change the architecture, read the explanation first.
+- If you need to draft related blips today, use the relationship scripts in
+  `tooling/tech-radar-edition-agent/package.json` and the GitHub Actions
+  workflow at `../../.github/workflows/draft-related-blips.yml` while the docs
+  set catches up.
