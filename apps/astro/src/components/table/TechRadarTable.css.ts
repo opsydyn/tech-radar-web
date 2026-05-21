@@ -427,7 +427,7 @@ export const ringBadge = styleVariants({
 			},
 		},
 	],
-	Hold: [
+	Caution: [
 		badge,
 		{
 			background: "rgba(255, 51, 119, 0.12)",

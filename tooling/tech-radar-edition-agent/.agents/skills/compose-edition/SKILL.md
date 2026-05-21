@@ -52,7 +52,7 @@ Return fields matching the result schema exactly:
 - `highlights`: 3 to 6 bullet-friendly strings
 - `librarianSummary`: 1 to 2 short paragraphs
 - `viewsSummary`: 1 short paragraph
-- `recommendationsSummary`: 1 to 3 short paragraphs, optionally with inline labels like Adopt, Trial, Assess, Hold
+- `recommendationsSummary`: 1 to 3 short paragraphs, optionally with inline labels like Adopt, Trial, Assess, Caution
 - `newEntriesSummary`: 1 short paragraph
 - `movedOutSummary`: 1 short paragraph
 - `conclusion`: 1 short paragraph

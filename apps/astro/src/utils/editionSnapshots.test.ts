@@ -47,6 +47,15 @@ describe("deriveEditionMovement", () => {
 		expect(movement).toBe("moved-out");
 	});
 
+	it("treats Caution as the outermost ring when deriving movement", () => {
+		const movement = deriveEditionMovement({
+			current: { blipId: "33", ring: "Caution", status: "active" },
+			previous: { blipId: "33", ring: "Assess", status: "active" },
+		});
+
+		expect(movement).toBe("moved-out");
+	});
+
 	it("marks a blip as unchanged when the ring is stable", () => {
 		const movement = deriveEditionMovement({
 			current: { blipId: "43", ring: "Adopt", status: "active" },

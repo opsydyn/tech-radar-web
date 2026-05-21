@@ -76,7 +76,7 @@ const ringRank: Record<Ring, number> = {
 	Adopt: 1,
 	Trial: 2,
 	Assess: 3,
-	Hold: 4,
+	Caution: 4,
 };
 
 const isActiveSnapshot = (

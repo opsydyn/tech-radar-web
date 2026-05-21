@@ -9,7 +9,7 @@ const QuadrantEnum = z.enum([
 	"languages-frameworks",
 ]);
 
-const RingEnum = z.enum(["Adopt", "Trial", "Assess", "Hold"]);
+const RingEnum = z.enum(["Adopt", "Trial", "Assess", "Caution"]);
 
 const TagsEnum = z.enum([
 	"Database",

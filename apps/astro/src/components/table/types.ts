@@ -5,7 +5,7 @@ import type {
 } from "@tanstack/react-table";
 
 type Quadrant = "Tools" | "Techniques" | "Platforms" | "languages-frameworks";
-type Ring = "Adopt" | "Trial" | "Assess" | "Hold";
+type Ring = "Adopt" | "Trial" | "Assess" | "Caution";
 type Tags = string;
 
 export type Blip = {

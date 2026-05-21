@@ -18,7 +18,7 @@ const ringStatus = {
 	Adopt: 1,
 	Trial: 2,
 	Assess: 3,
-	Hold: 4,
+	Caution: 4,
 } as const;
 
 // Pure function to convert polar to cartesian coordinates
@@ -303,7 +303,7 @@ const useBlipPositions = (blips: Blip[]) => {
 				Adopt: 0,
 				Trial: 1,
 				Assess: 2,
-				Hold: 3,
+				Caution: 3,
 			};
 
 			const defaultPriority = 9999;
