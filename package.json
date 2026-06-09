@@ -33,7 +33,7 @@
     "commitizen": "^4.3.0",
     "cz-emoji-conventional": "^1.0.2",
     "knip": "^6.11.0",
-    "vitest": "^0.34.6"
+    "vitest": "^4.1.8"
   },
   "engines": {
     "node": "22.12.0"
