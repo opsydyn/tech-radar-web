@@ -4,7 +4,7 @@ import {
 	style,
 	styleVariants,
 } from "@vanilla-extract/css";
-import { darkThemeVars, lightThemeVars } from "../styles/theme.css";
+import { darkThemeVars, hardEdgeRadius, lightThemeVars } from "../styles/theme.css";
 
 export const root = style({
 	fontFamily: "monospace",
@@ -89,12 +89,31 @@ export const sidebar = style({
 });
 
 export const radarIcon = style({
-	padding: "1rem",
-	// position: 'fixed',
-	// top: '0.5rem',
-	// left: '1rem',
-	// display: 'flex',
-	// zIndex: 1000,
+	position: "fixed",
+	top: "1rem",
+	left: "1rem",
+	display: "flex",
+	alignItems: "center",
+	justifyContent: "center",
+	zIndex: 200,
+	padding: "0.6rem 0.5rem",
+	backdropFilter: "blur(10px)",
+	border: "1px solid rgba(100, 100, 255, 0.2)",
+	borderRadius: hardEdgeRadius,
+	boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
+	background: "rgba(30, 30, 30, 0.85)",
+	selectors: {
+		'[data-theme="light"] &': {
+			border: "1px solid rgba(0, 0, 0, 0.12)",
+			boxShadow: "0 2px 8px rgba(0, 0, 0, 0.12)",
+			background: "rgba(255, 255, 255, 0.92)",
+		},
+		'[data-theme="machine"] &': {
+			border: "1px solid rgba(158, 255, 166, 0.22)",
+			boxShadow: "0 2px 8px rgba(0, 0, 0, 0.28)",
+			background: "rgba(14, 17, 24, 0.92)",
+		},
+	},
 });
 
 export const topNavArea = style({
