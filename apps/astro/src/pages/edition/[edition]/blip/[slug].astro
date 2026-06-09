@@ -139,10 +139,6 @@ const fallbackRelatedBlips =
 	enrichedRelatedBlips.length === 0
 		? [...(relatedBlipsContext?.fallbackBlips ?? [])]
 		: [];
-const quadrantColorValue = getQuadrantColor(blipData?.quadrant);
-const quadrantColorSolidValue = getQuadrantColorSolid(blipData?.quadrant);
-const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
-const editionSubtitle = editionEntry?.data.title ?? currentEditionId;
 const quadrantBackLink =
 	blipData?.quadrant && currentEditionId
 		? getQuadrantPath(blipData.quadrant, { editionId: currentEditionId })
@@ -150,6 +146,10 @@ const quadrantBackLink =
 			? `/?edition=${currentEditionId}`
 			: "/";
 const quadrantBackText = blipData?.quadrant ?? "Back to Radar";
+const quadrantColorValue = getQuadrantColor(blipData?.quadrant);
+const quadrantColorSolidValue = getQuadrantColorSolid(blipData?.quadrant);
+const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
+const editionSubtitle = editionEntry?.data.title ?? currentEditionId;
 ---
 
 <BlipLayout>

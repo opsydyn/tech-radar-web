@@ -1,5 +1,4 @@
 ---
-import RadarIcon from "~assets/svg/radar.svg";
 import ThemeSwitcher from "~components/themeSwitcher/ThemeSwitcher.astro";
 import {
 	themeHeadBootstrapScript,
@@ -7,12 +6,14 @@ import {
 } from "~stores/theme-shared";
 import { withBasePath } from "~utils/sitePaths";
 import * as styles from "./Layout.css";
+import { animationEnabled } from "../stores/animation-store";
 
+const isAnimationsEnabled = animationEnabled.get();
 const faviconPath = withBasePath("/favicon.svg");
 const homePath = withBasePath("/");
 ---
 
-<html lang="en">
+<html lang="en" class={isAnimationsEnabled ? "" : "animations-disabled"}>
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href={faviconPath} />
@@ -26,7 +27,7 @@ const homePath = withBasePath("/");
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;700&display=optional" rel="stylesheet">
   </head>
   <body>
-    <a class:list={[styles.radarIcon]} href={homePath}><RadarIcon  width={24} height={24} /></a>
+    <a class:list={[styles.radarIcon]} id="site-logo" href={homePath}><img src={withBasePath("/icon.png")} width={50} height={50} alt="Tech Radar" /></a>
     <div class={styles.topNavArea}>
 			<ThemeSwitcher />
 		</div>
@@ -35,3 +36,19 @@ const homePath = withBasePath("/");
     </main>
   </body>
 </html>
+
+<script>
+  import { animationEnabled } from "../stores/animation-store";
+
+  function updateAnimationState(enabled: boolean) {
+    const htmlElement = document.documentElement;
+    if (enabled) {
+      htmlElement.classList.remove('animations-disabled');
+    } else {
+      htmlElement.classList.add('animations-disabled');
+    }
+  }
+
+  updateAnimationState(animationEnabled.get());
+  animationEnabled.listen(updateAnimationState);
+</script>

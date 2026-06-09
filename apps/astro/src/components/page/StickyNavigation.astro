@@ -67,7 +67,7 @@ const quadrantTabLinks = [
         ))}
       </div>
     </div>
-    
+
     {quadrantLinks && (
       <>
         {quadrantTabLinks.map((tab) => (
@@ -80,67 +80,41 @@ const quadrantTabLinks = [
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const setupSmoothScrolling = () => {
-      const HEADER_OFFSET = 70;
-      
-      const scrollToElement = (element: HTMLElement): void => {
-        window.scrollTo({
-          top: element.offsetTop - HEADER_OFFSET,
-          behavior: 'smooth'
-        });
-      };
-      
-      const updateHistory = (targetId: string): void => {
-        history.pushState(null, '', targetId);
-      };
-      
-      const handleAnchorClick = (anchor: HTMLAnchorElement) => (e: MouseEvent): void => {
+    const HEADER_OFFSET = 70;
+    const navContainer = document.getElementById('navContainer') as HTMLElement | null;
+    const logo = document.getElementById('site-logo') as HTMLElement | null;
+
+    // Smooth scroll for anchor links
+    const anchors = document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]');
+    anchors.forEach(anchor => {
+      anchor.addEventListener('click', (e: MouseEvent) => {
         e.preventDefault();
-        
         const targetId = anchor.getAttribute('href');
         if (!targetId) return;
-        
-        const targetElement = document.querySelector(targetId) as HTMLElement | null;
-        if (!targetElement) return;
-        
-        scrollToElement(targetElement);
-        updateHistory(targetId);
-      };
-      
-      const anchors = document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]');
-      anchors.forEach(anchor => {
-        anchor.addEventListener('click', handleAnchorClick(anchor));
+        const target = document.querySelector(targetId) as HTMLElement | null;
+        if (!target) return;
+        window.scrollTo({ top: target.offsetTop - HEADER_OFFSET, behavior: 'smooth' });
+        history.pushState(null, '', targetId);
       });
-    };
-    
-    const setupStickyNavigation = () => {
-      const navContainer = document.getElementById('navContainer') as HTMLElement | null;
-      
-      if (!navContainer) return;
-      
-      const navPosition = navContainer.offsetTop;
-      
-      const addStickyClass = (): void => {
-        navContainer.classList.add('sticky');
-        document.body.style.paddingTop = `${navContainer.offsetHeight}px`;
+    });
+
+    // Sticky nav + logo fade
+    if (navContainer) {
+      const navNaturalTop = navContainer.offsetTop;
+
+      const update = (): void => {
+        const isStuck = window.scrollY >= navNaturalTop;
+        navContainer.classList.toggle('sticky', isStuck);
+        document.body.style.paddingTop = isStuck ? `${navContainer.offsetHeight}px` : '0';
+        if (logo) {
+          logo.style.opacity = isStuck ? '0' : '1';
+          logo.style.pointerEvents = isStuck ? 'none' : '';
+        }
       };
-      
-      const removeStickyClass = (): void => {
-        navContainer.classList.remove('sticky');
-        document.body.style.paddingTop = '0';
-      };
-      
-      const handleScroll = (): void => {
-        const isScrolledPastNav = window.scrollY >= navPosition;
-        isScrolledPastNav ? addStickyClass() : removeStickyClass();
-      };
-      
-      window.addEventListener('scroll', handleScroll);
-      handleScroll();
-    };
-    
-    setupSmoothScrolling();
-    setupStickyNavigation();
+
+      window.addEventListener('scroll', update, { passive: true });
+      update();
+    }
   });
 </script>
 

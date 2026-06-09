@@ -75,45 +75,6 @@ const editionColorValue = "#4CAF50"; // Green color for editions
       </article>
     </div>
 
-    <script is:inline>
-      document.addEventListener('DOMContentLoaded', function() {
-        // Smooth scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
-          anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-
-            const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-
-            if (targetElement) {
-              window.scrollTo({
-                top: targetElement.offsetTop - 70,
-                behavior: 'smooth'
-              });
-
-              history.pushState(null, null, targetId);
-            }
-          });
-        });
-
-        // Simple sticky navigation
-        const navContainer = document.getElementById('navContainer');
-        const navPosition = navContainer.offsetTop;
-
-        function handleScroll() {
-          if (window.scrollY >= navPosition) {
-            navContainer.classList.add('sticky');
-            document.body.style.paddingTop = navContainer.offsetHeight + 'px';
-          } else {
-            navContainer.classList.remove('sticky');
-            document.body.style.paddingTop = '0';
-          }
-        }
-
-        window.addEventListener('scroll', handleScroll);
-        handleScroll(); // Initial check
-      });
-    </script>
 
     <style>
       .edition-content {
@@ -180,18 +141,6 @@ const editionColorValue = "#4CAF50"; // Green color for editions
   </div>
 </BlipLayout>
 
-<style>
-  .sticky {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    background: #111;
-    width: 100%;
-  }
-</style>
 
 <script>
   // Add IDs to section headings for navigation

@@ -150,16 +150,17 @@ const fallbackRelatedBlips =
 		? [...(relatedBlipsContext?.fallbackBlips ?? [])]
 		: [];
 
-// Get the quadrant colors for styling
-const quadrantColorValue = getQuadrantColor(blipData?.quadrant);
-const quadrantColorSolidValue = getQuadrantColorSolid(blipData?.quadrant);
-const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
 const quadrantBackLink = blipData?.quadrant
 	? getQuadrantPath(
 			blipData.quadrant,
 			currentEditionId ? { editionId: currentEditionId } : undefined,
 		)
 	: "/";
+
+// Get the quadrant colors for styling
+const quadrantColorValue = getQuadrantColor(blipData?.quadrant);
+const quadrantColorSolidValue = getQuadrantColorSolid(blipData?.quadrant);
+const quadrantColorDarkValue = getQuadrantColorDark(blipData?.quadrant);
 ---
 
 <BlipLayout>

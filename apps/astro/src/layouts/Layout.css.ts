@@ -4,7 +4,11 @@ import {
 	style,
 	styleVariants,
 } from "@vanilla-extract/css";
-import { darkThemeVars, hardEdgeRadius, lightThemeVars } from "../styles/theme.css";
+import {
+	darkThemeVars,
+	hardEdgeRadius,
+	lightThemeVars,
+} from "../styles/theme.css";
 
 export const root = style({
 	fontFamily: "monospace",
@@ -96,7 +100,8 @@ export const radarIcon = style({
 	alignItems: "center",
 	justifyContent: "center",
 	zIndex: 200,
-	padding: "0.1rem 0.4rem",
+	padding: "0.45rem 0.5rem",
+	transition: "opacity 0.2s ease",
 	backdropFilter: "blur(10px)",
 	border: "1px solid rgba(100, 100, 255, 0.2)",
 	borderRadius: hardEdgeRadius,
